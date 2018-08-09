@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='ORCA',
-    description='',
+    description='Core functionality and class interfaces of ORCA.',
     version='0.1',
     packages=['orca'],
     license='MIT',

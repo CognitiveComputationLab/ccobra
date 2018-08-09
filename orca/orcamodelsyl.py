@@ -2,9 +2,9 @@
 
 """
 
-from orcacore import OrcaModel
+from .orcamodel import OrcaModel
 
-class OrcaSylModel(OrcaModel):
+class OrcaModelSyl(OrcaModel):
     """ Base class for syllogistic models.
 
     """
@@ -20,7 +20,7 @@ class OrcaSylModel(OrcaModel):
 
         """
 
-        super(OrcaSylModel, self).__init__(name=name, domain='Syllogistic')
+        super(OrcaModelSyl, self).__init__(name=name, domain='Syllogistic')
 
     def start_participant(self, **kwargs):
         """ Model initialization method. Used to setup the initial state of its

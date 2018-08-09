@@ -4,9 +4,9 @@
 
 import numpy as np
 
-from ._base import OrcaSylModel
+from orca import OrcaModelSyl
 
-class Random(OrcaSylModel):
+class Random(OrcaModelSyl):
     """ Model producing randomly generated responses.
 
     """
