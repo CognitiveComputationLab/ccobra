@@ -14,6 +14,13 @@ $> cd /path/to/repository/
 $> python setup.py develop|install [--user]
 ```
 
+#### Uninstallation
+
+```
+$> cd /path/to/repository
+$> python setup.py develop [--user] --uninstall
+```
+
 ## First Steps
 
 #### Executing the Examples
