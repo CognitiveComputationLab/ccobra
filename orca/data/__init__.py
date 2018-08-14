@@ -1,13 +1,12 @@
-""" ORCA data containers for syllogistic data.
-
-The :mod:`orca.data.syllogistic` module contains the following classes:
+""" ORCA data containers.
 
 .. autosummary::
    :toctree: _autosummary
 
-   orca.data.syllogistic.encoding
-   orca.data.syllogistic.syldata
-   orca.data.syllogistic.syllogisms
+   orca.data.encoding
+   orca.data.orcadata
+   orca.data.syldata
+   orca.data.syllogisms
 
 """
 

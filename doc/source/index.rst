@@ -7,14 +7,13 @@ Welcome to ORCA's documentation!
 ================================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :caption: Contents
+   :hidden:
 
+   usage/tutorial.rst
+   usage/installation.rst
 
+.. autosummary::
+   :toctree: _autosummary
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   orca
