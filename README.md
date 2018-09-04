@@ -1,5 +1,7 @@
 # Online Reasoning for Cognition Analysis (ORCA) Framework
 
+[![GitHub License](https://img.shields.io/github/license/CognitiveComputationLab/orca.svg)](https://github.com/CognitiveComputationLab/orca/blob/master/LICENSE)
+
 ## Dependencies
 
 - Python 3
