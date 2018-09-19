@@ -13,7 +13,7 @@ from models.atmosphere import Atmosphere
 
 # Load the dataset
 raw_df = pd.read_csv('Ragni2016.csv')
-syl_df = orca.data.RawSylData(raw_df)
+syl_df = orca.syllogistic.RawSylData(raw_df)
 print(syl_df.get().head())
 
 # Setup the simulation

@@ -4,7 +4,7 @@
 
 import numpy as np
 
-from orca import OrcaModelSyl
+from orca.syllogistic import OrcaModelSyl
 
 class Random(OrcaModelSyl):
     """ Model producing randomly generated responses.

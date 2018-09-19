@@ -4,7 +4,7 @@
 
 import numpy as np
 
-from orca import OrcaModelSyl
+from orca.syllogistic import OrcaModelSyl
 
 def atmosphere_predictions(premises):
     """ Produces atmosphere predictions to a given tuple of premises.
