@@ -10,8 +10,8 @@ Welcome to ORCA's documentation!
    :caption: Contents
    :hidden:
 
-   usage/tutorial.rst
    usage/installation.rst
+   usage/tutorial.rst
 
 .. autosummary::
    :toctree: _autosummary
