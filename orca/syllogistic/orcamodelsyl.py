@@ -2,7 +2,7 @@
 
 """
 
-from .orcamodel import OrcaModel
+from ..orcamodel import OrcaModel
 
 class OrcaModelSyl(OrcaModel):
     """ Base class for syllogistic models.

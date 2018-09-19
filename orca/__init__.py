@@ -3,15 +3,15 @@
 .. autosummary::
    :toctree: _autosummary
 
-   orca.data
+   orca.orcadata
    orca.orcamodel
-   orca.orcamodelsyl
    orca.simulation
+   orca.syllogistic
 
 """
 
-from . import data
+from . import syllogistic
 
+from .orcadata import OrcaData
 from .orcamodel import OrcaModel
-from .orcamodelsyl import OrcaModelSyl
 from .simulation import Simulation

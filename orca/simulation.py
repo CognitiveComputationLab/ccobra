@@ -7,7 +7,7 @@ import time
 
 import pandas as pd
 
-from .data.orcadata import RawData
+from .orcadata import RawData
 
 class Simulation(object):
     """ Class defining a simulation experiment for the ORCA framework. Provides
