@@ -32,7 +32,7 @@ computational foundation of model instances. The sole requirement is the
 ability to make predictions in response to tasks, an arguably trivial
 prerequisite.
 
-ORCA heralds the start of a new paradigm of cognitive modeling -- a perspective
+ORCA heralds the dawn of a new paradigm of cognitive modeling -- a perspective
 that is focused on prediction-based performance. Coupling the goal of achieving
 high predictive performance with rich possibilities to infer insight into
 the computational principles underlying model implementations, ORCA offers
@@ -69,9 +69,6 @@ Implementing models for ORCA is as easy as completing the following template:
             name : str
                 Unique name of the model. Will be used throughout the ORCA
                 framework as a means for identifying the model.
-
-            domain : str
-                Reasoning domain.
 
             """
 
