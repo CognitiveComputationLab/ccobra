@@ -2,7 +2,7 @@
 
 """
 
-class OrcaData(object):
+class OrcaData():
     """ Abstract base class for ORCA datasets.
 
     """
@@ -21,7 +21,7 @@ class OrcaData(object):
 
         raise NotImplementedError
 
-class RawData(object):
+class RawData():
     """ Interface label for raw datasets. Used for inheritance-based
     instance-checking magic.
 
