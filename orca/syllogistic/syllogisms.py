@@ -60,6 +60,27 @@ def get_responses():
     return _GLOBAL_RESPONSES
 
 def premise_text(quantifier, first, second):
+    """ Constructs the textual representation of a syllogistic premise from
+    a quantifier and two objects.
+
+    Parameters
+    ----------
+    quantifier : str
+        Syllogistic quantifier identifier (e.g., 'A').
+
+    first : str
+        First object.
+
+    second : str
+        Second object.
+
+    Returns
+    -------
+    str
+        Syllogistic premise text representation (e.g., 'All A are B').
+
+    """
+
     text = ''
     if quantifier == 'A':
         text = 'All {} are {}'
@@ -75,6 +96,26 @@ def premise_text(quantifier, first, second):
     return text.format(first, second)
 
 def syllog_text(task, placeholders):
+    """ Constructs the syllogistic task text from given task identifier and
+    object placeholders.
+
+    Parameters
+    ----------
+    task : str
+        Syllogistic task identifier (e.g., 'AA1').
+
+    placeholders : list(str)
+        Syllogistic terms (e.g., A, B, and C) to integrate into the response
+        text representation.
+
+    Returns
+    -------
+    str
+        Syllogistic task text with premises separated by semicolon (;). For
+        example: 'All A are B;All B are C'.
+
+    """
+
     figure = int(task[2])
 
     # Generate the task text
@@ -98,9 +139,28 @@ def syllog_text(task, placeholders):
     return '{};{}'.format(premise1, premise2)
 
 def response_text(response, placeholders):
+    """ Constructs the syllogistic response text from a response identifier
+    and set of placeholders.
+
+    Parameters
+    ----------
+    response : str
+        Response identifier string (e.g., 'Aac').
+
+    placeholders : list(str)
+        Syllogistic terms (e.g., A, B, and C) to integrate into the response
+        text representation.
+
+    Returns
+    -------
+    str
+        Syllogistic response text (e.g., 'All A are C').
+
+    """
+
     if response[2:] == 'ac':
         return premise_text(response[0], placeholders[0], placeholders[2])
-    elif response[2:] == 'ca':
+    if response[2:] == 'ca':
         return premise_text(response[0], placeholders[2], placeholders[0])
 
     return 'No Valid Conclusion'

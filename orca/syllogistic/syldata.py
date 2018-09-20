@@ -98,6 +98,8 @@ class EncSylData(SylData):
 
         """
 
+        super(EncSylData, self).__init__()
+
         if not isinstance(syldata, RawSylData):
             raise ValueError('Given data is not RawSylData.')
 

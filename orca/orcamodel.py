@@ -2,7 +2,7 @@
 
 """
 
-class OrcaModel(object):
+class OrcaModel():
     """ Base class for ORCA models.
 
     """

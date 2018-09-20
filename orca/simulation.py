@@ -9,7 +9,7 @@ import pandas as pd
 
 from .orcadata import RawData
 
-class Simulation(object):
+class Simulation():
     """ Class defining a simulation experiment for the ORCA framework. Provides
     facilities to evaluate a set of models based on a dataset consisting of
     sequential reasoning data.

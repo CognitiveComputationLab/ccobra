@@ -13,7 +13,7 @@ import numpy as np
 
 from .syllogisms import get_responses
 
-class SylEncoding(object):
+class SylEncoding():
     """ Base class for syllogistic encodings. Provides methods for encoding
     and decoding syllogistic tasks and responses.
 
@@ -475,8 +475,8 @@ class AtmosphereEncoding(SylEncoding):
 
         if np.all(prem == [0, 0]):
             return 'O'
-        elif np.all(prem == [0, 1]):
+        if np.all(prem == [0, 1]):
             return 'I'
-        elif np.all(prem == [1, 0]):
+        if np.all(prem == [1, 0]):
             return 'E'
         return 'A'
