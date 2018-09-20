@@ -53,78 +53,44 @@ Currently, the package contents are structured as followed:
 Developing a first Model
 ------------------------
 
-Implementing models for ORCA is as easy as completing the following template:
+Implementing models for ORCA is as easy as completing the following template
+from which only the ``predict`` method is mandatory:
 
 .. code-block:: python
     :linenos:
 
     import orca
 
-    class NVCModel(orca.syllogistic.OrcaModelSyl):
-        def __init__(self, name='NVCModel'):
+    class MyModel(orca.syllogistic.OrcaModelSyl):
+        def __init__(self, name='MyModel'):
             """ Model constructor.
 
-            Parameters
-            ----------
-            name : str
-                Unique name of the model. Will be used throughout the ORCA
-                framework as a means for identifying the model.
-
             """
-
-            super(NVCModel, self).__init__(name)
             ...
 
         def start_participant(self, **kwargs):
-            """ Model initialization method. Used to setup the initial state of its
-            datastructures, memory, etc.
+            """ Model initialization method. Used to setup the initial state of
+            its datastructures, memory, etc.
 
             """
-
             ...
 
         def pre_train(self, dataset):
             """ Pre-trains the model based on one or more datasets.
 
-            Parameters
-            ----------
-            dataset : :class:`orca.data.orcadata.RawData`
-                ORCA raw data container.
-
             """
-
             ...
 
         def predict(self, task, **kwargs):
             """ Predicts weighted responses to a given syllogism.
 
-            Parameters
-            ----------
-            task : str
-                Reasoning task to produce a prediction for.
-
-            Returns
-            -------
-            ndarray
-                Model prediction.
-
             """
-
             ...
 
         def adapt(self, task, target, **kwargs):
             """ Trains the model based on a given task-target combination.
 
-            Parameters
-            ----------
-            syllogism : str
-                Task to produce a response for.
-
-            target : str
-                True target answer.
-
             """
-
             ...
 
 The goal of this section is to develop a simple toy model in the domain of
