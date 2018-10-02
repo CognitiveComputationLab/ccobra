@@ -1,6 +1,6 @@
 # Cognitive COmputation for Behavioral Reasoning Analysis (CCOBRA) Framework
 
-[![GitHub License](https://img.shields.io/github/license/CognitiveComputationLab/CCOBRA.svg)](https://github.com/CognitiveComputationLab/CCOBRA/blob/master/LICENSE)
+[![GitHub license](https://img.shields.io/github/license/CognitiveComputationLab/ccobra.svg)](https://github.com/CognitiveComputationLab/ccobra/blob/master/LICENSE)
 
 ## Dependencies
 
