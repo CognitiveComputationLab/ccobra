@@ -6,14 +6,14 @@ or response identifiers).
 .. autosummary::
    :toctree: _autosummary
 
-   orca.syllogistic.encoding
-   orca.syllogistic.orcamodelsyl
-   orca.syllogistic.syldata
-   orca.syllogistic.syllogisms
+   ccobra.syllogistic.encoding
+   ccobra.syllogistic.sylmodel
+   ccobra.syllogistic.syldata
+   ccobra.syllogistic.syllogisms
 
 """
 
-from .encoding import AtmosphereEncoding, Dancoding, OnehotEncoding, SylEncoding
-from .orcamodelsyl import OrcaModelSyl
+from .encoding import AtmosphereEncoding, OnehotEncoding, SylEncoding
+from .sylmodel import SylModel
 from .syldata import EncSylData, RawSylData, SylData
 from .syllogisms import get_responses, get_syllogisms, premise_text, response_text, syllog_text

@@ -1,4 +1,4 @@
-""" Syllogistic example of the ORCA framework.
+""" Syllogistic example of the CCOBRA framework.
 
 """
 
@@ -6,18 +6,18 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-import orca
+import ccobra
 
 from models.random import Random
 from models.atmosphere import Atmosphere
 
 # Load the dataset
 raw_df = pd.read_csv('Ragni2016.csv')
-syl_df = orca.syllogistic.RawSylData(raw_df)
+syl_df = ccobra.syllogistic.RawSylData(raw_df)
 print(syl_df.get().head())
 
 # Setup the simulation
-sim = orca.Simulation(syl_df, None)
+sim = ccobra.Simulation(syl_df, None)
 
 # Add the models to be analyzed
 sim.add_model(Random())

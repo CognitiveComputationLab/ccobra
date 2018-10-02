@@ -8,13 +8,13 @@ Installation
 
 Installation instructions can be found in the section on :ref:`installation`.
 
-Introduction to ORCA
---------------------
+Introduction to CCOBRA
+----------------------
 
-ORCA's philosophy is based around the fact that models always attempt to solve
+CCOBRA's philosophy is based around the fact that models always attempt to solve
 specific modeling tasks, either explicitly or implicitly. Contrary to big parts
-of the current state of the art in cognitive modeling, ORCA focuses on making
-the processes underlying response generation explicit. To this end, ORCA
+of the current state of the art in cognitive modeling, CCOBRA focuses on making
+the processes underlying response generation explicit. To this end, CCOBRA
 mandates models to revolve around a single method ``predict(task)`` which asks
 for a single prediction in response to a presented ``task``.
 
@@ -23,7 +23,7 @@ always supposed to respond with *No valid response* indicating that no logical
 inference can be drawn in response to the given task. Consequently, its
 ``predict`` method will always return ``NVC``.
 
-The sheer simplicity of ORCA sets it apart from most contemporary modeling
+The sheer simplicity of CCOBRA sets it apart from most contemporary modeling
 approaches. Models are not required to adhere to rigorous Bayesian fundamentals
 nor computational logic calculi nor statistical effects extracted from years
 of psychological research. Instead, it encourages tackling core problems of
@@ -32,36 +32,36 @@ computational foundation of model instances. The sole requirement is the
 ability to make predictions in response to tasks, an arguably trivial
 prerequisite.
 
-ORCA heralds the dawn of a new paradigm of cognitive modeling -- a perspective
+CCOBRA heralds the dawn of a new paradigm of cognitive modeling -- a perspective
 that is focused on prediction-based performance. Coupling the goal of achieving
 high predictive performance with rich possibilities to infer insight into
-the computational principles underlying model implementations, ORCA offers
+the computational principles underlying model implementations, CCOBRA offers
 a modern toolset to aid computer scientists and cognitive scientists alike in
 their respective goals.
 
 Structure of the Package
 ------------------------
 
-The general structure of the ORCA package is to be considered unstable and
+The general structure of the CCOBRA package is to be considered unstable and
 non-final due to the relative youth of the project.
 
 Currently, the package contents are structured as followed:
 
-- ``orca``: The root namespace contains base classes and interfaces.
-- ``orca.syllogistic``: Syllogistic model interface and data handling routines.
+- ``ccobra``: The root namespace contains base classes and interfaces.
+- ``ccobra.syllogistic``: Syllogistic model interface and data handling routines.
 
 Developing a first Model
 ------------------------
 
-Implementing models for ORCA is as easy as completing the following template
+Implementing models for CCOBRA is as easy as completing the following template
 from which only the ``predict`` method is mandatory:
 
 .. code-block:: python
     :linenos:
 
-    import orca
+    import ccobra
 
-    class MyModel(orca.syllogistic.OrcaModelSyl):
+    class MyModel(ccobra.syllogistic.SylModel):
         def __init__(self, name='MyModel'):
             """ Model constructor.
 
@@ -100,9 +100,9 @@ This can be achieved by writing the following lines of code:
 .. code-block:: python
     :linenos:
 
-    import orca
+    import ccobra
 
-    class NVCModel(orca.syllogistic.OrcaModelSyl):
+    class NVCModel(ccobra.syllogistic.SylModel):
         def __init__(self, name='NVCModel'):
             super(NVCModel, self).__init__(name)
 
@@ -119,7 +119,7 @@ Evaluating the Model
 --------------------
 
 To evaluate the model, a ``.zip`` archive containing the ``model.py`` file can
-be uploaded to the `ORCA-Benchmark <http://orca.informatik.uni-freiburg.de/orca_sylwebsite/orca/>`_.
+be uploaded to the `CCOBRA-Benchmark <http://orca.informatik.uni-freiburg.de/orca_sylwebsite/orca/>`_.
 
 Alternatively, the benchmark script can be downloaded for local usage from its
 repository on `Github <https://github.com>`_.

@@ -1,14 +1,16 @@
-""" ORCA model interfaces.
+""" Syllogistic ORCA model base class implementation.
 
 """
 
-class OrcaModel():
-    """ Base class for ORCA models.
+from ..model import CCobraModel
+
+class SylModel(CCobraModel):
+    """ Base class for syllogistic models.
 
     """
 
-    def __init__(self, name, domain):
-        """ Base constructor of ORCA models.
+    def __init__(self, name='SylModel'):
+        """ Initializes the model with a given name.
 
         Parameters
         ----------
@@ -16,13 +18,9 @@ class OrcaModel():
             Unique name of the model. Will be used throughout the ORCA
             framework as a means for identifying the model.
 
-        domain : str
-            Reasoning domain.
-
         """
 
-        self.name = name
-        self.domain = domain
+        super(SylModel, self).__init__(name=name, domain='Syllogistic')
 
     def start_participant(self, **kwargs):
         """ Model initialization method. Used to setup the initial state of its
@@ -33,19 +31,19 @@ class OrcaModel():
 
         """
 
-        raise NotImplementedError()
+        pass
 
     def pre_train(self, dataset):
         """ Pre-trains the model based on one or more datasets.
 
         Parameters
         ----------
-        dataset : :class:`orca.data.orcadata.RawData`
-            ORCA raw data container.
+        dataset : :class:`ccobra.data.RawData`
+            CCOBRA raw data container.
 
         """
 
-        raise NotImplementedError()
+        pass
 
     def predict(self, task, **kwargs):
         """ Predicts weighted responses to a given syllogism.
@@ -77,4 +75,4 @@ class OrcaModel():
 
         """
 
-        raise NotImplementedError()
+        pass

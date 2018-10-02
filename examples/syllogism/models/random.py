@@ -4,9 +4,9 @@
 
 import numpy as np
 
-from orca.syllogistic import OrcaModelSyl
+from ccobra.syllogistic import SylModel
 
-class Random(OrcaModelSyl):
+class Random(SylModel):
     """ Model producing randomly generated responses.
 
     """
@@ -17,7 +17,7 @@ class Random(OrcaModelSyl):
         Parameters
         ----------
         name : str
-            Unique name of the model. Will be used throughout the ORCA
+            Unique name of the model. Will be used throughout the CCOBRA
             framework as a means for identifying the model.
 
         """

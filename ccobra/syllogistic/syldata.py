@@ -5,10 +5,10 @@
 import pandas as pd
 import numpy as np
 
-from ..orcadata import OrcaData, RawData
+from ..data import CCobraData, RawData
 from .syllogisms import get_responses, get_syllogisms
 
-class SylData(OrcaData):
+class SylData(CCobraData):
     """ Base class for syllogistic data.
 
     """

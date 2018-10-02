@@ -4,12 +4,12 @@ with open('README.md', 'r') as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name='ORCA',
+    name='CCOBRA',
     description='Core functionality and class interfaces of ORCA.',
     long_description=long_description,
     long_description_content_type='text/markdown',
     version='0.1',
-    packages=['orca'],
+    packages=['ccobra'],
     license='MIT',
     author='Nicolas Riesterer, Daniel Brand, Lukas Elflein',
     author_email='riestern@tf.uni-freiburg.de, daniel.brand@cognition.uni-freiburg.de, elfleinl@tf.uni-freiburg.de',

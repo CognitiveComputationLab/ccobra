@@ -1,15 +1,16 @@
-# Online Reasoning for Cognition Analysis (ORCA) Framework
+# Cognitive COmputation for Behavioral Reasoning Analysis (CCOBRA) Framework
 
-[![GitHub License](https://img.shields.io/github/license/CognitiveComputationLab/orca.svg)](https://github.com/CognitiveComputationLab/orca/blob/master/LICENSE)
+[![GitHub License](https://img.shields.io/github/license/CognitiveComputationLab/CCOBRA.svg)](https://github.com/CognitiveComputationLab/CCOBRA/blob/master/LICENSE)
 
 ## Dependencies
 
 - Python 3
 - Numpy
+- Pandas
 
 ## Installation
 
-ORCA requires you to install the core modules. This is done by running the following commands:
+CCOBRA requires you to install the core modules. This is done by running the following commands:
 
 ```
 $> cd /path/to/repository/
@@ -36,12 +37,12 @@ $> python start.py
 
 #### Implementing Custom Models
 
-Custom models can be implemented by defining classes based on `OrcaModel` interfaces. The following snippet contains the skeleton snippet for a simple syllogistic model always returning the `NVC` response:
+Custom models can be implemented by defining classes based on `CCOBRAModel` interfaces. The following snippet contains the skeleton snippet for a simple syllogistic model always returning the `NVC` response:
 
 ```python
-from orca import OrcaModelSyl
+import ccobra
 
-class MyModel(OrcaModelSyl):
+class MyModel(ccobra.syllogistic.SylModel):
     """ Simple static model for syllogistic reasoning always responding with
     NVC.
 
@@ -58,7 +59,7 @@ class MyModel(OrcaModelSyl):
         """
 
         super(MyModel, self).__init__(name)
-    
+
     def predict(self, task, **kwargs):
         """ Method for computing predictions of the model.
 

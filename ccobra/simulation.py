@@ -7,7 +7,7 @@ import time
 
 import pandas as pd
 
-from .orcadata import RawData
+from .data import RawData
 
 class Simulation():
     """ Class defining a simulation experiment for the ORCA framework. Provides
@@ -22,10 +22,10 @@ class Simulation():
         """
 
         if not isinstance(simulation_data, RawData):
-            raise ValueError('Simulation data is not OrcaData.')
+            raise ValueError('Simulation data is not CCobraData.')
 
         if train_data and not isinstance(train_data, RawData):
-            raise ValueError('Training data is not OrcaData.')
+            raise ValueError('Training data is not CCobraData.')
 
         if train_data and simulation_data.domain != train_data.domain:
             raise ValueError('Invalid data domains.')
@@ -41,7 +41,7 @@ class Simulation():
 
         Parameters
         ----------
-        model : orca.models.modelbase.OrcaModel
+        model : ccobra.model.CCobraModel
             Model to add to the simulation.
 
         """

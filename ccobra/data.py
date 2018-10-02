@@ -1,14 +1,14 @@
-""" ORCA data interfaces.
+""" CCOBRA data interfaces.
 
 """
 
-class OrcaData():
-    """ Abstract base class for ORCA datasets.
+class CCobraData():
+    """ Abstract base class for CCOBRA datasets.
 
     """
 
     def __init__(self, domain):
-        """ Initializes the ORCA data container by assigning a domain.
+        """ Initializes the CCOBRA data container by assigning a domain.
 
         """
 

@@ -4,7 +4,7 @@
 
 import numpy as np
 
-from orca.syllogistic import OrcaModelSyl
+from ccobra.syllogistic import SylModel
 
 def atmosphere_predictions(premises):
     """ Produces atmosphere predictions to a given tuple of premises.
@@ -45,7 +45,7 @@ def atmosphere_predictions(premises):
     return responses
 
 
-class Atmosphere(OrcaModelSyl):
+class Atmosphere(SylModel):
     """ Atmosphere theory implementation.
 
     """
