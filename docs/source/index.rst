@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Welcome to CCOBRA's documentation!
-================================
+==================================
 
 .. toctree::
    :caption: Contents
@@ -16,4 +16,4 @@ Welcome to CCOBRA's documentation!
 .. autosummary::
    :toctree: _autosummary
 
-   orca
+   ccobra

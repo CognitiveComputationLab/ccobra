@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'ORCA'
+project = 'CCOBRA'
 copyright = '2018, Nicolas Riesterer, Daniel Brand'
 author = 'Nicolas Riesterer, Daniel Brand'
 
@@ -93,7 +93,10 @@ html_theme = 'sphinx_rtd_theme'
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-# html_theme_options = {}
+html_theme_options = {
+    # 'logo_only': True
+}
+html_logo = "_static/ccobra.pdf"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
