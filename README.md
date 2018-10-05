@@ -3,6 +3,7 @@
 [![](https://img.shields.io/pypi/v/ccobra.svg)](https://pypi.org/pypi/ccobra/)
 [![](https://img.shields.io/pypi/pyversions/ccobra.svg)](https://pypi.org/pypi/ccobra/)
 [![GitHub license](https://img.shields.io/github/license/CognitiveComputationLab/ccobra.svg)](https://github.com/CognitiveComputationLab/ccobra/blob/master/LICENSE)
+[![DOI](https://zenodo.org/badge/144011537.svg)](https://zenodo.org/badge/latestdoi/144011537)
 
 ## Dependencies
 
