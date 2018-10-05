@@ -4,15 +4,16 @@ with open('README.md', 'r') as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name='CCOBRA',
-    description='Core functionality and class interfaces of ORCA.',
+    name='ccobra',
+    description='The CCOBRA framework.',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    version='0.1',
-    packages=['ccobra'],
+    url='https://github.com/CognitiveComputationLab/ccobra',
+    version='0.0.1',
+    packages=setuptools.find_packages(),
     license='MIT',
-    author='Nicolas Riesterer, Daniel Brand, Lukas Elflein',
-    author_email='riestern@tf.uni-freiburg.de, daniel.brand@cognition.uni-freiburg.de, elfleinl@tf.uni-freiburg.de',
+    author='Nicolas Riesterer',
+    author_email='riestern@tf.uni-freiburg.de',
     install_requires=[
         'numpy',
         'pandas'

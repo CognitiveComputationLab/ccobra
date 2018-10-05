@@ -5,22 +5,26 @@
 [![GitHub license](https://img.shields.io/github/license/CognitiveComputationLab/ccobra.svg)](https://github.com/CognitiveComputationLab/ccobra/blob/master/LICENSE)
 [![DOI](https://zenodo.org/badge/144011537.svg)](https://zenodo.org/badge/latestdoi/144011537)
 
-## Dependencies
-
-- Python 3
-- Numpy
-- Pandas
-
 ## Installation
 
-CCOBRA requires you to install the core modules. This is done by running the following commands:
+### PyPi
+
+CCOBRA is available via `pip`. To install the current version, run the following command:
+
+```
+$> pip install ccobra
+```
+
+### Development Version
+
+It is also possible to install a development version of CCOBRA. The difference to the standard version is that changes to the local copy of the repository are directly reflected in the module loaded from Python via `import`. To install the develop version, download a local copy of the repository and run the following commands:
 
 ```
 $> cd /path/to/repository/
-$> python setup.py develop|install [--user]
+$> python setup.py develop [--user]
 ```
 
-#### Uninstallation
+To remove the development version, run the following commands:
 
 ```
 $> cd /path/to/repository
@@ -40,7 +44,7 @@ $> python start.py
 
 #### Implementing Custom Models
 
-Custom models can be implemented by defining classes based on `CCOBRAModel` interfaces. The following snippet contains the skeleton snippet for a simple syllogistic model always returning the `NVC` response:
+Custom models can be implemented by defining classes based on `CCobraModel` interfaces. The following snippet contains the skeleton snippet for a simple syllogistic model always returning the `NVC` response:
 
 ```python
 import ccobra
