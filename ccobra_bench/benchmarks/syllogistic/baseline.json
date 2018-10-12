@@ -1,0 +1,8 @@
+{
+    "data.train": "",
+    "data.test": "data/Ragni2016_ccobra.csv",
+    "models": [
+        "models/Baseline/NVC-Model/nvc_model.py",
+        "models/Baseline/Uniform-Model/uniform_model.py"
+    ]
+}

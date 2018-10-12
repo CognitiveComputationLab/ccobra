@@ -10,8 +10,6 @@
 
 """
 
-from . import syllogistic
 
 from .data import CCobraData
 from .model import CCobraModel
-from .simulation import Simulation
