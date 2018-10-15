@@ -16,11 +16,13 @@ class MFAModel(ccobra.CCobraModel):
             self.predictions[syllogism] = responses
 
     def pre_train(self, dataset):
-        count_df = dataset.get().groupby(
-            ['task', 'response'], as_index=False)['id'].agg('count')
+        count_df = dataset.get().copy()
 
         count_df['enc_task'] = count_df['task'].apply(ccobra.syllogistic.encode_task)
         count_df['enc_resp'] = count_df[['response', 'task']].apply(ccobra.syllogistic.encode_response, axis=1)
+
+        count_df = count_df.groupby(
+            ['enc_task', 'enc_resp'], as_index=False)['id'].agg('count')
 
         for task, df in count_df.groupby('enc_task'):
             mfa = df.loc[df['id'] == df['id'].max()]['enc_resp'].tolist()

@@ -1,6 +1,6 @@
 {
-    "data.train": "data/Ragni2016_ccobra.csv",
-    "data.test": "data/Ragni2016_ccobra.csv",
+    "data.train": "",
+    "data.test": "data/Ragni2016.csv",
     "models": [
         "models/Baseline/NVC-Model/nvc_model.py",
         "models/Baseline/Uniform-Model/uniform_model.py",
