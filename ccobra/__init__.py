@@ -5,7 +5,6 @@
 
    ccobra.data
    ccobra.model
-   ccobra.simulation
    ccobra.syllogistic
 
 """
