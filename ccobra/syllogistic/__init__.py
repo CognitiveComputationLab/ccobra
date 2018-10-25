@@ -8,3 +8,4 @@
 """
 
 from .parsing import decode_response, encode_response,encode_task, SYLLOGISMS, RESPONSES
+from .syllogism import Syllogism
