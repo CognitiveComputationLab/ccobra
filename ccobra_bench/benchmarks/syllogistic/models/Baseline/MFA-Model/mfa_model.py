@@ -9,28 +9,34 @@ class MFAModel(ccobra.CCobraModel):
         super(MFAModel, self).__init__(name, ["syllogistic"], ["single-choice"])
 
         # Initialize the model's storage
-        syllogisms = ccobra.syllogistic.get_syllogisms()
-        responses = ccobra.syllogistic.get_responses()
+        syllogisms = ccobra.syllogistic.SYLLOGISMS
+        responses = ccobra.syllogistic.RESPONSES
         self.predictions = {}
         for syllogism in syllogisms:
-            self.predictions[syllogism] = responses
+            self.predictions[syllogism] = dict(
+                zip(responses, [0]*len(responses)))
 
     def pre_train(self, dataset):
-        count_df = dataset.get().copy()
-
-        count_df['enc_task'] = count_df['task'].apply(ccobra.syllogistic.encode_task)
-        count_df['enc_resp'] = count_df[['response', 'task']].apply(ccobra.syllogistic.encode_response, axis=1)
-
-        count_df = count_df.groupby(
-            ['enc_task', 'enc_resp'], as_index=False)['id'].agg('count')
-
-        for task, df in count_df.groupby('enc_task'):
-            mfa = df.loc[df['id'] == df['id'].max()]['enc_resp'].tolist()
-            self.predictions[task] = mfa
+        for subj_train_data in dataset:
+            for seq_train_data in subj_train_data:
+                self.adapt(seq_train_data['item'], seq_train_data['response'])
 
     def predict(self, item, **kwargs):
-        enc_task = ccobra.syllogistic.encode_task('/'.join([';'.join(x) for x in item.task]))
-        enc_resp = self.predictions[enc_task]
+        enc_task = ccobra.syllogistic.encode_task(item.task)
+        resp_counts = self.predictions[enc_task]
 
-        responses = [ccobra.syllogistic.decode_response(x, item.task) for x in enc_resp]
-        return responses[np.random.randint(0, len(responses))]
+        max_count = 0
+        resps = []
+        for resp, cnt in sorted(resp_counts.items(), key=lambda x: x[1], reverse=True):
+            if max_count < cnt:
+                max_count = cnt
+            if max_count > cnt:
+                break
+            resps.append(resp)
+
+        return ccobra.syllogistic.decode_response(resps[np.random.randint(0, len(resps))], item.task)
+
+    def adapt(self, item, response, **kwargs):
+        enc_task = ccobra.syllogistic.encode_task(item.task)
+        enc_resp = ccobra.syllogistic.encode_response(response, item.task)
+        self.predictions[enc_task][enc_resp] += 1

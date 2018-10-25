@@ -15,8 +15,7 @@ class Matching(ccobra.CCobraModel):
                 [x.split(';') for x in pred_df['Prediction']]))
 
     def predict(self, item, **kwargs):
-        enc_task = ccobra.syllogistic.encode_task(
-            '/'.join([';'.join(x) for x in item.task]))
+        enc_task = ccobra.syllogistic.encode_task(item.task)
         enc_resp = self.predictions[enc_task]
         dec_resp = [ccobra.syllogistic.decode_response(x, item.task) for x in enc_resp]
         return dec_resp[np.random.randint(0, len(dec_resp))]

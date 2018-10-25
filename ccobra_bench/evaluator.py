@@ -26,13 +26,13 @@ class Evaluator(object):
         self.silent = silent
 
         # Load the datasets
-        self.test_df = ccobra.data.CCobraData(pd.read_csv(test_datafile))
-        self.train_df = None
+        self.test_data = ccobra.data.CCobraData(pd.read_csv(test_datafile))
+        self.train_data = None
         if train_datafile:
-            self.train_df = ccobra.data.CCobraData(pd.read_csv(train_datafile))
+            self.train_data = ccobra.data.CCobraData(pd.read_csv(train_datafile))
 
     def extract_optionals(self, data):
-        essential = self.test_df.required_fields
+        essential = self.test_data.required_fields
         optionals = set(data.keys()) - set(essential)
         return {key: data[key] for key in optionals}
 
@@ -43,12 +43,27 @@ class Evaluator(object):
             if data in data_df.columns:
                 demographics[data] = data_df[data].values.tolist()
         return demographics
-         
-    def tuple_to_string(self, tuple):
-        if not isinstance(tuple, list):
-            return tuple
-        else:
-            return ";".join(tuple)
+
+    def tuple_to_string(self, tuptup):
+        def join_deepest(tup, sep=';'):
+            if not isinstance(tup, list):
+                return tup
+            if not isinstance(tup[0], list):
+                return sep.join(tup)
+            else:
+                for idx in range(len(tup)):
+                    tup[idx] = join_deepest(tup[idx], sep)
+                return tup
+
+        tup = copy.deepcopy(tuptup)
+        tup = join_deepest(tup, ';')
+        tup = join_deepest(tup, '/')
+
+        # Sort the tuples
+        tup = sorted(tup) if isinstance(tup, list) else tup
+
+        tup = join_deepest(tup, '|')
+        return tup
 
     def evaluate(self):
         result_data = []
@@ -67,23 +82,48 @@ class Evaluator(object):
 
                 # Instantiate and prepare the model for predictions
                 pre_model = importer.instantiate()
-                if self.train_df is not None:
-                    pre_model.pre_train(self.train_df)
+                if self.train_data is not None:
+                    # Prepare training data
+                    train_data_dicts = []
+                    for id_info, subj_df in self.train_data.get().groupby('id'):
+                        subj_data = []
+                        for seq_info, row in subj_df.sort_values(['sequence']).iterrows():
+                            train_dict = {
+                                'id': id_info,
+                                'sequence': seq_info,
+                                'item': ccobra.data.Item(
+                                    row['domain'], row['task'],
+                                    row['response_type'], row['choices'])
+                            }
+
+                            for key, value in row.iteritems():
+                                if key not in train_dict:
+                                    train_dict[key] = value
+
+                            if train_dict['response_type'] == 'multiple-choice':
+                                train_dict['response'] = [y.split(';') for y in [x.split('/') for x in train_dict['response'].split('|')]]
+                            else:
+                                train_dict['response'] = [x.split(';') for x in train_dict['response'].split('/')]
+
+                            subj_data.append(train_dict)
+                        train_data_dicts.append(subj_data)
+
+                    pre_model.pre_train(train_data_dicts)
 
                 # Iterate subject
-                for subj_id, subj_df in self.test_df.get().groupby('id'):
+                for subj_id, subj_df in self.test_data.get().groupby('id'):
 
                     model = copy.deepcopy(pre_model)
-                    
+
                     # Extract the subject demographics
-                    demographics = self.extract_demographics(self.test_df.get())
+                    demographics = self.extract_demographics(self.test_data.get())
 
                     # Set the models to new participant
                     model.start_participant(demographics=demographics)
 
                     for _, row in subj_df.sort_values('sequence').iterrows():
                         optionals = self.extract_optionals(row)
-                    
+
                         # Evaluation
                         sequence = row['sequence']
                         task = row['task']
@@ -92,11 +132,19 @@ class Evaluator(object):
                         response_type = row['response_type']
                         domain = row['domain']
 
+                        if response_type == 'multiple-choice':
+                            truth = [y.split(';') for y in [x.split('/') for x in truth.split('|')]]
+                        else:
+                            truth = [x.split(';') for x in truth.split('/')]
+
+
                         item = ccobra.data.Item(domain, task, response_type,\
                         choices)
 
                         prediction = model.predict(item, **optionals)
-                        prediction = self.tuple_to_string(prediction)
+                        prediction_str = self.tuple_to_string(prediction)
+
+                        truth_str = self.tuple_to_string(truth)
 
                         # Adapt to true response
                         model.adapt(item, truth, **optionals)
@@ -109,8 +157,8 @@ class Evaluator(object):
                             'task': task,
                             'choices': choices,
                             'truth': truth,
-                            'prediction': prediction,
-                            'hit': prediction == truth,
+                            'prediction': prediction_str,
+                            'hit': prediction_str == truth_str,
                         })
 
         return pd.DataFrame(result_data)

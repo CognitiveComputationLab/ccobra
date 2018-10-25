@@ -2,42 +2,17 @@
 
 """
 
-def get_syllogisms():
-    """ Generates a list of syllogistic task identifiers.
+SYLLOGISMS = []
+for prem1 in ['A', 'I', 'E', 'O']:
+    for prem2 in ['A', 'I', 'E', 'O']:
+        for fig in ['1', '2', '3', '4']:
+            SYLLOGISMS.append(prem1 + prem2 + fig)
 
-    Returns
-    -------
-    list(str)
-        List of syllogistic task identifiers, i.e., ['AA1', 'AA2', ...]. Order
-        of precedence is A < I < E < O.
-
-    """
-
-    syllogisms = []
-    for prem1 in ['A', 'I', 'E', 'O']:
-        for prem2 in ['A', 'I', 'E', 'O']:
-            for fig in ['1', '2', '3', '4']:
-                syllogisms.append(prem1 + prem2 + fig)
-    return syllogisms
-
-def get_responses():
-    """ Generates a list of syllogistic response identifiers.
-
-    Returns
-    -------
-    list(str)
-        List of syllogistic response identifiers, i.e., ['Aac', 'Aca', 'Iac',
-        ...]. Order of precedence is A < I < E < O. No valid conclusion is
-        added as 'NVC' to the end of the list.
-
-    """
-
-    responses = []
-    for quant in ['A', 'I', 'E', 'O']:
-        for direction in ['ac', 'ca']:
-            responses.append(quant + direction)
-    responses.append('NVC')
-    return responses
+RESPONSES = []
+for quant in ['A', 'I', 'E', 'O']:
+    for direction in ['ac', 'ca']:
+        RESPONSES.append(quant + direction)
+RESPONSES.append('NVC')
 
 def encode_task(task_tuple):
     """ Encodes a syllogistic task by transforming a task tuple string into
@@ -45,8 +20,9 @@ def encode_task(task_tuple):
 
     Parameters
     ----------
-    task_tuple : str
-        Task tuple string (e.g., 'All;pilots;gardeners/Some;gardeners;cooks').
+    task_tuple : list(list(str))
+        Task tuple in list representation (e.g.,
+        [['Some', 'models', 'managers'], ['All', 'models', 'clerks']])
 
     Returns
     -------
@@ -56,7 +32,7 @@ def encode_task(task_tuple):
 
     """
 
-    p1, p2 = [x.split(';') for x in task_tuple.split('/')]
+    p1, p2 = task_tuple
 
     quant1 = p1[0].replace('All', 'A').replace(
         'Some not', 'O').replace('Some', 'I').replace('No', 'E')
@@ -76,16 +52,17 @@ def encode_task(task_tuple):
 
     return quant1 + quant2 + str(figure)
 
-def encode_response(tuptup):
+def encode_response(response, task):
     """ Encodes a syllogistic response by transforming the tuple containing the
     response string and the task tuple into its string representation.
 
     Parameters
     ----------
-    tuptup : pd.Series
-        Pandas series containing the task string tuple (e.g.,
-        'Some;models;managers/All;models;clerks') and response tuple
-        representation (e.g., 'Some;managers;clerks').
+    response : list(list(str))
+        Response encodings.
+
+    task : list(list(str))
+        Task tuple representation.
 
     Returns
     -------
@@ -94,20 +71,17 @@ def encode_response(tuptup):
 
     """
 
-    response_string, task_tuple = tuptup
-    response_tuple = response_string.split(';')
-
-    if response_tuple[0] == 'NVC':
+    if response[0][0] == 'NVC':
         return 'NVC'
 
-    object_sets = [set(x.split(';')[1:]) for x in task_tuple.split('/')]
+    object_sets = [set(x[1:]) for x in task]
     midterm = object_sets[0].intersection(object_sets[1])
     obj_a = object_sets[0] - midterm
 
-    quant = response_tuple[0].replace('All', 'A').replace(
+    quant = response[0][0].replace('All', 'A').replace(
         'Some not', 'O').replace('Some', 'I').replace('No', 'E')
 
-    return quant + ('ac' if response_tuple[1] == list(obj_a)[0] else 'ca')
+    return quant + ('ac' if response[0][1] == list(obj_a)[0] else 'ca')
 
 def decode_response(enc_response, task):
     """ Decodes an encoded syllogistic response by transforming it to the
@@ -123,9 +97,6 @@ def decode_response(enc_response, task):
         [['Some', 'models', 'managers'], ['All', 'models', 'clerks']]).
 
     """
-
-    print(task)
-    exit()
 
     if enc_response == 'NVC':
         return ['NVC']

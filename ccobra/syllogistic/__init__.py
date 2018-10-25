@@ -7,4 +7,4 @@
 
 """
 
-from .parsing import decode_response, encode_response,encode_task, get_responses, get_syllogisms
+from .parsing import decode_response, encode_response,encode_task, SYLLOGISMS, RESPONSES

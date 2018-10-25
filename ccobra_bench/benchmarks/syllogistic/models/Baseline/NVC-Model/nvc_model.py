@@ -5,4 +5,4 @@ class NVCModel(ccobra.CCobraModel):
         super(NVCModel, self).__init__(name, ["syllogistic"], ["single-choice"])
 
     def predict(self, item, **kwargs):
-        return ['NVC']
+        return 'NVC'
