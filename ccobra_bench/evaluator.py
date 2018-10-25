@@ -25,11 +25,20 @@ class Evaluator(object):
         self.modellist = modellist
         self.silent = silent
 
+        self.domains = set()
+        self.response_types = set()
+
         # Load the datasets
         self.test_data = ccobra.data.CCobraData(pd.read_csv(test_datafile))
+        print(list(self.test_data.get()))
+        self.domains.update(self.test_data.get()['domain'].unique())
+        self.response_types.update(self.test_data.get()['response_type'].unique())
+
         self.train_data = None
         if train_datafile:
             self.train_data = ccobra.data.CCobraData(pd.read_csv(train_datafile))
+            self.domains.update(self.train_data.get()['domain'].unique())
+            self.response_types.update(self.train_data.get()['response_type'].unique())
 
     def extract_optionals(self, data):
         essential = self.test_data.required_fields
@@ -82,6 +91,20 @@ class Evaluator(object):
 
                 # Instantiate and prepare the model for predictions
                 pre_model = importer.instantiate()
+
+                # Check if model is applicable to domains/response types
+                missing_domains = self.domains - set(pre_model.supported_domains)
+                if len(missing_domains) > 0:
+                    raise ValueError(
+                        'Model {} is not applicable to domains {}.'.format(
+                            pre_model.name, missing_domains))
+
+                missing_response_types = self.response_types - set(pre_model.supported_response_types)
+                if len(missing_response_types) > 0:
+                    raise ValueError(
+                        'Model {} is not applicable to response_types {}.'.format(
+                            pre_model.name, missing_response_types))
+
                 if self.train_data is not None:
                     # Prepare training data
                     train_data_dicts = []
