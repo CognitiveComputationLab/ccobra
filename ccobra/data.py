@@ -84,3 +84,11 @@ class Item():
         self.task = [x.split(";") for x in task.split("/")]
         self.choices = [x.split(";") for x in choices.split("/")]
         self.domain = domain
+
+    def __str__(self):
+        rep = 'CCOBRA Item:\n'
+        rep += '\tTask: {}\n'.format(self.task)
+        rep += '\tDomain: {}\n'.format(self.domain)
+        rep += '\tResponse Type: {}\n'.format(self.response_type)
+        rep += '\tChoices: {}'.format(self.choices)
+        return rep
