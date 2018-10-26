@@ -71,6 +71,9 @@ def encode_response(response, task):
 
     """
 
+    if not isinstance(response[0], list):
+        response = [response]
+
     if response[0][0] == 'NVC':
         return 'NVC'
 
