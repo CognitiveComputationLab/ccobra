@@ -155,10 +155,11 @@ class Evaluator(object):
                         response_type = row['response_type']
                         domain = row['domain']
 
-                        if response_type == 'multiple-choice':
-                            truth = [y.split(';') for y in [x.split('/') for x in truth.split('|')]]
-                        else:
-                            truth = [x.split(';') for x in truth.split('/')]
+                        if isinstance(truth, str):
+                            if response_type == 'multiple-choice':
+                                truth = [y.split(';') for y in [x.split('/') for x in truth.split('|')]]
+                            else:
+                                truth = [x.split(';') for x in truth.split('/')]
 
 
                         item = ccobra.data.Item(domain, task, response_type,\
