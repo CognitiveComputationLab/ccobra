@@ -1,8 +1,0 @@
-{
-    "data.train": "",
-    "data.test": "data/3ps.csv",
-    "models": [
-        "models/Baseline/Random-Model/random_model.py",
-        "models/Baseline/Transitive-Closure/transitive_closure.py"
-    ]
-}

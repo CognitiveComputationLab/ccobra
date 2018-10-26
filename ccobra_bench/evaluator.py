@@ -123,10 +123,11 @@ class Evaluator(object):
                                 if key not in train_dict:
                                     train_dict[key] = value
 
-                            if train_dict['response_type'] == 'multiple-choice':
-                                train_dict['response'] = [y.split(';') for y in [x.split('/') for x in train_dict['response'].split('|')]]
-                            else:
-                                train_dict['response'] = [x.split(';') for x in train_dict['response'].split('/')]
+                            if isinstance(train_dict['response'], str):
+                                if train_dict['response_type'] == 'multiple-choice':
+                                    train_dict['response'] = [y.split(';') for y in [x.split('/') for x in train_dict['response'].split('|')]]
+                                else:
+                                    train_dict['response'] = [x.split(';') for x in train_dict['response'].split('/')]
 
                             subj_data.append(train_dict)
                         train_data_dicts.append(subj_data)
