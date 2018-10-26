@@ -1,5 +1,5 @@
 {
-    "data.train": "",
+    "data.train": "data/Veser2018.csv",
     "data.test": "data/Ragni2016.csv",
     "models": [
         "models/Baseline/NVC-Model/nvc_model.py",

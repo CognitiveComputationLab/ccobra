@@ -1,8 +1,8 @@
 import numpy as np
 
-from ccobra import CCobraModel
+import ccobra
 
-class UniformModel(CCobraModel):
+class UniformModel(ccobra.CCobraModel):
     def __init__(self, name='UniformModel'):
         super(UniformModel, self).__init__(name, ["syllogistic"], ["single-choice"])
 
