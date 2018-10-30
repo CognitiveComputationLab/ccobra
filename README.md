@@ -30,18 +30,3 @@ To remove the development version, run the following commands:
 $> cd /path/to/repository
 $> python setup.py develop [--user] --uninstall
 ```
-
-## First Steps
-
-#### Executing the Examples
-
-Examples for common reasoning domains can be found in `examples/`. To start the example analyses, run the corresponding `start.py` scripts. The following commands run the syllogistic example:
-
-```
-$> cd /path/to/repository/examples/syllogism
-$> python start.py
-```
-
-#### Implementing Custom Models
-
-Examples for implementing custom models can be found in the benchmark folder.

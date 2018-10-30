@@ -30,7 +30,6 @@ class Evaluator(object):
 
         # Load the datasets
         self.test_data = ccobra.data.CCobraData(pd.read_csv(test_datafile))
-        print(list(self.test_data.get()))
         self.domains.update(self.test_data.get()['domain'].unique())
         self.response_types.update(self.test_data.get()['response_type'].unique())
 
