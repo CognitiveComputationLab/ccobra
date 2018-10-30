@@ -39,12 +39,13 @@ def encode_task(task_tuple):
     quant2 = p2[0].replace('All', 'A').replace(
         'Some not', 'O').replace('Some', 'I').replace('No', 'E')
     figure = 1
+
     if p1[1] == p2[1]:
-        figure = 3
+        figure = 4
     elif p1[2] == p2[1]:
         figure = 1
     elif p1[2] == p2[2]:
-        figure = 4
+        figure = 3
     elif p1[1] == p2[2]:
         figure = 2
     else:
