@@ -15,13 +15,13 @@ CCOBRA's philosophy is based around the fact that models always attempt to solve
 specific modeling tasks, either explicitly or implicitly. Contrary to big parts
 of the current state of the art in cognitive modeling, CCOBRA focuses on making
 the processes underlying response generation explicit. To this end, CCOBRA
-mandates models to revolve around a single method ``predict(task)`` which asks
-for a single prediction in response to a presented ``task``.
+mandates models to revolve around a single method ``predict(...)`` which asks
+for a single prediction in response to a presented problem.
 
 In syllogistic reasoning, a toy model might be constructed in a way that it is
 always supposed to respond with *No valid response* indicating that no logical
 inference can be drawn in response to the given task. Consequently, its
-``predict`` method will always return ``NVC``.
+``predict`` method will always return ``[NVC]``.
 
 The sheer simplicity of CCOBRA sets it apart from most contemporary modeling
 approaches. Models are not required to adhere to rigorous Bayesian fundamentals
@@ -48,7 +48,7 @@ non-final due to the relative youth of the project.
 Currently, the package contents are structured as followed:
 
 - ``ccobra``: The root namespace contains base classes and interfaces.
-- ``ccobra.syllogistic``: Syllogistic model interface and data handling routines.
+- ``ccobra.syllogistic``: Syllogistic helper classes and functions.
 
 Developing a first Model
 ------------------------
@@ -61,7 +61,7 @@ from which only the ``predict`` method is mandatory:
 
     import ccobra
 
-    class MyModel(ccobra.syllogistic.SylModel):
+    class MyModel(ccobra.CCobraModel):
         def __init__(self, name='MyModel'):
             """ Model constructor.
 
@@ -81,14 +81,14 @@ from which only the ``predict`` method is mandatory:
             """
             ...
 
-        def predict(self, task, **kwargs):
-            """ Predicts weighted responses to a given syllogism.
+        def predict(self, item, **kwargs):
+            """ Predicts weighted responses to a given problem.
 
             """
             ...
 
-        def adapt(self, task, target, **kwargs):
-            """ Trains the model based on a given task-target combination.
+        def adapt(self, item, target, **kwargs):
+            """ Trains the model based on a given problem-target combination.
 
             """
             ...
@@ -104,22 +104,56 @@ This can be achieved by writing the following lines of code:
 
     class NVCModel(ccobra.syllogistic.SylModel):
         def __init__(self, name='NVCModel'):
-            super(NVCModel, self).__init__(name)
+            super(NVCModel, self).__init__(name, ['syllogistic'], ['single-choice'])
 
-        def predict(self, task, **kwargs):
-            return 'NVC'
+        def predict(self, item, **kwargs):
+            return ['NVC']
 
-The ``__init__`` method calls the super constructor providing it with the
-model's name which is used for referencing results. Due to its static nature,
-``predict`` always returns *No Valid Response*.
+The ``__init__`` method calls the super constructor providing it with
+information about the domain and response-type the model is capable of handling
+as well as its name which is used for referencing results. Due to its static
+nature, ``predict`` always returns *No Valid Response*.
 
 The remainder of the functions do not need to be specified.
 
 Evaluating the Model
 --------------------
 
-To evaluate the model, a ``.zip`` archive containing the ``model.py`` file can
-be uploaded to the `CCOBRA-Benchmark <http://orca.informatik.uni-freiburg.de/orca_sylwebsite/orca/>`_.
+CCOBRA's model evaluation revolves around defining benchmarks based on training
+and test data as well as baseline models. Predefined benchmarks can be found
+in the ``ccobra-bench`` directory in the repository. Benchmarks are defined
+as JSON files adhering to the following structure:
 
-Alternatively, the benchmark script can be downloaded for local usage from its
-repository on `Github <https://github.com>`_.
+.. code-block:: json
+    :linenos:
+
+    {
+        "data.train": "path/to/train_data.csv",
+        "data.test": "path/to/test_data.csv",
+        "models": [
+            "path/to/model1.py",
+            "path/to/model2.py",
+            "path/to/model3.py"
+        ]
+    }
+
+Benchmarks can be modified by changing the respective lines. Note, that paths
+are considered relative to the location of the benchmark file itself. Assuming
+the JSON file to be located at ``~/benchmarks/benchmark.json``, the first model
+would refer to the file ``~/benchmarks/path/to/model1.py``.
+
+To run benchmarks, the script ``runner.py`` which is located in the
+``ccobra-bench`` directory can be used. Execute the following commands:
+
+    .. code::
+
+        $> python runner.py /path/to/benchmark.json
+
+To evaluate a model against a benchmark, the ``-m`` flag is used:
+
+    .. code::
+
+        $> python runner.py /path/to/benchmark.json -m /path/to/model.py
+
+In this case, the additional model does not need to be integrated into the
+benchmark file.

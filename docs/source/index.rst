@@ -8,10 +8,13 @@ Welcome to CCOBRA's documentation!
 
 .. toctree::
    :caption: Contents
-   :hidden:
 
    usage/installation.rst
    usage/tutorial.rst
+
+
+API Documentation
+-----------------
 
 .. autosummary::
    :toctree: _autosummary

@@ -3,6 +3,21 @@
 Installation
 ============
 
+From PyPI
+---------
+
+To install CCOBRA via pip, run the following command:
+
+    .. code::
+
+        $> pip install ccobra
+
+To update your installation of CCOBRA, run the following command:
+
+    .. code::
+
+        $> pip install -U ccobra
+
 From the Repository
 -------------------
 
@@ -23,18 +38,9 @@ system:
 
         $> python setup.py install
 
-.. note:: If you wish to keep your local version of CCOBRA consistent with the repository, use ``git clone`` and ``python setup.py develop`` during the installation. This directly references your local version of the library instead of creating separate copies. Changes to the repository (vial ``git pull``, etc.) are directly applied when referencing CCOBRA in your work.
-
-Uninstallation
---------------
-
-If CCOBRA was installed using ``python setup.py install``, you can determine its
-location using ``python -c "import orca; print(orca.__file__)"``. Simply
-delete the displayed folder (e.g., ``/usr/lib/python3.5/dist-packages/orca``).
-
-If CCOBRA was installed using ``python setup.py develop``, run the following
-command from within your local repository folder:
-
-.. code::
-
-    $> python setup.py develop --uninstall
+.. note:: If you wish to keep your local version of CCOBRA consistent with the
+    repository, use ``git clone`` and ``python setup.py develop`` during the
+    installation. This directly references your local version of the library
+    instead of creating separate copies. Changes to the repository (vial
+    ``git pull``, etc.) are directly applied when referencing CCOBRA in your
+    work.
