@@ -80,9 +80,16 @@ class Item():
 
         """
 
+        #: Response type of the task
         self.response_type = resp_type
+
+        #: Task in list representation
         self.task = [x.split(";") for x in task.split("/")]
+
+        #: Choices in list representation
         self.choices = [x.split(";") for x in choices.split("/")]
+
+        #: Domain of the task
         self.domain = domain
 
     def __str__(self):

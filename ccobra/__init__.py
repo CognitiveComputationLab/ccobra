@@ -1,15 +1,24 @@
 """ ORCA Module
 
+.. rubric:: Submodules
+
 .. autosummary::
    :toctree: _autosummary
 
-   ccobra.data
-   ccobra.model
    ccobra.syllogistic
+
+.. rubric:: Classes
+
+.. autoclass:: CCobraData
+    :members:
+.. autoclass:: CCobraModel
+    :members:
+.. autoclass:: Item
+    :members:
 
 """
 
 from . import syllogistic
 
-from .data import CCobraData
+from .data import CCobraData, Item
 from .model import CCobraModel
