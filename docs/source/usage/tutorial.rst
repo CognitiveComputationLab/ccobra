@@ -102,7 +102,7 @@ This can be achieved by writing the following lines of code:
 
     import ccobra
 
-    class NVCModel(ccobra.syllogistic.SylModel):
+    class NVCModel(ccobra.CCobraModel):
         def __init__(self, name='NVCModel'):
             super(NVCModel, self).__init__(name, ['syllogistic'], ['single-choice'])
 
