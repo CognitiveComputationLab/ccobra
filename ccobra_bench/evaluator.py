@@ -162,8 +162,8 @@ class Evaluator(object):
                                 truth = [x.split(';') for x in truth.split('/')]
 
 
-                        item = ccobra.data.Item(domain, task, response_type,\
-                        choices)
+                        item = ccobra.data.Item(
+                            domain, task, response_type, choices)
 
                         prediction = model.predict(item, **optionals)
                         prediction_str = self.tuple_to_string(prediction)

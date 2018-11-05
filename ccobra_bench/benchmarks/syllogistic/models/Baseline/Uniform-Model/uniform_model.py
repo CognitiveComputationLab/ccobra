@@ -7,4 +7,4 @@ class UniformModel(ccobra.CCobraModel):
         super(UniformModel, self).__init__(name, ["syllogistic"], ["single-choice"])
 
     def predict(self, item, **kwargs):
-        return np.random.choice(item.choices)
+        return item.choices[np.random.randint(0, len(item.choices))]

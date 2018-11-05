@@ -87,7 +87,9 @@ class Item():
         self.task = [x.split(";") for x in task.split("/")]
 
         #: Choices in list representation
-        self.choices = [x.split(";") for x in choices.split("/")]
+        self.choices = [x.split('/') for x in choices.split('|')]
+        for idx in range(len(self.choices)):
+            self.choices[idx] = [x.split(';') for x in self.choices[idx]]
 
         #: Domain of the task
         self.domain = domain
