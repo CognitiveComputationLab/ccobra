@@ -106,7 +106,9 @@ class SubjectBoxes(CCobraMetric):
             data.append({
                 'y': df['hit'].tolist(),
                 'type': 'box',
-                'name': model
+                'name': model,
+                'boxpoints': 'all',
+                'marker': {'size': 4}
             })
 
         return data
