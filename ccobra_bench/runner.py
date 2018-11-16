@@ -131,6 +131,8 @@ if __name__ == '__main__':
     try:
         main(args)
     except Exception as e:
+        if args['output'] != 'html':
+            raise
         msg = 'Error: ' + str(e)
         if args['output'] == 'html':
             print('<p>{}</p><script>document.getElementById(\"result\").style.backgroundColor = \"Tomato\";</script>'.format(msg))
