@@ -3,9 +3,7 @@
 """
 
 import numpy as np
-
 import ccobra
-
 
 class RandomModel(ccobra.CCobraModel):
     """ Model producing randomly generated responses.
@@ -24,9 +22,7 @@ class RandomModel(ccobra.CCobraModel):
         """
 
         super(RandomModel, self).__init__(
-            name, ["spatial-relational"], ["verify"])
-
-        self.responses = [1, 0]
+            name, ["spatial-relational"], ["verify", "single-choice"])
 
     def predict(self, item, **kwargs):
         """ Predicts weighted responses to a given syllogism.
@@ -38,4 +34,8 @@ class RandomModel(ccobra.CCobraModel):
 
         """
 
-        return np.random.choice(self.responses, p=[1 / 2] * 2)
+        choices = [True, False]
+        if item.response_type == 'single-choice':
+            choices = item.choices
+
+        return choices[np.random.randint(0, len(choices))]
