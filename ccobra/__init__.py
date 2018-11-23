@@ -23,4 +23,4 @@ from . import syllogistic
 from .data import CCobraData, Item
 from .model import CCobraModel
 
-__version__ = '0.0.6'
+__version__ = '0.0.7'
