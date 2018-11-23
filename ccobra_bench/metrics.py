@@ -6,6 +6,21 @@ import json
 import http.server as httpserver
 import webbrowser
 
+import numpy as np
+
+CCOBRACOLORS = [
+    '#1f77b4',
+    '#ff7f0e',
+    '#2ca02c',
+    '#d62728',
+    '#9467bd',
+    '#8c564b',
+    '#e377c2',
+    '#7f7f7f',
+    '#bcbd22',
+    '#17becf'
+]
+
 def load_in_default_browser(html):
     class RequestHandler(httpserver.BaseHTTPRequestHandler):
         def do_GET(self):
@@ -39,7 +54,7 @@ class HTMLVisualizer(object):
         ]
 
         for metric in self.metrics:
-            metric_data = metric.evaluate(res_df)
+            metric_data, metric_layout = metric.evaluate(res_df)
             metric_data = json.dumps(metric_data) if not isinstance(metric_data, list) else ','.join(json.dumps(x) for x in metric_data)
             metric_name = metric.__class__.__name__
             metric_div = metric_name.lower()
@@ -55,7 +70,10 @@ class HTMLVisualizer(object):
                 "            var data = [",
                 str(metric_data),
                 "            ];",
-                "            Plotly.newPlot('{}', data);".format(metric_div),
+                "            var layout = ",
+                str(metric_layout),
+                "            ;",
+                "            Plotly.newPlot('{}', data, layout);".format(metric_div),
                 "        </script>",
                 "        <hr>"
             ])
@@ -83,26 +101,35 @@ class Accuracy(CCobraMetric):
         acc_df = result_df.groupby(
             'model', as_index=False)['hit'].agg(['mean', 'std']).sort_values('mean')
 
+        n_models = acc_df.index.tolist()
+        alpha = '80'
         data = {
             'x': acc_df.index.tolist(),
             'y': acc_df['mean'].tolist(),
-            'type': 'bar'
+            'marker': {
+                'color': [CCOBRACOLORS[x] + alpha for x in range(len(n_models))]
+            },
+            'type': 'bar',
+            'name': acc_df.index.tolist()
         }
 
-        return data
+        layout = {'showlegend': 'true', 'legend': {'orientation': 'h'}}
+        return data, layout
 
 class SubjectBoxes(CCobraMetric):
     def description(self):
         return 'The following plot depicts boxplots for the models indicating ' \
             'individual subject performance. The data used for the plot are ' \
             'accuracies for individuals. Consequently, min and max refer to ' \
-            'the accuracy of the worst and best matching subjects.'
+            'the accuracy of the worst and best matching subjects. The dots' \
+            'refer to the mean accuracies of individual participants.'
 
     def evaluate(self, result_df):
         subj_df = result_df.groupby(
             ['model', 'id'], as_index=False)['hit'].agg('mean')
         data = []
         for model, df in subj_df.groupby('model'):
+            print('appending', model)
             data.append({
                 'y': df['hit'].tolist(),
                 'type': 'box',
@@ -111,4 +138,6 @@ class SubjectBoxes(CCobraMetric):
                 'marker': {'size': 4}
             })
 
-        return data
+        data = sorted(data, key=lambda x: np.mean(x['y']))
+        layout = {'showlegend': 'true', 'legend': {'orientation': 'h'}}
+        return data, layout
