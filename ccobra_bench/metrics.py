@@ -39,6 +39,13 @@ def load_in_default_browser(html):
     webbrowser.open('http://127.0.0.1:{}'.format(server.server_port))
     server.handle_request()
 
+def ccobracolor(idx, n_models, lightness=0.5):
+    x = (idx + 1) / (n_models + 1)
+    r = (np.sin(x * 2 * np.pi * 1.247 + np.pi) * 127 + 128) * lightness
+    g = (np.sin(x * 2 * np.pi * 0.373) * 127 + 128) * lightness
+    b = (np.cos(x * 2 * np.pi * 0.91113) * 127 + 128) * lightness
+    return '#' + ''.join([('0' + hex(int(y)).replace('0x', ''))[-2:] for y in [r, g, b]])
+
 class HTMLVisualizer(object):
     def __init__(self, metrics):
         self.metrics = metrics
@@ -101,13 +108,13 @@ class Accuracy(CCobraMetric):
         acc_df = result_df.groupby(
             'model', as_index=False)['hit'].agg(['mean', 'std']).sort_values('mean')
 
-        n_models = acc_df.index.tolist()
+        n_models = len(acc_df.index.tolist())
         alpha = '80'
         data = {
             'x': acc_df.index.tolist(),
             'y': acc_df['mean'].tolist(),
             'marker': {
-                'color': [CCOBRACOLORS[x] + alpha for x in range(len(n_models))]
+                'color': [ccobracolor(x, n_models) + alpha for x in range(n_models)]
             },
             'type': 'bar',
             'name': acc_df.index.tolist()
@@ -128,16 +135,21 @@ class SubjectBoxes(CCobraMetric):
         subj_df = result_df.groupby(
             ['model', 'id'], as_index=False)['hit'].agg('mean')
         data = []
+        n_models = len(subj_df['model'].unique())
+
         for model, df in subj_df.groupby('model'):
-            print('appending', model)
             data.append({
                 'y': df['hit'].tolist(),
                 'type': 'box',
                 'name': model,
                 'boxpoints': 'all',
-                'marker': {'size': 4}
+                'marker': {
+                    'size': 4
+                }
             })
 
         data = sorted(data, key=lambda x: np.mean(x['y']))
+        for idx, datum in enumerate(data):
+            datum['marker']['color'] = ccobracolor(idx, n_models)
         layout = {'showlegend': 'true', 'legend': {'orientation': 'h'}}
         return data, layout
