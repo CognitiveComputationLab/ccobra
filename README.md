@@ -5,6 +5,8 @@
 [![GitHub license](https://img.shields.io/github/license/CognitiveComputationLab/ccobra.svg)](https://github.com/CognitiveComputationLab/ccobra/blob/master/LICENSE)
 [![DOI](https://zenodo.org/badge/144011537.svg)](https://zenodo.org/badge/latestdoi/144011537)
 
+[Documentation](http://orca.informatik.uni-freiburg.de/orca_sylwebsite/orca/documentation/index.html)
+
 ## Installation
 
 ### PyPi
@@ -14,6 +16,8 @@ CCOBRA is available via `pip`. To install the current version, run the following
 ```
 $> pip install ccobra
 ```
+
+to update your installation, run `pip install -U ccobra`.
 
 ### Development Version
 

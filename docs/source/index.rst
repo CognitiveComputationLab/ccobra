@@ -11,6 +11,7 @@ Welcome to CCOBRA's documentation!
 
    usage/installation.rst
    usage/tutorial.rst
+   usage/learning.rst
 
 
 API Documentation

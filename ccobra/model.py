@@ -47,8 +47,11 @@ class CCobraModel():
 
         Parameters
         ----------
-        dataset : :class:`ccobra.data.RawData`
-            CCOBRA raw data container.
+        dataset : list(list(dict(str, object)))
+            Training data for the model. List of participants which each
+            contain lists of tasks represented as dictionaries with the
+            corresponding task information (e.g., the item container and
+            given response).
 
         """
 

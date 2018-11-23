@@ -1,0 +1,8 @@
+{
+    "data.train": null,
+    "data.test": "data/Ragni2018_carddir.csv",
+    "models": [
+        "models/Baseline/Random-Model/random_model.py",
+        "models/Baseline/Transitive-Closure/transitive_closure.py"
+    ]
+}
