@@ -1,5 +1,7 @@
 import setuptools
 
+import ccobra
+
 with open('README.md', 'r') as fh:
     long_description = fh.read()
 
@@ -9,7 +11,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/CognitiveComputationLab/ccobra',
-    version='0.0.5',
+    version=ccobra.__version__,
     packages=setuptools.find_packages(),
     license='MIT',
     author='Nicolas Riesterer',
