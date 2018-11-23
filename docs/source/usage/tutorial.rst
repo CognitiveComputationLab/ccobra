@@ -107,7 +107,7 @@ This can be achieved by writing the following lines of code:
             super(NVCModel, self).__init__(name, ['syllogistic'], ['single-choice'])
 
         def predict(self, item, **kwargs):
-            return ['NVC']
+            return [['NVC']]
 
 The ``__init__`` method calls the super constructor providing it with
 information about the domain and response-type the model is capable of handling
