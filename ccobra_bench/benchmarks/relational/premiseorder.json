@@ -1,0 +1,8 @@
+{
+    "data.train": "data/4ps_train.csv",
+    "data.test": "data/4ps_test.csv",
+    "models": [
+        "models/Baseline/Transitive-Closure/transitive_closure.py",
+        "models/Baseline/Random-Model/random_model.py"
+    ]
+}
