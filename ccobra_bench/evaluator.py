@@ -49,15 +49,15 @@ class Evaluator(object):
             self.domains.update(self.train_data.get()['domain'].unique())
             self.response_types.update(self.train_data.get()['response_type'].unique())
 
-        # If non-corresponding datasets, update with new identification
-        if not corresponding_data:
-            train_ids = self.train_data.get()['id'].unique()
-            new_train_ids = dict(zip(train_ids, range(len(train_ids))))
-            self.train_data.get()['id'].replace(new_train_ids, inplace=True)
+            # If non-corresponding datasets, update with new identification
+            if not corresponding_data:
+                train_ids = self.train_data.get()['id'].unique()
+                new_train_ids = dict(zip(train_ids, range(len(train_ids))))
+                self.train_data.get()['id'].replace(new_train_ids, inplace=True)
 
-            test_ids = self.test_data.get()['id'].unique()
-            new_test_ids = dict(zip(test_ids, range(len(train_ids), len(train_ids) + len(test_ids))))
-            self.test_data.get()['id'].replace(new_test_ids, inplace=True)
+                test_ids = self.test_data.get()['id'].unique()
+                new_test_ids = dict(zip(test_ids, range(len(train_ids), len(train_ids) + len(test_ids))))
+                self.test_data.get()['id'].replace(new_test_ids, inplace=True)
 
     def extract_optionals(self, data):
         essential = self.test_data.required_fields

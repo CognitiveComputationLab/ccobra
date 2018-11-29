@@ -13,6 +13,8 @@ import os
 import sys
 from contextlib import contextmanager
 
+import pandas as pd
+
 import evaluator
 import metrics
 
@@ -24,7 +26,9 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('benchmark', type=str, help='Benchmark file.')
     parser.add_argument('-m', '--model', type=str, help='Model file.')
-    parser.add_argument('-o', '--output', type=str, default='browser', help='Output style (browser/html)')
+    parser.add_argument('-o', '--output', type=str, default='browser', help='Output style (browser/html).')
+    parser.add_argument('-c', '--cache', type=str, help='Load specified cache file.')
+    parser.add_argument('-s', '--save', type=str, help='Store results as csv table.')
 
     args = vars(parser.parse_args())
 
@@ -104,7 +108,14 @@ def main(args):
     corresponding_data = False
     if 'corresponding_data' in benchmark:
         corresponding_data = benchmark['corresponding_data']
-    modellist.extend(benchmark['models'])
+
+    # Only extend if not cached
+    cache_df = pd.DataFrame()
+    if not args['cache']:
+        modellist.extend(benchmark['models'])
+    else:
+        print('loading cache...')
+        cache_df = pd.read_csv(args['cache'])
 
     # Run the model evaluation
     is_silent = (args['output'] == 'html')
@@ -117,6 +128,10 @@ def main(args):
 
     with silence_stdout(is_silent):
         res_df = ev.evaluate()
+        res_df = pd.concat([res_df, cache_df])
+
+    if 'save' in args:
+        res_df.to_csv(args['save'], index=False)
 
     # Run the metric visualizer
     html_viz = metrics.HTMLVisualizer([
