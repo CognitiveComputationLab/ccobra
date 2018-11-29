@@ -21,7 +21,17 @@ def dir_context(path):
         sys.path.remove(path)
 
 class Evaluator(object):
-    def __init__(self, modellist, test_datafile, train_datafile=None, silent=False):
+    def __init__(self, modellist, test_datafile, train_datafile=None, silent=False, corresponding_data=False):
+        """
+
+        Parameters
+        ----------
+        corresponding_data : bool
+            Indicates whether test and training data should contain the same
+            user ids.
+
+        """
+
         self.modellist = modellist
         self.silent = silent
 
@@ -39,6 +49,16 @@ class Evaluator(object):
             self.domains.update(self.train_data.get()['domain'].unique())
             self.response_types.update(self.train_data.get()['response_type'].unique())
 
+        # If non-corresponding datasets, update with new identification
+        if not corresponding_data:
+            train_ids = self.train_data.get()['id'].unique()
+            new_train_ids = dict(zip(train_ids, range(len(train_ids))))
+            self.train_data.get()['id'].replace(new_train_ids, inplace=True)
+
+            test_ids = self.test_data.get()['id'].unique()
+            new_test_ids = dict(zip(test_ids, range(len(train_ids), len(train_ids) + len(test_ids))))
+            self.test_data.get()['id'].replace(new_test_ids, inplace=True)
+
     def extract_optionals(self, data):
         essential = self.test_data.required_fields
         optionals = set(data.keys()) - set(essential)
@@ -49,7 +69,11 @@ class Evaluator(object):
         demo_data = ['age', 'gender', 'education', 'affinity', 'experience']
         for data in demo_data:
             if data in data_df.columns:
-                demographics[data] = data_df[data].values.tolist()
+                demographics[data] = data_df[data].unique().tolist()
+
+                if len(demographics[data]) == 1:
+                    demographics[data] = demographics[data][0]
+
         return demographics
 
     def tuple_to_string(self, tuptup):
@@ -114,7 +138,7 @@ class Evaluator(object):
                                 'id': id_info,
                                 'sequence': seq_info,
                                 'item': ccobra.data.Item(
-                                    row['domain'], row['task'],
+                                    id_info, row['domain'], row['task'],
                                     row['response_type'], row['choices'])
                             }
 
@@ -135,14 +159,13 @@ class Evaluator(object):
 
                 # Iterate subject
                 for subj_id, subj_df in self.test_data.get().groupby('id'):
-
                     model = copy.deepcopy(pre_model)
 
                     # Extract the subject demographics
-                    demographics = self.extract_demographics(self.test_data.get())
+                    demographics = self.extract_demographics(subj_df)
 
                     # Set the models to new participant
-                    model.start_participant(demographics=demographics)
+                    model.start_participant(id=subj_id, **demographics)
 
                     for _, row in subj_df.sort_values('sequence').iterrows():
                         optionals = self.extract_optionals(row)
@@ -161,9 +184,8 @@ class Evaluator(object):
                             else:
                                 truth = [x.split(';') for x in truth.split('/')]
 
-
                         item = ccobra.data.Item(
-                            domain, task, response_type, choices)
+                            subj_id, domain, task, response_type, choices)
 
                         prediction = model.predict(item, **optionals)
                         prediction_str = self.tuple_to_string(prediction)

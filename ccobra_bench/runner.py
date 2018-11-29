@@ -98,8 +98,12 @@ def main(args):
     if args['model']:
         modellist.append(args['model'])
 
+    # Load the benchmark settings
     benchmark = None
     benchmark = load_benchmark(args['benchmark'])
+    corresponding_data = False
+    if 'corresponding_data' in benchmark:
+        corresponding_data = benchmark['corresponding_data']
     modellist.extend(benchmark['models'])
 
     # Run the model evaluation
@@ -108,7 +112,8 @@ def main(args):
         modellist,
         benchmark['data.test'],
         benchmark['data.train'],
-        silent=is_silent)
+        silent=is_silent,
+        corresponding_data=corresponding_data)
 
     with silence_stdout(is_silent):
         res_df = ev.evaluate()

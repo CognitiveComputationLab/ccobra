@@ -1,6 +1,7 @@
 {
     "data.train": "data/Veser2018.csv",
     "data.test": "data/Ragni2016.csv",
+    "corresponding_data": false,
     "models": [
         "models/2012-Khemlani/Atmosphere/atmosphere.py",
         "models/2012-Khemlani/Conversion/conversion.py",

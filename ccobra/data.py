@@ -65,12 +65,15 @@ class Item():
 
     """
 
-    def __init__(self, domain, task, resp_type, choices):
+    def __init__(self, identifier, domain, task, resp_type, choices):
         """ Constructs the task item container with information about the
         domain, task premises, response type, and response choices.
 
         Parameters
         ----------
+        identifier : object
+            Unique identifier for the participant.
+
         domain : str
             Task domain (e.g., 'syllogistic').
 
@@ -79,6 +82,9 @@ class Item():
             'All;pilots;gardeners/Some;gardeners;cooks').
 
         """
+
+        #: Unique identifier of the participant
+        self.identifier = identifier
 
         #: Response type of the task
         self.response_type = resp_type
@@ -96,6 +102,7 @@ class Item():
 
     def __str__(self):
         rep = 'CCOBRA Item:\n'
+        rep += '\tIdentifier: {}\n'.format(self.identifier)
         rep += '\tTask: {}\n'.format(self.task)
         rep += '\tDomain: {}\n'.format(self.domain)
         rep += '\tResponse Type: {}\n'.format(self.response_type)
