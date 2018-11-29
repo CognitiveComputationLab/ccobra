@@ -114,7 +114,6 @@ def main(args):
     if not args['cache']:
         modellist.extend(benchmark['models'])
     else:
-        print('loading cache...')
         cache_df = pd.read_csv(args['cache'])
 
     # Run the model evaluation
