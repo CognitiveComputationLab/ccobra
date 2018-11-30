@@ -1,6 +1,6 @@
 {
-    "data.train": "data/Veser2018.csv",
-    "data.test": "data/Ragni2016.csv",
+    "data.train": "data/Ragni2016.csv",
+    "data.test": "data/Veser2018.csv",
     "models": [
         "models/Baseline/NVC-Model/nvc_model.py",
         "models/Baseline/Uniform-Model/uniform_model.py",

@@ -2,12 +2,14 @@
 
 """
 
+#: List of syllogistic task identifiers.
 SYLLOGISMS = []
 for prem1 in ['A', 'I', 'E', 'O']:
     for prem2 in ['A', 'I', 'E', 'O']:
         for fig in ['1', '2', '3', '4']:
             SYLLOGISMS.append(prem1 + prem2 + fig)
 
+#: List of syllogistic responses.
 RESPONSES = []
 for quant in ['A', 'I', 'E', 'O']:
     for direction in ['ac', 'ca']:
