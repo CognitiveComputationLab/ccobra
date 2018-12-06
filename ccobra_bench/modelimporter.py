@@ -18,6 +18,83 @@ class ModelImporter(object):
 
     """
 
+    def get_class(self, model_path, superclass=ccobra.CCobraModel):
+        python_files = []
+        abs_path = os.path.abspath(model_path)
+        if os.path.isfile(abs_path):
+            python_files.append(abs_path)
+        else:
+            python_files = [
+                os.path.join(abs_path, f) for f in os.listdir(
+                    abs_path) if os.path.isfile(
+                        os.path.join(abs_path, f)) and f[-2:] == "py"]
+
+        candidates = {}
+        candidate_class_names = set()
+
+        for python_file in python_files:
+            module_name = os.path.splitext(os.path.basename(python_file))[0]
+            module = importlib.machinery.SourceFileLoader(
+                module_name, python_file).load_module(module_name)
+
+            member_class_modules = inspect.getmembers(module, inspect.isclass)
+
+            candidate_module = None
+            candidate_class = None
+            for member_class_module in member_class_modules:
+                member_class = member_class_module[1]
+
+                if member_class is superclass:
+                    continue
+                elif issubclass(member_class, superclass):
+                    if candidate_module:
+                        raise ValueError(
+                        'Multiple model classes found in file ' \
+                        '(e.g., {} and {}). ' \
+                        'Please only specify one per file.'.format(
+                            member_class.__name__, candidate_class.__name__))
+                    candidate_module = module
+                    candidate_class = member_class
+
+            if candidate_module:
+                full_name = '{}.{}'.format(
+                    candidate_module.__name__, candidate_class.__name__)
+                candidates[full_name] = (candidate_module, candidate_class)
+                candidate_class_names.add(full_name)
+
+        if len(candidates) == 0:
+            raise ValueError(
+                "No suitable classes found in model_path '{}'.".format(
+                    model_path))
+        if len(candidates) == 1:
+            return list(candidates.values())[0][1]
+
+        remaining_classes = set([x[1] for x in candidates.values()])
+        for full_name, content in candidates.items():
+            candidate_module = content[0]
+            candidate_class = content[1]
+            imported_modules = inspect.getmembers(
+                candidate_module, inspect.ismodule)
+
+            for imported_module in imported_modules:
+                imported_module = imported_module[1]
+
+                for other in candidates:
+                    other_module = candidates[other][0]
+                    other_class = candidates[other][1]
+
+                    if str(other_module) == str(imported_module):
+                        remaining_classes.remove(other_class)
+
+        if len(remaining_classes) > 1:
+            raise ValueError(
+                "Could not determine main class. Candidates were: '{}'.".format(
+                    remaining_classes))
+        elif len(remaining_classes) == 1:
+            return list(remaining_classes)[0]
+        else:
+            raise ValueError("Could not determine main class.")
+
     def __init__(self, model_path, superclass=object):
         """ Imports a model based on a given python source script. Dynamically
         identifies the contained model class and prepares for instantiation.
@@ -43,28 +120,7 @@ class ModelImporter(object):
 
         """
 
-        self.module_name = os.path.splitext(os.path.basename(model_path))[0]
-
-        # Scan module for the model class
-        imported_module = importlib.import_module(self.module_name)
-
-        self.class_attribute = None
-        for i in dir(imported_module):
-            attribute = getattr(imported_module, i)
-
-            if inspect.isclass(attribute) and issubclass(attribute, superclass):
-                # important to allow 'from superclass_module import superclass'
-                if attribute is superclass:
-                    continue
-                if self.class_attribute:
-                    raise ValueError(
-                        'Multiple model classes found (e.g., {} and {}). ' \
-                        'Please only specify one per file.'.format(
-                            self.class_attribute, attribute))
-                self.class_attribute = attribute
-
-        if not self.class_attribute:
-            raise ValueError('No model subclassing {} found.'.format(superclass))
+        self.class_attribute = self.get_class(model_path, superclass)
 
     def instantiate(self):
         """ Creates an instance of the imported model by calling the empy
