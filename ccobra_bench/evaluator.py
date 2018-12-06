@@ -207,4 +207,8 @@ class Evaluator(object):
                             'hit': prediction_str == truth_str,
                         })
 
+                # De-load the imported model and its dependencies. Might
+                # cause garbage collection issues.
+                importer.unimport()
+
         return pd.DataFrame(result_data)

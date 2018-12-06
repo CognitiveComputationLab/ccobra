@@ -11,6 +11,7 @@ import importlib
 import inspect
 import os
 import ccobra
+import sys
 
 class ModelImporter(object):
     """ Model importer class. Supports dynamical importing of modules,
@@ -34,6 +35,7 @@ class ModelImporter(object):
 
         for python_file in python_files:
             module_name = os.path.splitext(os.path.basename(python_file))[0]
+
             module = importlib.machinery.SourceFileLoader(
                 module_name, python_file).load_module(module_name)
 
@@ -120,7 +122,21 @@ class ModelImporter(object):
 
         """
 
+        self.old_modules = set(sys.modules)
         self.class_attribute = self.get_class(model_path, superclass)
+
+    def unimport(self):
+        """ Cuts off all dependencies loaded together with the module from
+        the module graph.
+
+        Attention: Might cause problems with garbage collection.
+
+        """
+
+        # Make sure that modules with same names do not produce conflicts
+        loaded_modules = set(sys.modules) - self.old_modules
+        for module_name in loaded_modules:
+            del sys.modules[module_name]
 
     def instantiate(self):
         """ Creates an instance of the imported model by calling the empy
