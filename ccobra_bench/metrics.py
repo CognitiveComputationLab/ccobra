@@ -115,7 +115,7 @@ class SubjectBoxes(CCobraMetric):
         return 'The following plot depicts boxplots for the models indicating ' \
             'individual subject performance. The data used for the plot are ' \
             'accuracies for individuals. Consequently, min and max refer to ' \
-            'the accuracy of the worst and best matching subjects. The dots' \
+            'the accuracy of the worst and best matching subjects. The dots ' \
             'refer to the mean accuracies of individual participants.'
 
     def evaluate(self, result_df):
