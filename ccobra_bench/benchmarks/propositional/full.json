@@ -1,0 +1,8 @@
+{
+    "data.train": "",
+    "data.test": "data/data.csv",
+    "corresponding_data": false,
+    "models": [
+        "models/Baseline/Random-Model/random_model.py"
+    ]
+}
