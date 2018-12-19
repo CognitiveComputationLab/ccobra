@@ -8,6 +8,7 @@ import pandas as pd
 import ccobra
 
 import modelimporter
+import comparator
 
 @contextmanager
 def dir_context(path):
@@ -21,7 +22,7 @@ def dir_context(path):
         sys.path.remove(path)
 
 class Evaluator(object):
-    def __init__(self, modellist, test_datafile, train_datafile=None, silent=False, corresponding_data=False):
+    def __init__(self, modellist, test_datafile, train_datafile=None, silent=False, corresponding_data=False, eval_comparator=None):
         """
 
         Parameters
@@ -37,6 +38,10 @@ class Evaluator(object):
 
         self.domains = set()
         self.response_types = set()
+
+        self.comparator = eval_comparator
+        if eval_comparator == None:
+            self.comparator = comparator.EqualityComparator()
 
         # Load the datasets
         self.test_data = ccobra.data.CCobraData(pd.read_csv(test_datafile))
@@ -75,27 +80,6 @@ class Evaluator(object):
                     demographics[data] = demographics[data][0]
 
         return demographics
-
-    def tuple_to_string(self, tuptup):
-        def join_deepest(tup, sep=';'):
-            if not isinstance(tup, list):
-                return tup
-            if not isinstance(tup[0], list):
-                return sep.join(tup)
-            else:
-                for idx in range(len(tup)):
-                    tup[idx] = join_deepest(tup[idx], sep)
-                return tup
-
-        tup = copy.deepcopy(tuptup)
-        tup = join_deepest(tup, ';')
-        tup = join_deepest(tup, '/')
-
-        # Sort the tuples
-        tup = sorted(tup) if isinstance(tup, list) else tup
-
-        tup = join_deepest(tup, '|')
-        return tup
 
     def evaluate(self):
         result_data = []
@@ -188,9 +172,7 @@ class Evaluator(object):
                             subj_id, domain, task, response_type, choices)
 
                         prediction = model.predict(item, **optionals)
-                        prediction_str = self.tuple_to_string(prediction)
-
-                        truth_str = self.tuple_to_string(truth)
+                        hit = self.comparator.compare(prediction, truth)
 
                         # Adapt to true response
                         model.adapt(item, truth, **optionals)
@@ -203,8 +185,8 @@ class Evaluator(object):
                             'task': task,
                             'choices': choices,
                             'truth': truth,
-                            'prediction': prediction_str,
-                            'hit': prediction_str == truth_str,
+                            'prediction': comparator.tuple_to_string(prediction),
+                            'hit': hit,
                         })
 
                 # De-load the imported model and its dependencies. Might
