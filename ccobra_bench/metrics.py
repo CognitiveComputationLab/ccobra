@@ -72,7 +72,15 @@ class HTMLVisualizer(object):
                 "        <hr>"
             ])
 
+        print('Adding boilerplate')
         html_out.extend([
+            "    <script>",
+            "        window.onresize = function() {",
+            "        var arr = document.getElementsByTagName('script')",
+            "        for (var n = 0; n < arr.length; n++)",
+            "            eval(arr[n].innerHTML);",
+            "        }",
+            "    </script>",
             "    </body>",
             "</html>"
         ])
