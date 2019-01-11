@@ -150,5 +150,9 @@ class SubjectBoxes(CCobraMetric):
         data = sorted(data, key=lambda x: np.mean(x['y']))
         for idx, datum in enumerate(data):
             datum['marker']['color'] = ccobracolor(idx, n_models)
-        layout = {'showlegend': 'true', 'legend': {'orientation': 'h'}}
+        layout = {'showlegend': 'true', 'legend': {
+            'x': 0,
+            'y': -0.25,
+            'orientation': 'h'
+        }}
         return data, layout
