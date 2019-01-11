@@ -106,6 +106,8 @@ def decode_response(enc_response, task):
 
     if enc_response == 'NVC':
         return ['NVC']
+    if enc_response == ['NVC']:
+        return enc_response
 
     obj_a = set(task[0][1:]) - set(task[1][1:])
     obj_c = set(task[1][1:]) - set(task[0][1:])

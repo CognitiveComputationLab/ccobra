@@ -89,8 +89,14 @@ class Item():
         #: Response type of the task
         self.response_type = resp_type
 
+        #: Task string representation
+        self.task_str = task
+
         #: Task in list representation
         self.task = [x.split(";") for x in task.split("/") if x]
+
+        #: Choices string representation
+        self.choices_str = choices
 
         #: Choices in list representation
         self.choices = [x.split('/') for x in choices.split('|')]

@@ -2,6 +2,7 @@
 
 """
 
+from ..data import Item
 from .parsing import encode_response, encode_task, decode_response
 
 class Syllogism():
@@ -16,12 +17,18 @@ class Syllogism():
         Parameters
         ----------
         item : ccobra.Item
-            CCOBRA task item container.
+            CCOBRA task item container to base this Syllogism helper on.
 
         """
 
-        #: Reference to the item the Syllogism is constructed on.
-        self.item = item
+        #: Instance of the item the Syllogism is constructed on. The instance
+        #: is copied in order to prevent reference mismatches from happening.
+        self.item = Item(
+            item.identifier,
+            item.domain,
+            item.task_str,
+            item.response_type,
+            item.choices_str)
 
         #: Reference to the task the Syllogism is constructed on.
         self.task = self.item.task
