@@ -32,3 +32,7 @@ def tuple_to_string(tuptup):
 class EqualityComparator():
     def compare(self, obj_a, obj_b):
         return tuple_to_string(obj_a) == tuple_to_string(obj_b)
+
+class NVCComparator():
+    def compare(self, obj_a, obj_b):
+        return ("NVC" == tuple_to_string(obj_a)) == ("NVC" == tuple_to_string(obj_b))

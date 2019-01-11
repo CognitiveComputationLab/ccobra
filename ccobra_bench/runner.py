@@ -17,6 +17,7 @@ import pandas as pd
 
 import evaluator
 import metrics
+import comparator
 
 def parse_arguments():
     """ Parses the command line arguments for the benchmark runner.
@@ -116,12 +117,19 @@ def main(args):
     else:
         cache_df = pd.read_csv(args['cache'])
 
+    # Extract comparator settings from benchmark description
+    eval_comparator = comparator.EqualityComparator()
+    if 'comparator' in benchmark:
+        if benchmark['comparator'] == 'nvc':
+            eval_comparator = comparator.NVCComparator()
+
     # Run the model evaluation
     is_silent = (args['output'] == 'html')
     ev = evaluator.Evaluator(
         modellist,
+        eval_comparator,
         benchmark['data.test'],
-        benchmark['data.train'],
+        train_datafile=benchmark['data.train'],
         silent=is_silent,
         corresponding_data=corresponding_data)
 

@@ -22,7 +22,7 @@ def dir_context(path):
         sys.path.remove(path)
 
 class Evaluator(object):
-    def __init__(self, modellist, test_datafile, train_datafile=None, silent=False, corresponding_data=False, eval_comparator=None):
+    def __init__(self, modellist, eval_comparator, test_datafile, train_datafile=None, silent=False, corresponding_data=False):
         """
 
         Parameters
@@ -40,8 +40,6 @@ class Evaluator(object):
         self.response_types = set()
 
         self.comparator = eval_comparator
-        if eval_comparator == None:
-            self.comparator = comparator.EqualityComparator()
 
         # Load the datasets
         self.test_data = ccobra.data.CCobraData(pd.read_csv(test_datafile))
@@ -175,7 +173,9 @@ class Evaluator(object):
                         hit = self.comparator.compare(prediction, truth)
 
                         # Adapt to true response
-                        model.adapt(item, truth, **optionals)
+                        adapt_item = ccobra.data.Item(
+                            subj_id, domain, task, response_type, choices)
+                        model.adapt(adapt_item, truth, **optionals)
 
                         result_data.append({
                             'model': model.name,
