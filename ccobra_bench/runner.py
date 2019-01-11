@@ -124,7 +124,7 @@ def main(args):
             eval_comparator = comparator.NVCComparator()
 
     # Run the model evaluation
-    is_silent = (args['output'] == 'html')
+    is_silent = (args['output'] in ['html', 'server'])
     ev = evaluator.Evaluator(
         modellist,
         eval_comparator,
@@ -145,11 +145,15 @@ def main(args):
         metrics.Accuracy(),
         metrics.SubjectBoxes()
     ])
-    html = html_viz.to_html(res_df)
 
     if args['output'] == 'browser':
+        html = html_viz.to_html(res_df, embedded=False)
         metrics.load_in_default_browser('\n'.join(html).encode('utf8'))
+    elif args['output'] == 'server':
+        html = html_viz.to_html(res_df, embedded=True)
+        print(' '.join(html))
     elif args['output'] == 'html':
+        html = html_viz.to_html(res_df, embedded=False)
         print(' '.join(html))
 
 if __name__ == '__main__':

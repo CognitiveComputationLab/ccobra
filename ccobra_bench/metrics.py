@@ -37,7 +37,7 @@ class HTMLVisualizer(object):
     def __init__(self, metrics):
         self.metrics = metrics
 
-    def to_html(self, res_df):
+    def to_html(self, res_df, embedded=False):
         html_out = [
             "<html>",
             "    <head>",
@@ -72,15 +72,19 @@ class HTMLVisualizer(object):
                 "        <hr>"
             ])
 
-        print('Adding boilerplate')
+        # Attach resizing function
+        if not embedded:
+            html_out.extend([
+                "    <script>",
+                "        window.onresize = function() {",
+                "        var arr = document.getElementsByTagName('script')",
+                "        for (var n = 0; n < arr.length; n++)",
+                "            eval(arr[n].innerHTML);",
+                "        }",
+                "    </script>"
+            ])
+
         html_out.extend([
-            "    <script>",
-            "        window.onresize = function() {",
-            "        var arr = document.getElementsByTagName('script')",
-            "        for (var n = 0; n < arr.length; n++)",
-            "            eval(arr[n].innerHTML);",
-            "        }",
-            "    </script>",
             "    </body>",
             "</html>"
         ])
