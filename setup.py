@@ -12,7 +12,7 @@ setuptools.setup(
     long_description_content_type='text/markdown',
     url='https://github.com/CognitiveComputationLab/ccobra',
     version=ccobra.__version__,
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_packages(exclude=['tests', 'tests.*']),
     license='MIT',
     author='Nicolas Riesterer',
     author_email='riestern@tf.uni-freiburg.de',
