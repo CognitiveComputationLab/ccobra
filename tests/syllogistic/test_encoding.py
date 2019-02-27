@@ -2,7 +2,7 @@ import unittest
 import ccobra
 
 class EncodingTestCase(unittest.TestCase):
-    """ Tests the encoding and decoding functions for the syllogistic reasoning
+    """ Tests the encoding functions for the syllogistic reasoning
     domain.
 
     """
