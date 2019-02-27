@@ -26,6 +26,6 @@ setuptools.setup(
         'Operating System :: OS Independent'
     ],
     entry_points={
-        'console_scripts': ['run-ccobra=ccobra.benchmark.runner:entry_point']
+        'console_scripts': ['ccobra=ccobra.benchmark.runner:entry_point']
     }
 )
