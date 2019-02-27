@@ -77,6 +77,9 @@ def encode_response(response, task):
     if not isinstance(response[0], list):
         response = [response]
 
+    if response[0] == 'NVC':
+        return 'NVC'
+
     if response[0][0] == 'NVC':
         return 'NVC'
 
@@ -105,8 +108,10 @@ def decode_response(enc_response, task):
     """
 
     if enc_response == 'NVC':
-        return ['NVC']
+        return [['NVC']]
     if enc_response == ['NVC']:
+        return [enc_response]
+    if enc_response == [['NVC']]:
         return enc_response
 
     obj_a = set(task[0][1:]) - set(task[1][1:])
@@ -115,6 +120,6 @@ def decode_response(enc_response, task):
     quant = enc_response[0].replace('A', 'All').replace(
         'I', 'Some').replace('O', 'Some not').replace('E', 'No')
     if enc_response[1:] == 'ac':
-        return [quant, list(obj_a)[0], list(obj_c)[0]]
+        return [[quant, list(obj_a)[0], list(obj_c)[0]]]
 
-    return [quant, list(obj_c)[0], list(obj_a)[0]]
+    return [[quant, list(obj_c)[0], list(obj_a)[0]]]
