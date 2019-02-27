@@ -10,8 +10,9 @@ Nicolas Riesterer <riestern@tf.uni-freiburg.de>
 import importlib
 import inspect
 import os
-import ccobra
 import sys
+
+from .. import CCobraModel
 
 class ModelImporter(object):
     """ Model importer class. Supports dynamical importing of modules,
@@ -19,7 +20,7 @@ class ModelImporter(object):
 
     """
 
-    def get_class(self, model_path, superclass=ccobra.CCobraModel):
+    def get_class(self, model_path, superclass=CCobraModel):
         python_files = []
         abs_path = os.path.abspath(model_path)
         if os.path.isfile(abs_path):

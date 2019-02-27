@@ -7,8 +7,8 @@ import pandas as pd
 
 import ccobra
 
-import modelimporter
-import comparator
+from . import modelimporter
+from . import comparator
 
 @contextmanager
 def dir_context(path):

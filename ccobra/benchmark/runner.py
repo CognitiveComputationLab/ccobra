@@ -15,9 +15,9 @@ from contextlib import contextmanager
 
 import pandas as pd
 
-import evaluator
-import metrics
-import comparator
+from . import evaluator
+from . import metrics
+from . import comparator
 
 def parse_arguments():
     """ Parses the command line arguments for the benchmark runner.
@@ -156,7 +156,7 @@ def main(args):
         html = html_viz.to_html(res_df, embedded=False)
         print(' '.join(html))
 
-if __name__ == '__main__':
+def entry_point():
     args = parse_arguments()
 
     try:
@@ -170,3 +170,6 @@ if __name__ == '__main__':
         else:
             print(e)
         sys.exit()
+
+if __name__ == '__main__':
+    entry_point()

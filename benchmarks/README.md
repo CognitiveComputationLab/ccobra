@@ -1,18 +1,12 @@
-CCOBRA Benchmarking Tools
-=========================
+CCOBRA Benchmarking Data
+========================
 
-Benchmarking tools and models for the CCOBRA framework.
-
-## Requirements
-
-- Python 3
-  - [Pandas](https://pandas.pydata.org)
-  - [CCOBRA](https://github.com/CognitiveComputationLab/ccobra)
+Benchmarking data and models for the CCOBRA framework.
 
 ## Usage
 
 ```
-usage: runner.py [-h] [-m MODEL] [-o OUTPUT] benchmark
+usage: run-ccobra [-h] [-m MODEL] [-o OUTPUT] benchmark
 
 positional arguments:
   benchmark             Benchmark file.
@@ -31,7 +25,7 @@ To test the full benchmark consisting of all available models, execute the tool 
 
 ```
 $> cd /path/to/repository
-$> python runner.py benchmarks/full.json
+$> run-ccobra benchmarks/full.json
 ```
 
 After collecting the set of predictions, a website should open depicting the result visualizations.
@@ -40,5 +34,5 @@ To compare an implemented model with a predefined benchmark, execute the tool as
 
 ```
 $> cd /path/to/repository
-$> python runner.py benchmarks/full.json -m path/to/model.py
+$> run-ccobra benchmarks/full.json -m path/to/model.py
 ```
