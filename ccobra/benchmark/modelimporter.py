@@ -137,6 +137,8 @@ class ModelImporter(object):
         # Make sure that modules with same names do not produce conflicts
         loaded_modules = set(sys.modules) - self.old_modules
         for module_name in loaded_modules:
+            if module_name.startswith('torch'):
+                continue
             del sys.modules[module_name]
 
     def instantiate(self):
