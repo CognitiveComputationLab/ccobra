@@ -121,7 +121,8 @@ class Evaluator(object):
                                 'sequence': seq_info,
                                 'item': ccobra.data.Item(
                                     id_info, row['domain'], row['task'],
-                                    row['response_type'], row['choices'])
+                                    row['response_type'], row['choices'],
+                                    seq_info)
                             }
 
                             for key, value in row.iteritems():
@@ -167,14 +168,16 @@ class Evaluator(object):
                                 truth = [x.split(';') for x in truth.split('/')]
 
                         item = ccobra.data.Item(
-                            subj_id, domain, task, response_type, choices)
+                            subj_id, domain, task, response_type, choices,
+                            sequence)
 
                         prediction = model.predict(item, **optionals)
                         hit = self.comparator.compare(prediction, truth)
 
                         # Adapt to true response
                         adapt_item = ccobra.data.Item(
-                            subj_id, domain, task, response_type, choices)
+                            subj_id, domain, task, response_type, choices,
+                            sequence)
                         model.adapt(adapt_item, truth, **optionals)
 
                         result_data.append({

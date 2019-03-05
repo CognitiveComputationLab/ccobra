@@ -65,7 +65,7 @@ class Item():
 
     """
 
-    def __init__(self, identifier, domain, task, resp_type, choices):
+    def __init__(self, identifier, domain, task, resp_type, choices, sequence_number):
         """ Constructs the task item container with information about the
         domain, task premises, response type, and response choices.
 
@@ -80,6 +80,9 @@ class Item():
         task : str
             Task text in tuple string encoding (e.g.,
             'All;pilots;gardeners/Some;gardeners;cooks').
+
+        sequence_number : int
+            Position of the item in the experimental sequence.
 
         """
 
@@ -106,10 +109,14 @@ class Item():
         #: Domain of the task
         self.domain = domain
 
+        #: Position of the task in the experimental sequence
+        self.sequence_number = sequence_number
+
     def __str__(self):
         rep = 'CCOBRA Item:\n'
         rep += '\tIdentifier: {}\n'.format(self.identifier)
         rep += '\tTask: {}\n'.format(self.task)
+        rep += '\tSequence Number: {}\n'.format(self.sequence_number)
         rep += '\tDomain: {}\n'.format(self.domain)
         rep += '\tResponse Type: {}\n'.format(self.response_type)
         rep += '\tChoices: {}'.format(self.choices)
