@@ -16,8 +16,9 @@ from contextlib import contextmanager
 import pandas as pd
 
 from . import evaluator
-from . import metrics
+from . import server
 from . import comparator
+from .visualization import html_creator, viz_plot
 
 def parse_arguments():
     """ Parses the command line arguments for the benchmark runner.
@@ -141,20 +142,20 @@ def main(args):
         res_df.to_csv(args['save'], index=False)
 
     # Run the metric visualizer
-    html_viz = metrics.HTMLVisualizer([
-        metrics.Accuracy(),
-        metrics.SubjectBoxes()
+    htmlcrtr = html_creator.HTMLCreator([
+        viz_plot.AccuracyVisualizer(),
+        viz_plot.BoxplotVisualizer()
     ])
 
     if args['output'] == 'browser':
-        html = html_viz.to_html(res_df, args['benchmark'], embedded=False)
-        metrics.load_in_default_browser('\n'.join(html).encode('utf8'))
+        html = htmlcrtr.to_html(res_df, args['benchmark'], embedded=False)
+        server.load_in_default_browser(html.encode('utf8'))
     elif args['output'] == 'server':
-        html = html_viz.to_html(res_df, args['benchmark'], embedded=True)
-        print(' '.join(html))
+        html = htmlcrtr.to_html(res_df, args['benchmark'], embedded=True)
+        print(html)
     elif args['output'] == 'html':
-        html = html_viz.to_html(res_df, args['benchmark'], embedded=False)
-        print(' '.join(html))
+        html = htmlcrtr.to_html(res_df, args['benchmark'], embedded=False)
+        print(html)
 
 def entry_point():
     args = parse_arguments()

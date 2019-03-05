@@ -1,0 +1,36 @@
+<div id="boxplot_div">
+    <h2>
+        Boxplot Visualizer
+    </h2>
+
+    <p>
+        The following plot depicts boxplots for the models indicating
+        individual subject performance. The data used for the plot are
+        accuracies for individuals. Consequently, min and max refer to
+        the accuracy of the worst and best matching subjects. The dots
+        refer to the mean accuracies of individual participants.
+    </p>
+
+    <div id="box_plot"></div>
+    <script>
+        var data = {{PLOT_DATA}};
+        var layout = {'showlegend': 'true', 'legend': {
+            'x': 0,
+            'y': -0.25,
+            'orientation': 'h',
+            'hovermode': 'closest'
+        }};
+        var config = {
+                toImageButtonOptions: {
+                format: 'png',
+                filename: 'ccobra_accuracies',
+                height: 500,
+                width: 1500
+            },
+            modeBarButtonsToRemove: ['sendDataToCloud', 'select2d', 'toggleSpikelines', 'hoverCompareCartesian', 'hoverClosestCartesian', 'lasso2d', 'zoom2d', 'pan2d', 'autoScale2d'],
+            displaylogo: false
+        };
+        Plotly.newPlot("box_plot", data, layout, config);
+        Plotly.relayout("box_plot", {'xaxis.categoryarray': {{ORDERING}}});
+    </script>
+</div>

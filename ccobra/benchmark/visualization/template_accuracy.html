@@ -1,0 +1,28 @@
+<div id="accuracy_div">
+    <h2>
+        Predictive Accuracy
+    </h2>
+
+    <p>
+        Predictive accuracies of the benchmark models, i.e., the percentages of
+        correct predictions.
+    </p>
+
+    <div id="accuracy_plot"></div>
+    <script>
+        var data = [{{PLOT_DATA}}];
+        var layout = {'showlegend': 'true', 'legend': {'orientation': "h"}};
+        var config = {
+                toImageButtonOptions: {
+                format: 'png',
+                filename: 'ccobra_accuracies',
+                height: 500,
+                width: 1500
+            },
+            modeBarButtonsToRemove: ['sendDataToCloud', 'select2d', 'toggleSpikelines', 'hoverCompareCartesian', 'hoverClosestCartesian', 'lasso2d', 'zoom2d', 'pan2d', 'autoScale2d'],
+            displaylogo: false
+        };
+        Plotly.newPlot("accuracy_plot", data, layout, config);
+        Plotly.relayout("accuracy_plot", {'xaxis.categoryarray': {{ORDERING}}});
+    </script>
+</div>
