@@ -28,7 +28,8 @@ class Syllogism():
             item.domain,
             item.task_str,
             item.response_type,
-            item.choices_str)
+            item.choices_str,
+            item.sequence_number)
 
         #: Reference to the task the Syllogism is constructed on.
         self.task = self.item.task

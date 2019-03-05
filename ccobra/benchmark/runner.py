@@ -147,13 +147,13 @@ def main(args):
     ])
 
     if args['output'] == 'browser':
-        html = html_viz.to_html(res_df, embedded=False)
+        html = html_viz.to_html(res_df, args['benchmark'], embedded=False)
         metrics.load_in_default_browser('\n'.join(html).encode('utf8'))
     elif args['output'] == 'server':
-        html = html_viz.to_html(res_df, embedded=True)
+        html = html_viz.to_html(res_df, args['benchmark'], embedded=True)
         print(' '.join(html))
     elif args['output'] == 'html':
-        html = html_viz.to_html(res_df, embedded=False)
+        html = html_viz.to_html(res_df, args['benchmark'], embedded=False)
         print(' '.join(html))
 
 def entry_point():
