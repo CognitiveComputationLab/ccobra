@@ -187,7 +187,7 @@ class Evaluator(object):
                             'sequence': sequence,
                             'task': task,
                             'choices': choices,
-                            'truth': truth,
+                            'truth': row['response'],
                             'prediction': comparator.tuple_to_string(prediction),
                             'hit': hit,
                         })

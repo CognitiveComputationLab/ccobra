@@ -3,6 +3,7 @@
 """
 
 import json
+import datetime
 import http.server as httpserver
 import webbrowser
 
@@ -37,15 +38,38 @@ class HTMLVisualizer(object):
     def __init__(self, metrics):
         self.metrics = metrics
 
-    def to_html(self, res_df, embedded=False):
+    def to_html(self, res_df, benchmark_name, embedded=False):
         html_out = [
             "<html>",
             "    <head>",
             "        <script src=\"https://cdn.plot.ly/plotly-latest.min.js\"></script>",
             "    </head>",
             "    <body>",
-            "        <h1>CCOBRA Evaluation Demonstration</h1>"
+            "        <h1>CCOBRA Evaluation Results</h1>"
         ]
+
+        # Add the top boilerplate containing benchmark information and
+        # result download option
+        html_out.extend([
+            '<script>',
+            '   var resultData = {};'.format(json.dumps(res_df.to_csv(index=False).split('\n'))),
+            '   function downloadResultData() {',
+            '      var csvContent = "data:text/csv;charset=utf-8,";',
+            '      csvContent += resultData.join(String.fromCharCode(10));',
+            '      var encodedUri = encodeURI(csvContent);',
+            '      var link = document.createElement("a");',
+            '      link.setAttribute("href", encodedUri);',
+            '      link.setAttribute("download", "data.csv");',
+            '      document.body.appendChild(link);',
+            '      link.click();',
+            '   }',
+            '</script>',
+            '<table>',
+            '   <tr><td>Benchmark</td><td>{}</td></tr>'.format(benchmark_name),
+            '   <tr><td>Date</td><td>{}</td></tr>'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M")),
+            '   <tr><td>Results</td><td><button type="button" onclick="downloadResultData()">Download</button></td></tr>',
+            '</table>'
+        ])
 
         for metric in self.metrics:
             metric_data, metric_layout = metric.evaluate(res_df)
