@@ -52,6 +52,8 @@ class HTMLVisualizer(object):
             metric_data = json.dumps(metric_data) if not isinstance(metric_data, list) else ','.join(json.dumps(x) for x in metric_data)
             metric_name = metric.__class__.__name__
             metric_div = metric_name.lower()
+            
+            ordering = json.dumps(res_df.groupby('model', as_index=False)['hit'].agg('mean').sort_values('hit', ascending=True)['model'].tolist())
 
             html_out.extend([
                 "        <h2>{}</h2>".format(metric_name),
@@ -68,6 +70,8 @@ class HTMLVisualizer(object):
                 str(metric_layout),
                 "            ;",
                 "            Plotly.newPlot('{}', data, layout);".format(metric_div),
+                "            Plotly.relayout('{}',".format(metric_div),
+                "            {'xaxis.categoryarray': " + ordering + "});",
                 "        </script>",
                 "        <hr>"
             ])
@@ -144,7 +148,13 @@ class SubjectBoxes(CCobraMetric):
                 'boxpoints': 'all',
                 'marker': {
                     'size': 4
-                }
+                },
+                'text': ["Subj.ID: {}".format(x) for x in df['id']],
+                'hoverinfo': 'text+y',
+                #'hoverlabel': {
+                #    'bgcolor': 'tomato',
+                #    'font': {'color': 'black'}
+                #}
             })
 
         data = sorted(data, key=lambda x: np.mean(x['y']))
@@ -153,6 +163,8 @@ class SubjectBoxes(CCobraMetric):
         layout = {'showlegend': 'true', 'legend': {
             'x': 0,
             'y': -0.25,
-            'orientation': 'h'
+            'orientation': 'h',
+            'hovermode': 'closest'
         }}
+        
         return data, layout
