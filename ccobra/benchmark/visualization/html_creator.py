@@ -10,7 +10,7 @@ class HTMLCreator():
         # Load the template
         self.template = ''
         template_path = os.path.dirname(__file__) + os.sep + 'template_page.html'
-       
+
         with codecs.open(template_path, "r", "utf-8") as tf:
             self.template = tf.read()
 
@@ -22,6 +22,7 @@ class HTMLCreator():
         for metric in self.metrics:
             metric_html = metric.to_html(result_df)
             content.append(metric_html)
+            content.append('<hr>')
 
         # Generate auxiliary scripts
         scripts = []
