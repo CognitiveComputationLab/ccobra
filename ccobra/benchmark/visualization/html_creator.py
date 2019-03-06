@@ -1,6 +1,7 @@
 import os
 import datetime
 import json
+import codecs
 
 class HTMLCreator():
     def __init__(self, metrics):
@@ -9,7 +10,8 @@ class HTMLCreator():
         # Load the template
         self.template = ''
         template_path = os.path.dirname(__file__) + os.sep + 'template_page.html'
-        with open(template_path) as tf:
+       
+        with codecs.open(template_path, "r", "utf-8") as tf:
             self.template = tf.read()
 
     def to_html(self, result_df, benchmark_name, embedded=False):

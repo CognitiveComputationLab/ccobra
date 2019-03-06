@@ -58,7 +58,7 @@ class AccuracyVisualizer(PlotVisualizer):
 
         # Compute the explicit ordering
         ordering = result_df.groupby(
-            'model', as_index=False)['hit'].agg('mean').sort_values('hit')['model'].tolist()
+            'model', as_index=False)['hit'].agg('mean').sort_values('hit', ascending=True)['model'].tolist()
 
         return {
             'PLOT_DATA': json.dumps(data),
@@ -98,7 +98,7 @@ class BoxplotVisualizer(PlotVisualizer):
 
         # Compute the explicit ordering
         ordering = result_df.groupby(
-            'model', as_index=False)['hit'].agg('mean').sort_values('hit')['model'].tolist()
+            'model', as_index=False)['hit'].agg('mean').sort_values('hit', ascending=True)['model'].tolist()
 
         return {
             'PLOT_DATA': json.dumps(data),
