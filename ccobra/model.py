@@ -57,6 +57,20 @@ class CCobraModel():
 
         pass
 
+    def person_train(self, data):
+        """ Trains the model based on background data of the individual to
+        be tested on.
+
+        Parameters
+        ----------
+        data : list(dict(str, object))
+            Training data for the model. List of tasks containing the items
+            and corresponding responses.
+
+        """
+
+        pass
+
     def predict(self, item, **kwargs):
         """ Generates a single response prediction for a given task.
 

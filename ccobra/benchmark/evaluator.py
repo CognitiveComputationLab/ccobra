@@ -4,6 +4,7 @@ import sys
 import copy
 
 import pandas as pd
+import numpy as np
 
 import ccobra
 
@@ -22,7 +23,7 @@ def dir_context(path):
         sys.path.remove(path)
 
 class Evaluator(object):
-    def __init__(self, modellist, eval_comparator, test_datafile, train_datafile=None, silent=False, corresponding_data=False):
+    def __init__(self, modellist, eval_comparator, test_datafile, train_datafile=None, train_data_person=None, silent=False, corresponding_data=False):
         """
 
         Parameters
@@ -40,27 +41,49 @@ class Evaluator(object):
         self.response_types = set()
 
         self.comparator = eval_comparator
+        self.corresponding_data = corresponding_data
 
-        # Load the datasets
-        self.test_data = ccobra.data.CCobraData(pd.read_csv(test_datafile))
+        # Load the test data
+        self.test_data = ccobra.CCobraData(pd.read_csv(test_datafile))
         self.domains.update(self.test_data.get()['domain'].unique())
         self.response_types.update(self.test_data.get()['response_type'].unique())
 
+        # Load the general training data
         self.train_data = None
         if train_datafile:
-            self.train_data = ccobra.data.CCobraData(pd.read_csv(train_datafile))
-            self.domains.update(self.train_data.get()['domain'].unique())
-            self.response_types.update(self.train_data.get()['response_type'].unique())
+            # Load the data. Domains and response types are not updated,
+            # because training is considered optional information the models
+            # are not forced to use.
+            self.train_data = ccobra.CCobraData(pd.read_csv(train_datafile))
 
             # If non-corresponding datasets, update with new identification
-            if not corresponding_data:
+            if not self.corresponding_data:
+                test_ids = self.test_data.get()['id'].unique()
+
+                # Identify the ID offset as the largest numerical index from
+                # the test dataset.
+                idx_offset = 0
+                for identifier in test_ids:
+                    # Strings cause the float conversion to throw an exception
+                    # Numberness is identified accordingly.
+                    try:
+                        if idx_offset < float(identifier):
+                            idx_offset = float(identifier)
+                    except:
+                        pass
+
+                idx_offset = int(np.ceil(idx_offset)) + 1
+
+                # Update the training IDs accordingly
                 train_ids = self.train_data.get()['id'].unique()
-                new_train_ids = dict(zip(train_ids, range(len(train_ids))))
+                new_train_ids = dict(zip(train_ids, range(idx_offset, idx_offset + len(train_ids))))
                 self.train_data.get()['id'].replace(new_train_ids, inplace=True)
 
-                test_ids = self.test_data.get()['id'].unique()
-                new_test_ids = dict(zip(test_ids, range(len(train_ids), len(train_ids) + len(test_ids))))
-                self.test_data.get()['id'].replace(new_test_ids, inplace=True)
+        # Load the personal training data
+        self.train_data_person = None
+        if train_data_person:
+            self.train_data_person = ccobra.CCobraData(
+                pd.read_csv(train_data_person))
 
     def extract_optionals(self, data):
         essential = self.test_data.required_fields
@@ -78,6 +101,50 @@ class Evaluator(object):
                     demographics[data] = demographics[data][0]
 
         return demographics
+
+    def check_model_applicability(self, pre_model):
+        missing_domains = self.domains - set(pre_model.supported_domains)
+        if len(missing_domains) > 0:
+            raise ValueError(
+                'Model {} is not applicable to domains {} found in ' \
+                'the test dataset.'.format(
+                    pre_model.name, missing_domains))
+
+        missing_response_types = self.response_types - set(pre_model.supported_response_types)
+        if len(missing_response_types) > 0:
+            raise ValueError(
+                'Model {} is not applicable to response_types {} ' \
+                'found in the test dataset.'.format(
+                    pre_model.name, missing_response_types))
+
+    def pre_train_model(self, pre_model, ccobra_data):
+        train_data_dicts = []
+        for id_info, subj_df in ccobra_data.get().groupby('id'):
+            subj_data = []
+            for seq_info, row in subj_df.sort_values(['sequence']).iterrows():
+                train_dict = {
+                    'id': id_info,
+                    'sequence': seq_info,
+                    'item': ccobra.data.Item(
+                        id_info, row['domain'], row['task'],
+                        row['response_type'], row['choices'],
+                        seq_info)
+                }
+
+                for key, value in row.iteritems():
+                    if key not in train_dict:
+                        train_dict[key] = value
+
+                if isinstance(train_dict['response'], str):
+                    if train_dict['response_type'] == 'multiple-choice':
+                        train_dict['response'] = [y.split(';') for y in [x.split('/') for x in train_dict['response'].split('|')]]
+                    else:
+                        train_dict['response'] = [x.split(';') for x in train_dict['response'].split('/')]
+
+                subj_data.append(train_dict)
+            train_data_dicts.append(subj_data)
+
+        pre_model.pre_train(train_data_dicts)
 
     def evaluate(self):
         result_data = []
@@ -98,51 +165,65 @@ class Evaluator(object):
                 pre_model = importer.instantiate()
 
                 # Check if model is applicable to domains/response types
-                missing_domains = self.domains - set(pre_model.supported_domains)
-                if len(missing_domains) > 0:
-                    raise ValueError(
-                        'Model {} is not applicable to domains {}.'.format(
-                            pre_model.name, missing_domains))
+                self.check_model_applicability(pre_model)
 
-                missing_response_types = self.response_types - set(pre_model.supported_response_types)
-                if len(missing_response_types) > 0:
-                    raise ValueError(
-                        'Model {} is not applicable to response_types {}.'.format(
-                            pre_model.name, missing_response_types))
-
-                if self.train_data is not None:
+                # Only perform general pre-training if training data is
+                # supplied and corresponding data is false. Otherwise, the
+                # model has to be re-trained for each subject.
+                if self.train_data is not None and not self.corresponding_data:
                     # Prepare training data
-                    train_data_dicts = []
-                    for id_info, subj_df in self.train_data.get().groupby('id'):
-                        subj_data = []
-                        for seq_info, row in subj_df.sort_values(['sequence']).iterrows():
-                            train_dict = {
-                                'id': id_info,
-                                'sequence': seq_info,
-                                'item': ccobra.data.Item(
-                                    id_info, row['domain'], row['task'],
-                                    row['response_type'], row['choices'],
-                                    seq_info)
-                            }
-
-                            for key, value in row.iteritems():
-                                if key not in train_dict:
-                                    train_dict[key] = value
-
-                            if isinstance(train_dict['response'], str):
-                                if train_dict['response_type'] == 'multiple-choice':
-                                    train_dict['response'] = [y.split(';') for y in [x.split('/') for x in train_dict['response'].split('|')]]
-                                else:
-                                    train_dict['response'] = [x.split(';') for x in train_dict['response'].split('/')]
-
-                            subj_data.append(train_dict)
-                        train_data_dicts.append(subj_data)
-
-                    pre_model.pre_train(train_data_dicts)
+                    self.pre_train_model(pre_model, self.train_data)
 
                 # Iterate subject
                 for subj_id, subj_df in self.test_data.get().groupby('id'):
                     model = copy.deepcopy(pre_model)
+
+                    # Perform pre-training for individual subjects only if
+                    # corresponding data is set to true.
+                    if self.train_data is not None and self.corresponding_data:
+                        # Remove the subject to be predicted based on its ID
+                        subj_pre_train_data = ccobra.CCobraData(
+                            self.train_data.get().loc[self.train_data.get()['id'] != subj_id])
+
+                        self.pre_train_model(model, subj_pre_train_data)
+
+                    # Perform the personalized pre-training
+                    if self.train_data_person is not None:
+                        # Pick out the person training data for the current
+                        # individual
+                        subj_pre_train_data_person = self.train_data_person.get().loc[
+                            self.train_data_person.get()['id'] == subj_id]
+
+                        # Generate the person-train data
+                        train_data_person_list = []
+                        for _, series in subj_pre_train_data_person.sort_values('sequence').iterrows():
+                            person_train_dict = {}
+
+                            # Add the Item
+                            person_train_dict['item'] = ccobra.Item(
+                                series['id'], series['domain'],
+                                series['task'], series['response_type'],
+                                series['choices'], series['sequence'])
+
+                            # Convert the response to its list representation
+                            if isinstance(series['response'], str):
+                                if series['response_type'] == 'multiple-choice':
+                                    person_train_dict['response'] = [y.split(';') for y in [x.split('/') for x in series['response'].split('|')]]
+                                else:
+                                    person_train_dict['response'] = [x.split(';') for x in series['response'].split('/')]
+                            else:
+                                person_train_dict['response'] = series['response']
+
+                            # Add the remaining elements
+                            for key, value in series.iteritems():
+                                if key not in self.train_data_person.required_fields:
+                                    person_train_dict[key] = value
+
+                            # Update the training data list
+                            train_data_person_list.append(person_train_dict)
+
+                        # Perform personalized training
+                        model.person_train(train_data_person_list)
 
                     # Extract the subject demographics
                     demographics = self.extract_demographics(subj_df)
@@ -172,7 +253,7 @@ class Evaluator(object):
                             sequence)
 
                         prediction = model.predict(item, **optionals)
-                        hit = self.comparator.compare(prediction, truth)
+                        hit = int(self.comparator.compare(prediction, truth))
 
                         # Adapt to true response
                         adapt_item = ccobra.data.Item(

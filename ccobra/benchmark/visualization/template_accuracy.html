@@ -16,9 +16,9 @@
 
         // Layout: Ordering has to be here when not using Plotly.relayout
         var layout = {
-            title: {'text': 'Accuracy of Model Predictions'},
-            yaxis: {'title': {'text': 'Predictive Accuracy'}},
-            xaxis: {'categoryarray': {{ORDERING}}}
+            title: {text: 'Accuracy of Model Predictions'},
+            yaxis: {title: {text: 'Predictive Accuracy'}, rangemode: 'nonnegative'},
+            xaxis: {categoryarray: {{ORDERING}}}
         };
 
         // Disable unneccessary buttons
@@ -56,9 +56,9 @@
             // New layout with the current zoom level and disabled hover for the screenshot
             var layout = {
                 hovermode: false,
+                title: {text: 'Accuracy of Model Predictions'},
                 xaxis: {categoryarray: {{ORDERING}}, range: xRange},
-                yaxis: {title: {text: 'Predictive Accuracy'}, range: yRange},
-                title: {text: 'Accuracy of Model Predictions'}
+                yaxis: {title: {text: 'Predictive Accuracy'}, range: yRange, rangemode: 'nonnegative'}
             };
 
             // Applies new config and layout
@@ -95,9 +95,9 @@
                 // Layout for resetting everything after screenshot (with restored hover)
                 var layout = {
                     hovermode: savedHoverMode,
+                    title: {text: 'Accuracy of Model Predictions'},
                     xaxis: {categoryarray: {{ORDERING}}, range: xRange},
-                    yaxis: {title: {text: 'Predictive Accuracy'}, range: yRange},
-                    title: {text: 'Accuracy of Model Predictions'}
+                    yaxis: {title: {text: 'Predictive Accuracy'}, range: yRange, rangemode: 'nonnegative'}
                 };
 
                 // Redraw plot

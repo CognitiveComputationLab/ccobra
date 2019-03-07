@@ -26,7 +26,7 @@
                 orientation: 'h'
             },
             title: {text: 'Subject Performance Boxplot'},
-            yaxis: {title: {text: 'Predictive Accuracy'}},
+            yaxis: {title: {text: 'Predictive Accuracy'}, rangemode: 'nonnegative'},
             xaxis: {categoryarray: {{ORDERING}}}
         };
 
@@ -71,7 +71,7 @@
                     y: -0.25,
                     orientation: 'h'
                 },
-                yaxis: {title: {text: 'Predictive Accuracy'}, range: yRange},
+                yaxis: {title: {text: 'Predictive Accuracy'}, range: yRange, rangemode: 'nonnegative'},
                 title: {text: 'Subject Performance Boxplot'},
                 xaxis: {categoryarray: {{ORDERING}}, range: xRange}
             };
@@ -116,7 +116,7 @@
                         y: -0.25,
                         orientation: 'h'
                     },
-                    yaxis: {title: {text: 'Predictive Accuracy'}, range: yRange},
+                    yaxis: {title: {text: 'Predictive Accuracy'}, range: yRange, rangemode: 'nonnegative'},
                     title: {text: 'Subject Performance Boxplot'},
                     xaxis: {categoryarray: {{ORDERING}}, range: xRange}
                 };

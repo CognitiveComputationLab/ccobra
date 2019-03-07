@@ -65,8 +65,9 @@ def load_benchmark(benchmark_file):
             return os.path.normpath(base_path + os.sep + path)
         return path
 
-    benchmark['data.train'] = fix_path(benchmark['data.train'])
-    benchmark['data.test'] = fix_path(benchmark['data.test'])
+    benchmark['data.train'] = fix_path(benchmark.get('data.train'))
+    benchmark['data.train_person'] = fix_path(benchmark.get('data.train_person', ''))
+    benchmark['data.test'] = fix_path(benchmark.get('data.test', ''))
     benchmark['models'] = [fix_path(x) for x in benchmark['models']]
 
     return benchmark
@@ -131,6 +132,7 @@ def main(args):
         eval_comparator,
         benchmark['data.test'],
         train_datafile=benchmark['data.train'],
+        train_data_person=benchmark['data.train_person'],
         silent=is_silent,
         corresponding_data=corresponding_data)
 

@@ -2,7 +2,6 @@
 
 """
 
-
 class CCobraData():
     """ CCobra experimental data container.
 
@@ -111,6 +110,28 @@ class Item():
 
         #: Position of the task in the experimental sequence
         self.sequence_number = sequence_number
+
+    def __eq__(self, other):
+        if not isinstance(other, Item):
+            return False
+
+        if self.identifier != other.identifier:
+            return False
+        if self.response_type != other.response_type:
+            return False
+        if self.task_str != other.task_str:
+            return False
+        if self.choices_str != other.choices_str:
+            return False
+        if self.domain != other.domain:
+            return False
+        if self.sequence_number != other.sequence_number:
+            return False
+
+        return True
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __str__(self):
         rep = 'CCOBRA Item:\n'
