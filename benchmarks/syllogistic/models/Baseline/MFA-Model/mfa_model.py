@@ -5,8 +5,11 @@ import numpy as np
 import ccobra
 
 class MFAModel(ccobra.CCobraModel):
-    def __init__(self, name='MFAModel'):
+    def __init__(self, name='MFAModel', k=1):
         super(MFAModel, self).__init__(name, ["syllogistic"], ["single-choice"])
+
+        # Parameters
+        self.k = k
 
         # Initialize the model's storage
         syllogisms = ccobra.syllogistic.SYLLOGISMS
@@ -25,16 +28,15 @@ class MFAModel(ccobra.CCobraModel):
         enc_task = ccobra.syllogistic.encode_task(item.task)
         resp_counts = self.predictions[enc_task]
 
-        max_count = 0
+        target_value = sorted(
+            np.unique(list(resp_counts.values())), reverse=True)[self.k - 1]
         resps = []
-        for resp, cnt in sorted(resp_counts.items(), key=lambda x: x[1], reverse=True):
-            if max_count < cnt:
-                max_count = cnt
-            if max_count > cnt:
-                break
-            resps.append(resp)
+        for resp, cnt in resp_counts.items():
+            if cnt == target_value:
+                resps.append(resp)
 
-        return ccobra.syllogistic.decode_response(resps[np.random.randint(0, len(resps))], item.task)
+        return ccobra.syllogistic.decode_response(
+            resps[np.random.randint(0, len(resps))], item.task)
 
     def adapt(self, item, response, **kwargs):
         enc_task = ccobra.syllogistic.encode_task(item.task)
