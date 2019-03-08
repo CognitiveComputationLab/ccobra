@@ -6,7 +6,9 @@
         <script>
             {{HTML2CANVAS_LIB}}
         </script>
-
+        <script>
+            var evaluationContents = [];
+        </script>
         <style>
             {{CSSNESS}}
         </style>
@@ -25,6 +27,71 @@
         </div>
 
         <script>
+            /**
+                Saves the plot by creating a screenshot
+            **/
+            function save_plot(plot_div)
+            {
+                // Retrieve zoomness and save current zoom
+                var gd = document.getElementById(plot_div);
+                var xRange = gd.layout.xaxis.range;
+                var yRange = gd.layout.yaxis.range;
+
+                // Save current hover-mode
+                var savedHoverMode = gd.layout.hovermode;
+
+                // Hides the modeBar (for the screenshot)
+                evaluationContents[plot_div].config.displayModeBar = false;
+
+                // New layout with the current zoom level and disabled hover for the screenshot
+                evaluationContents[plot_div].layout.hovermode = false;
+                evaluationContents[plot_div].layout.xaxis.range = xRange;
+                evaluationContents[plot_div].layout.yaxis.range = yRange;
+
+                // Applies new config and layout
+                Plotly.react(plot_div, 
+                            evaluationContents[plot_div].data,
+                            evaluationContents[plot_div].layout,
+                            evaluationContents[plot_div].config);
+
+                // Pass plot to html2canvas (and wait --> promise is given)
+                html2canvas(document.getElementById(plot_div)).then(function(canvas) {
+                    // Append the canvas to get a URL
+                    document.body.appendChild(canvas);
+
+                    // Get image content from canvas and trigger download
+                    var url = canvas.toDataURL();
+                    var link = document.createElement('a');
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', plot_div + '.png');
+                    document.body.appendChild(link);
+                    link.click();
+
+                    // Clean up
+                    document.body.removeChild(canvas);
+
+                    // Retrieve zoomness again (for redrawing after the screenshot)
+                    var gd = document.getElementById(plot_div);
+                    var xRange = gd.layout.xaxis.range;
+                    var yRange = gd.layout.yaxis.range;
+
+                    // Config for resetting everything after screenshot (with restored buttons)
+                    evaluationContents[plot_div].config.displayModeBar = true;
+
+                    // Layout for resetting everything after screenshot (with restored hover)
+                    evaluationContents[plot_div].layout.hovermode = savedHoverMode;
+                    evaluationContents[plot_div].layout.xaxis.range = xRange;
+                    evaluationContents[plot_div].layout.yaxis.range = yRange;
+
+                    // Redraw plot
+                    Plotly.react(plot_div, 
+                                evaluationContents[plot_div].data,
+                                evaluationContents[plot_div].layout,
+                                evaluationContents[plot_div].config);
+                });
+            }
+        
+        
             var resultData = {{RESULT_DATA}};
             function downloadResultData() {
                 var csvContent = "data:text/csv;charset=utf-8,";

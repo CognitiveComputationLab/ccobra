@@ -7,102 +7,37 @@
             correct predictions.
         </p>
 
-        <button type="button" onclick="save_aplot();">Save Plot</button>
+        <button type="button" onclick="save_plot('accuracy_plot');">Save Plot</button>
     </div>
 
     <script>
-        // Data template
-        var data = [{{PLOT_DATA}}];
-
-        // Layout: Ordering has to be here when not using Plotly.relayout
-        var layout = {
-            title: {text: 'Accuracy of Model Predictions'},
-            yaxis: {title: {text: 'Predictive Accuracy'}, rangemode: 'nonnegative'},
-            xaxis: {categoryarray: {{ORDERING}}}
-        };
-
-        // Disable unneccessary buttons
-        var config = {
-            modeBarButtonsToRemove: ['toImage', 'sendDataToCloud', 'select2d', 'toggleSpikelines', 'hoverCompareCartesian', 'hoverClosestCartesian', 'lasso2d', 'zoom2d', 'pan2d', 'autoScale2d'],
-            displaylogo: false
-        };
+        evaluationContents['accuracy_plot'] = {
+            data: [{{PLOT_DATA}}],
+            layout: {
+                title: {text: 'Accuracy of Model Predictions'},
+                yaxis: {title: {text: 'Predictive Accuracy'}, rangemode: 'nonnegative'},
+                xaxis: {categoryarray: {{ORDERING}}}
+            },
+            config: {
+                modeBarButtonsToRemove: ['toImage',
+                                        'sendDataToCloud',
+                                        'select2d',
+                                        'toggleSpikelines',
+                                        'hoverCompareCartesian',
+                                        'hoverClosestCartesian',
+                                        'lasso2d',
+                                        'zoom2d',
+                                        'pan2d',
+                                        'autoScale2d'],
+                displaylogo: false
+            }
+        }
 
         // Plot the data
-        Plotly.newPlot("accuracy_plot", data, layout, config);
+        Plotly.newPlot("accuracy_plot", 
+                        evaluationContents['accuracy_plot'].data,
+                        evaluationContents['accuracy_plot'].layout, 
+                        evaluationContents['accuracy_plot'].config);
 
-        /**
-            Saves the plot by creating a screenshot
-        **/
-        function save_aplot()
-        {
-            // Retrieve zoomness and save current zoom
-            var gd = document.getElementById('accuracy_plot');
-            var xRange = gd.layout.xaxis.range;
-            var yRange = gd.layout.yaxis.range;
-
-            // Save current hover-mode
-            var savedHoverMode = gd.layout.hovermode;
-
-            // Creates a new config that hides the modeBar (for the screenshot)
-            var config = {
-                modeBarButtonsToRemove: ['toImage', 'sendDataToCloud', 'select2d', 'toggleSpikelines', 'hoverCompareCartesian', 'hoverClosestCartesian', 'lasso2d', 'zoom2d', 'pan2d', 'autoScale2d'],
-                displaylogo: false,
-                displayModeBar: false
-            };
-
-            // Data template
-            var data = [{{PLOT_DATA}}];
-
-            // New layout with the current zoom level and disabled hover for the screenshot
-            var layout = {
-                hovermode: false,
-                title: {text: 'Accuracy of Model Predictions'},
-                xaxis: {categoryarray: {{ORDERING}}, range: xRange},
-                yaxis: {title: {text: 'Predictive Accuracy'}, range: yRange, rangemode: 'nonnegative'}
-            };
-
-            // Applies new config and layout
-            Plotly.react("accuracy_plot", data, layout, config);
-
-            // Pass plot to html2canvas (and wait --> promise is given)
-            html2canvas(document.getElementById('accuracy_plot')).then(function(canvas) {
-                // Append the canvas to get a URL
-                document.body.appendChild(canvas);
-
-                // Get image content from canvas and trigger download
-                var url = canvas.toDataURL();
-                var link = document.createElement('a');
-                link.setAttribute('href', url);
-                link.setAttribute('download', 'accuracy_plot.png');
-                document.body.appendChild(link);
-                link.click();
-
-                // Clean up
-                document.body.removeChild(canvas);
-
-                // Retrieve zoomness again (for redrawing after the screenshot)
-                var gd = document.getElementById('accuracy_plot');
-                var xRange = gd.layout.xaxis.range;
-                var yRange = gd.layout.yaxis.range;
-
-                // Config for resetting everything after screenshot (with restored buttons)
-                var config = {
-                    modeBarButtonsToRemove: ['toImage', 'sendDataToCloud', 'select2d', 'toggleSpikelines', 'hoverCompareCartesian', 'hoverClosestCartesian', 'lasso2d', 'zoom2d', 'pan2d', 'autoScale2d'],
-                    displaylogo: false,
-                    displayModeBar: true
-                };
-
-                // Layout for resetting everything after screenshot (with restored hover)
-                var layout = {
-                    hovermode: savedHoverMode,
-                    title: {text: 'Accuracy of Model Predictions'},
-                    xaxis: {categoryarray: {{ORDERING}}, range: xRange},
-                    yaxis: {title: {text: 'Predictive Accuracy'}, range: yRange, rangemode: 'nonnegative'}
-                };
-
-                // Redraw plot
-                Plotly.react("accuracy_plot", data, layout, config);
-            });
-        }
     </script>
 </div>
