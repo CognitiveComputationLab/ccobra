@@ -1,0 +1,26 @@
+.caption {
+    width: 80%;
+    padding-left: 10%;
+    padding-right: 10%;
+    text-align: center;
+}
+
+hr {
+    display: block;
+    position: relative;
+    padding: 0;
+    margin: 8px auto;
+    height: 0;
+    width: 100%;
+    max-height: 0;
+    font-size: 1px;
+    line-height: 0;
+    clear: both;
+    border: none;
+    border-top: 1px solid #aaaaaa;
+    border-bottom: 1px solid #ffffff;
+}
+
+hr:last-child {
+    display: none;
+}

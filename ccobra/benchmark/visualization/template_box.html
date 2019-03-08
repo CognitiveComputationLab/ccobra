@@ -9,121 +9,43 @@
                 refer to the mean accuracies of individual participants.
             </p>
 
-            <button type="button" onclick="save_bplot();">Save Plot</button>
+            <button type="button" onclick="save_plot('box_plot');">Save Plot</button>
         </div>
 
     <script>
-        // Data template
-        var data = {{PLOT_DATA}};
-
-        // Layout: Ordering has to be here when not using Plotly.relayout
-        var layout = {
-            hovermode: 'closest',
-            showlegend: true,
-            legend: {
-                x: 0,
-                y: -0.25,
-                orientation: 'h'
-            },
-            title: {text: 'Subject Performance Boxplot'},
-            yaxis: {title: {text: 'Predictive Accuracy'}, rangemode: 'nonnegative'},
-            xaxis: {categoryarray: {{ORDERING}}}
-        };
-
-        // Disable unneccessary buttons
-        var config = {
-            modeBarButtonsToRemove: ['toImage', 'sendDataToCloud', 'select2d', 'toggleSpikelines', 'hoverCompareCartesian', 'hoverClosestCartesian', 'lasso2d', 'zoom2d', 'pan2d', 'autoScale2d'],
-            displaylogo: false
-        };
-
-        // Plot the data
-        Plotly.newPlot("box_plot", data, layout, config);
-
-        /**
-            Saves the plot by creating a screenshot
-        **/
-        function save_bplot()
-        {
-            // Retrieve zoomness and save current zoom
-            var gd = document.getElementById('box_plot');
-            var xRange = gd.layout.xaxis.range;
-            var yRange = gd.layout.yaxis.range;
-
-            // Save current hover-mode
-            var savedHoverMode = gd.layout.hovermode;
-
-            // Creates a new config that hides the modeBar (for the screenshot)
-            var config = {
-                modeBarButtonsToRemove: ['toImage', 'sendDataToCloud', 'select2d', 'toggleSpikelines', 'hoverCompareCartesian', 'hoverClosestCartesian', 'lasso2d', 'zoom2d', 'pan2d', 'autoScale2d'],
-                displaylogo: false,
-                displayModeBar: false
-            };
-
-            // Data template
-            var data = {{PLOT_DATA}};
-
-            // New layout with the current zoom level and disabled hover for the screenshot
-            var layout = {
-                hovermode: false,
+        evaluationContents['box_plot'] = {
+            data: {{PLOT_DATA}},
+            layout: {
+                hovermode: 'closest',
                 showlegend: true,
                 legend: {
                     x: 0,
                     y: -0.25,
                     orientation: 'h'
                 },
-                yaxis: {title: {text: 'Predictive Accuracy'}, range: yRange, rangemode: 'nonnegative'},
                 title: {text: 'Subject Performance Boxplot'},
-                xaxis: {categoryarray: {{ORDERING}}, range: xRange}
-            };
-
-            // Applies new config and layout
-            Plotly.react("box_plot", data, layout, config);
-
-            // Pass plot to html2canvas (and wait --> promise is given)
-            html2canvas(document.getElementById('box_plot')).then(function(canvas) {
-                // Append the canvas to get a URL
-                document.body.appendChild(canvas);
-
-                // Get image content from canvas and trigger download
-                var url = canvas.toDataURL();
-                var link = document.createElement('a');
-                link.setAttribute('href', url);
-                link.setAttribute('download', 'box_plot.png');
-                document.body.appendChild(link);
-                link.click();
-
-                // Clean up
-                document.body.removeChild(canvas);
-
-                // Retrieve zoomness again (for redrawing after the screenshot)
-                var gd = document.getElementById('box_plot');
-                var xRange = gd.layout.xaxis.range;
-                var yRange = gd.layout.yaxis.range;
-
-                // Config for resetting everything after screenshot (with restored buttons)
-                var config = {
-                    modeBarButtonsToRemove: ['toImage', 'sendDataToCloud', 'select2d', 'toggleSpikelines', 'hoverCompareCartesian', 'hoverClosestCartesian', 'lasso2d', 'zoom2d', 'pan2d', 'autoScale2d'],
-                    displaylogo: false,
-                    displayModeBar: true
-                };
-
-                // Layout for resetting everything after screenshot (with restored hover)
-                var layout = {
-                    hovermode: savedHoverMode,
-                    showlegend: true,
-                    legend: {
-                        x: 0,
-                        y: -0.25,
-                        orientation: 'h'
-                    },
-                    yaxis: {title: {text: 'Predictive Accuracy'}, range: yRange, rangemode: 'nonnegative'},
-                    title: {text: 'Subject Performance Boxplot'},
-                    xaxis: {categoryarray: {{ORDERING}}, range: xRange}
-                };
-
-                // Redraw plot
-                Plotly.react("box_plot", data, layout, config);
-            });
+                yaxis: {title: {text: 'Predictive Accuracy'}, rangemode: 'nonnegative'},
+                xaxis: {categoryarray: {{ORDERING}}}
+            },
+            config: {
+                modeBarButtonsToRemove: ['toImage',
+                                        'sendDataToCloud',
+                                        'select2d',
+                                        'toggleSpikelines',
+                                        'hoverCompareCartesian',
+                                        'hoverClosestCartesian',
+                                        'lasso2d',
+                                        'zoom2d',
+                                        'pan2d',
+                                        'autoScale2d'],
+                displaylogo: false
+            }
         }
+
+        // Plot the data
+        Plotly.newPlot("box_plot", 
+                        evaluationContents['box_plot'].data,
+                        evaluationContents['box_plot'].layout, 
+                        evaluationContents['box_plot'].config);
     </script>
 </div>
