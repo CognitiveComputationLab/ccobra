@@ -75,10 +75,9 @@ def main(args):
     # Compose the model list
     modeldict = {}
     if args['model']:
-        modeldict[args['model']] = {}
-       
-    # Classname argument
-    load_specific_class = args['classname']
+        modeldict[args['model']] = {
+            'load_specific_class' : args['classname']
+        }
     
     # Load the benchmark settings
     benchmark = None
@@ -109,8 +108,7 @@ def main(args):
         train_datafile=benchmark['data.train'],
         train_data_person=benchmark['data.train_person'],
         silent=is_silent,
-        corresponding_data=corresponding_data,
-        load_specific_class=load_specific_class)
+        corresponding_data=corresponding_data)
 
     with silence_stdout(is_silent):
         res_df = ev.evaluate()

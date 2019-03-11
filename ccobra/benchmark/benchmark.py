@@ -30,7 +30,7 @@ def load_benchmark(benchmark_file):
 
 def parse_model_info(model_info, base_path):
     if isinstance(model_info, str):
-        return (model_info, {})
+        return (fix_path(model_info, base_path), {})
 
     model_file = None
     kwargs = {}
