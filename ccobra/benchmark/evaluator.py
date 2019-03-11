@@ -23,7 +23,7 @@ def dir_context(path):
         sys.path.remove(path)
 
 class Evaluator(object):
-    def __init__(self, modellist, eval_comparator, test_datafile, train_datafile=None, train_data_person=None, silent=False, corresponding_data=False):
+    def __init__(self, modeldict, eval_comparator, test_datafile, train_datafile=None, train_data_person=None, silent=False, corresponding_data=False):
         """
 
         Parameters
@@ -34,7 +34,7 @@ class Evaluator(object):
 
         """
 
-        self.modellist = modellist
+        self.modeldict = modeldict
         self.silent = silent
 
         self.domains = set()
@@ -155,10 +155,13 @@ class Evaluator(object):
         train_data_dict = self.get_train_data_dict(self.train_data)
 
         # Activate model context
-        for idx, model in enumerate(self.modellist):
+        for idx, modelitem in enumerate(self.modeldict.items()):
+            model, model_kwargs = modelitem
+
+            # Print the progress
             if not self.silent:
                 print("Evaluating '{}' ({}/{})...".format(
-                    model, idx + 1, len(self.modellist)))
+                    model, idx + 1, len(self.modeldict)))
 
             # Setup the model context
             context = os.path.dirname(os.path.abspath(model))
@@ -167,7 +170,7 @@ class Evaluator(object):
                     model, ccobra.CCobraModel)
 
                 # Instantiate and prepare the model for predictions
-                pre_model = importer.instantiate()
+                pre_model = importer.instantiate(model_kwargs)
 
                 # Check if model is applicable to domains/response types
                 self.check_model_applicability(pre_model)

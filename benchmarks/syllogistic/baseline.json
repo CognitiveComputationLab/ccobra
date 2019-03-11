@@ -2,8 +2,8 @@
     "data.train": "data/Ragni2016.csv",
     "data.test": "data/Veser2018.csv",
     "models": [
-        "models/Baseline/NVC-Model/nvc_model.py",
-        "models/Baseline/Uniform-Model/uniform_model.py",
-        "models/Baseline/MFA-Model/mfa_model.py"
+        {"filename": "models/Baseline/NVC-Model/nvc_model.py", "name": "NVCTestName"},
+        {"filename": "models/Baseline/Uniform-Model/uniform_model.py"},
+        {"filename": "models/Baseline/MFA-Model/mfa_model.py"}
     ]
 }

@@ -18,6 +18,7 @@ import pandas as pd
 from . import evaluator
 from . import server
 from . import comparator
+from . import benchmark as bmark
 from .visualization import html_creator, viz_plot
 
 def parse_arguments():
@@ -40,37 +41,6 @@ def parse_arguments():
         sys.exit(99)
 
     return args
-
-def load_benchmark(benchmark_file):
-    """ Loads a benchmark file containing information about the data and models
-    to run. Changes relative paths from `benchmark_file` to absolute ones.
-
-    Parameters
-    ----------
-    benchmark_file : str
-        Path to the benchmark file to load.
-
-    """
-
-    benchmark = None
-
-    # Load raw benchmark file content
-    with open(benchmark_file) as json_file:
-        benchmark = json.load(json_file)
-
-    # Fix relative path information
-    base_path = os.path.dirname(os.path.abspath(benchmark_file))
-    def fix_path(path):
-        if path and not os.path.isabs(path):
-            return os.path.normpath(base_path + os.sep + path)
-        return path
-
-    benchmark['data.train'] = fix_path(benchmark.get('data.train'))
-    benchmark['data.train_person'] = fix_path(benchmark.get('data.train_person', ''))
-    benchmark['data.test'] = fix_path(benchmark.get('data.test', ''))
-    benchmark['models'] = [fix_path(x) for x in benchmark['models']]
-
-    return benchmark
 
 @contextmanager
 def silence_stdout(silent, target=os.devnull):
@@ -101,13 +71,13 @@ def main(args):
     """
 
     # Compose the model list
-    modellist = []
+    modeldict = {}
     if args['model']:
-        modellist.append(args['model'])
+        modeldict[args['model']] = {}
 
     # Load the benchmark settings
     benchmark = None
-    benchmark = load_benchmark(args['benchmark'])
+    benchmark = bmark.load_benchmark(args['benchmark'])
     corresponding_data = False
     if 'corresponding_data' in benchmark:
         corresponding_data = benchmark['corresponding_data']
@@ -115,7 +85,7 @@ def main(args):
     # Only extend if not cached
     cache_df = pd.DataFrame()
     if not args['cache']:
-        modellist.extend(benchmark['models'])
+        modeldict.update(benchmark['models'])
     else:
         cache_df = pd.read_csv(args['cache'])
 
@@ -128,7 +98,7 @@ def main(args):
     # Run the model evaluation
     is_silent = (args['output'] in ['html', 'server'])
     ev = evaluator.Evaluator(
-        modellist,
+        modeldict,
         eval_comparator,
         benchmark['data.test'],
         train_datafile=benchmark['data.train'],

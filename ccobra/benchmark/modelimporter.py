@@ -141,10 +141,10 @@ class ModelImporter(object):
                 continue
             del sys.modules[module_name]
 
-    def instantiate(self):
+    def instantiate(self, model_kwargs):
         """ Creates an instance of the imported model by calling the empy
         default constructor.
 
         """
 
-        return self.class_attribute()
+        return self.class_attribute(**model_kwargs)
