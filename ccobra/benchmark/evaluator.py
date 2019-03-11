@@ -117,37 +117,42 @@ class Evaluator(object):
                 'found in the test dataset.'.format(
                     pre_model.name, missing_response_types))
 
-    def pre_train_model(self, pre_model, ccobra_data):
-        train_data_dicts = []
+    def get_train_data_dict(self, ccobra_data):
+        train_data_dict = {}
         for id_info, subj_df in ccobra_data.get().groupby('id'):
             subj_data = []
-            for seq_info, row in subj_df.sort_values(['sequence']).iterrows():
-                train_dict = {
-                    'id': id_info,
-                    'sequence': seq_info,
-                    'item': ccobra.data.Item(
-                        id_info, row['domain'], row['task'],
-                        row['response_type'], row['choices'],
-                        seq_info)
-                }
+            for _, row in subj_df.sort_values(['sequence']).iterrows():
+                train_dict = {}
 
+                # Add the Item
+                train_dict['item'] = ccobra.Item(
+                    row['id'], row['domain'],
+                    row['task'], row['response_type'],
+                    row['choices'], row['sequence'])
+
+                # Convert the response to its list representation
+                if isinstance(row['response'], str):
+                    if row['response_type'] == 'multiple-choice':
+                        train_dict['response'] = [y.split(';') for y in [x.split('/') for x in row['response'].split('|')]]
+                    else:
+                        train_dict['response'] = [x.split(';') for x in row['response'].split('/')]
+                else:
+                    train_dict['response'] = row['response']
+
+                # Add the remaining elements
                 for key, value in row.iteritems():
-                    if key not in train_dict:
+                    if key not in ccobra_data.required_fields:
                         train_dict[key] = value
 
-                if isinstance(train_dict['response'], str):
-                    if train_dict['response_type'] == 'multiple-choice':
-                        train_dict['response'] = [y.split(';') for y in [x.split('/') for x in train_dict['response'].split('|')]]
-                    else:
-                        train_dict['response'] = [x.split(';') for x in train_dict['response'].split('/')]
-
                 subj_data.append(train_dict)
-            train_data_dicts.append(subj_data)
-
-        pre_model.pre_train(train_data_dicts)
+            train_data_dict[id_info] = subj_data
+        return train_data_dict
 
     def evaluate(self):
         result_data = []
+
+        # Pre-compute the training data dictionaries
+        train_data_dict = self.get_train_data_dict(self.train_data)
 
         # Activate model context
         for idx, model in enumerate(self.modellist):
@@ -172,7 +177,7 @@ class Evaluator(object):
                 # model has to be re-trained for each subject.
                 if self.train_data is not None and not self.corresponding_data:
                     # Prepare training data
-                    self.pre_train_model(pre_model, self.train_data)
+                    pre_model.pre_train(list(train_data_dict.values()))
 
                 # Iterate subject
                 for subj_id, subj_df in self.test_data.get().groupby('id'):
@@ -181,11 +186,11 @@ class Evaluator(object):
                     # Perform pre-training for individual subjects only if
                     # corresponding data is set to true.
                     if self.train_data is not None and self.corresponding_data:
-                        # Remove the subject to be predicted based on its ID
-                        subj_pre_train_data = ccobra.CCobraData(
-                            self.train_data.get().loc[self.train_data.get()['id'] != subj_id])
+                        # Remove one participant
+                        cur_train_data_dict = [value for key, value in train_data_dict.items() if key != subj_id]
 
-                        self.pre_train_model(model, subj_pre_train_data)
+                        # Train on incomplete training data
+                        model.pre_train(cur_train_data_dict)
 
                     # Perform the personalized pre-training
                     if self.train_data_person is not None:
@@ -194,36 +199,9 @@ class Evaluator(object):
                         subj_pre_train_data_person = self.train_data_person.get().loc[
                             self.train_data_person.get()['id'] == subj_id]
 
-                        # Generate the person-train data
-                        train_data_person_list = []
-                        for _, series in subj_pre_train_data_person.sort_values('sequence').iterrows():
-                            person_train_dict = {}
-
-                            # Add the Item
-                            person_train_dict['item'] = ccobra.Item(
-                                series['id'], series['domain'],
-                                series['task'], series['response_type'],
-                                series['choices'], series['sequence'])
-
-                            # Convert the response to its list representation
-                            if isinstance(series['response'], str):
-                                if series['response_type'] == 'multiple-choice':
-                                    person_train_dict['response'] = [y.split(';') for y in [x.split('/') for x in series['response'].split('|')]]
-                                else:
-                                    person_train_dict['response'] = [x.split(';') for x in series['response'].split('/')]
-                            else:
-                                person_train_dict['response'] = series['response']
-
-                            # Add the remaining elements
-                            for key, value in series.iteritems():
-                                if key not in self.train_data_person.required_fields:
-                                    person_train_dict[key] = value
-
-                            # Update the training data list
-                            train_data_person_list.append(person_train_dict)
-
-                        # Perform personalized training
-                        model.person_train(train_data_person_list)
+                        person_train_data = self.get_train_data_dict(
+                            ccobra.CCobraData(subj_pre_train_data_person))
+                        model.person_train(person_train_data[subj_id])
 
                     # Extract the subject demographics
                     demographics = self.extract_demographics(subj_df)
