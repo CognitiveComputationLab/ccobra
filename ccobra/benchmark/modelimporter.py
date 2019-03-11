@@ -4,6 +4,7 @@ for automated evaluation.
 Copyright 2018 Cognitive Computation Lab
 University of Freiburg
 Nicolas Riesterer <riestern@tf.uni-freiburg.de>
+Daniel Brand <daniel.brand@cognition.uni-freiburg.de>
 
 """
 
@@ -20,7 +21,7 @@ class ModelImporter(object):
 
     """
 
-    def get_class(self, model_path, superclass=CCobraModel):
+    def get_class(self, model_path, superclass=CCobraModel, load_specific_class=None):
         python_files = []
         abs_path = os.path.abspath(model_path)
         if os.path.isfile(abs_path):
@@ -50,14 +51,17 @@ class ModelImporter(object):
                 if member_class is superclass:
                     continue
                 elif issubclass(member_class, superclass):
-                    if candidate_module:
+                    if load_specific_class is None and candidate_module:
                         raise ValueError(
                         'Multiple model classes found in file ' \
                         '(e.g., {} and {}). ' \
                         'Please only specify one per file.'.format(
                             member_class.__name__, candidate_class.__name__))
-                    candidate_module = module
-                    candidate_class = member_class
+                    
+                    if load_specific_class is None \
+                        or load_specific_class == member_class.__name__:
+                        candidate_module = module
+                        candidate_class = member_class
 
             if candidate_module:
                 full_name = '{}.{}'.format(
@@ -72,6 +76,17 @@ class ModelImporter(object):
         if len(candidates) == 1:
             return list(candidates.values())[0][1]
 
+        if load_specific_class is not None:
+            if load_specific_class in candidates:
+                print("Selecting {} because the mighty user demands it".format(load_specific_class))
+                return candidates[load_specific_class][1]
+            else:
+                for candidate in candidates.values():
+                    candidate_class = candidate[1]
+                    if candidate_class.__name__ == load_specific_class:
+                        print("Selecting {} because the mighty user was not mighty enough to provide a full path".format(load_specific_class))
+                        return candidate_class
+            
         remaining_classes = set([x[1] for x in candidates.values()])
         for full_name, content in candidates.items():
             candidate_module = content[0]
@@ -98,7 +113,7 @@ class ModelImporter(object):
         else:
             raise ValueError("Could not determine main class.")
 
-    def __init__(self, model_path, superclass=object):
+    def __init__(self, model_path, superclass=object, load_specific_class=None):
         """ Imports a model based on a given python source script. Dynamically
         identifies the contained model class and prepares for instantiation.
 
@@ -124,7 +139,7 @@ class ModelImporter(object):
         """
 
         self.old_modules = set(sys.modules)
-        self.class_attribute = self.get_class(model_path, superclass)
+        self.class_attribute = self.get_class(model_path, superclass, load_specific_class)
 
     def unimport(self):
         """ Cuts off all dependencies loaded together with the module from

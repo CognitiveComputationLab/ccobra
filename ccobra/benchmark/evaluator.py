@@ -23,7 +23,7 @@ def dir_context(path):
         sys.path.remove(path)
 
 class Evaluator(object):
-    def __init__(self, modeldict, eval_comparator, test_datafile, train_datafile=None, train_data_person=None, silent=False, corresponding_data=False):
+    def __init__(self, modeldict, eval_comparator, test_datafile, train_datafile=None, train_data_person=None, silent=False, corresponding_data=False, load_specific_class=None):
         """
 
         Parameters
@@ -36,6 +36,7 @@ class Evaluator(object):
 
         self.modeldict = modeldict
         self.silent = silent
+        self.load_specific_class = load_specific_class
 
         self.domains = set()
         self.response_types = set()
@@ -164,10 +165,14 @@ class Evaluator(object):
                     model, idx + 1, len(self.modeldict)))
 
             # Setup the model context
-            context = os.path.dirname(os.path.abspath(model))
+            context = os.path.abspath(model)
+            if os.path.isfile(context):
+                context = os.path.dirname(context)
+            
             with dir_context(context):
                 importer = modelimporter.ModelImporter(
-                    model, ccobra.CCobraModel)
+                    model, ccobra.CCobraModel,
+                    load_specific_class=self.load_specific_class)
 
                 # Instantiate and prepare the model for predictions
                 pre_model = importer.instantiate(model_kwargs)

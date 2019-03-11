@@ -4,6 +4,7 @@ available.
 Copyright 2018 Cognitive Computation Lab
 University of Freiburg
 Nicolas Riesterer <riestern@tf.uni-freiburg.de>
+Daniel Brand <daniel.brand@cognition.uni-freiburg.de>
 
 """
 
@@ -32,6 +33,7 @@ def parse_arguments():
     parser.add_argument('-o', '--output', type=str, default='browser', help='Output style (browser/html).')
     parser.add_argument('-c', '--cache', type=str, help='Load specified cache file.')
     parser.add_argument('-s', '--save', type=str, help='Store results as csv table.')
+    parser.add_argument('-cn', '--classname', type=str, help='Load a specific class from a folder containing multiple classes.')
 
     args = vars(parser.parse_args())
 
@@ -74,7 +76,10 @@ def main(args):
     modeldict = {}
     if args['model']:
         modeldict[args['model']] = {}
-
+       
+    # Classname argument
+    load_specific_class = args['classname']
+    
     # Load the benchmark settings
     benchmark = None
     benchmark = bmark.load_benchmark(args['benchmark'])
@@ -104,7 +109,8 @@ def main(args):
         train_datafile=benchmark['data.train'],
         train_data_person=benchmark['data.train_person'],
         silent=is_silent,
-        corresponding_data=corresponding_data)
+        corresponding_data=corresponding_data,
+        load_specific_class=load_specific_class)
 
     with silence_stdout(is_silent):
         res_df = ev.evaluate()
