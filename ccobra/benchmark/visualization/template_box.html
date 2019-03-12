@@ -9,7 +9,7 @@
                 refer to the mean accuracies of individual participants.
             </p>
 
-            <button type="button" onclick="save_plot('box_plot');">Save Plot</button>
+            <button class="figsave" type="button" plot_type="box_plot">Save Plot</button>
         </div>
 
     <script>
@@ -43,9 +43,9 @@
         }
 
         // Plot the data
-        Plotly.newPlot("box_plot", 
+        Plotly.newPlot("box_plot",
                         evaluationContents['box_plot'].data,
-                        evaluationContents['box_plot'].layout, 
+                        evaluationContents['box_plot'].layout,
                         evaluationContents['box_plot'].config);
     </script>
 </div>

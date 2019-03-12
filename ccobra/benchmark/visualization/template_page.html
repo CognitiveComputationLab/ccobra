@@ -49,7 +49,7 @@
                 evaluationContents[plot_div].layout.yaxis.range = yRange;
 
                 // Applies new config and layout
-                Plotly.react(plot_div, 
+                Plotly.react(plot_div,
                             evaluationContents[plot_div].data,
                             evaluationContents[plot_div].layout,
                             evaluationContents[plot_div].config);
@@ -84,14 +84,22 @@
                     evaluationContents[plot_div].layout.yaxis.range = yRange;
 
                     // Redraw plot
-                    Plotly.react(plot_div, 
+                    Plotly.react(plot_div,
                                 evaluationContents[plot_div].data,
                                 evaluationContents[plot_div].layout,
                                 evaluationContents[plot_div].config);
                 });
             }
-        
-        
+
+            var savebuttons = document.getElementsByClassName("figsave");
+            for (i = 0; i < savebuttons.length; i++) {
+                var cur = savebuttons[i];
+                var plot_type = cur.getAttribute("plot_type");
+                cur.onclick = function() {
+                    save_plot(plot_type);
+                };
+            }
+
             var resultData = {{RESULT_DATA}};
             function downloadResultData() {
                 var csvContent = "data:text/csv;charset=utf-8,";
@@ -103,6 +111,8 @@
                 document.body.appendChild(link);
                 link.click();
             }
+
+            document.getElementById("downloadResultButton").onclick = downloadResultData;
 
             {{SCRIPTS}}
         </script>

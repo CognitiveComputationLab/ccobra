@@ -7,7 +7,7 @@
             correct predictions.
         </p>
 
-        <button type="button" onclick="save_plot('accuracy_plot');">Save Plot</button>
+        <button class="figsave" type="button" plot_type="accuracy_plot">Save Plot</button>
     </div>
 
     <script>
@@ -34,9 +34,9 @@
         }
 
         // Plot the data
-        Plotly.newPlot("accuracy_plot", 
+        Plotly.newPlot("accuracy_plot",
                         evaluationContents['accuracy_plot'].data,
-                        evaluationContents['accuracy_plot'].layout, 
+                        evaluationContents['accuracy_plot'].layout,
                         evaluationContents['accuracy_plot'].config);
 
     </script>
