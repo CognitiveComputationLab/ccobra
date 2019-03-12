@@ -19,7 +19,7 @@
         <table>
             <tr><td>Benchmark</td><td>{{BENCHMARK_NAME}}</td></tr>
             <tr><td>Date</td><td>{{BENCHMARK_DATE}}</td></tr>
-            <tr><td>Results</td><td><button type="button" onclick="downloadResultData()">Download</button></td></tr>
+            <tr><td>Results</td><td><button id="downloadResultButton" type="button">Download</button></td></tr>
         </table>
 
         <div>
@@ -95,8 +95,10 @@
             for (i = 0; i < savebuttons.length; i++) {
                 var cur = savebuttons[i];
                 var plot_type = cur.getAttribute("plot_type");
-                cur.onclick = function() {
-                    save_plot(plot_type);
+                console.log(cur);
+                cur.onclick = function(e) {
+                    console.log(e);
+                    save_plot(e.target.getAttribute("plot_type"));
                 };
             }
 
