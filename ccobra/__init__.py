@@ -19,6 +19,7 @@
 """
 
 from . import syllogistic
+from . import benchmark
 
 from .data import CCobraData, Item
 from .model import CCobraModel
