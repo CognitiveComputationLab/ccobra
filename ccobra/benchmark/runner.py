@@ -75,7 +75,7 @@ def main(args):
     # Compose the model list
     modeldict = {}
     if args['model']:
-        modeldict[args['model']] = {
+        modeldict[bmark.fix_model_path(args['model'])] = {
             'load_specific_class' : args['classname']
         }
     
@@ -91,8 +91,8 @@ def main(args):
     if not args['cache']:
         modeldict.update(benchmark['models'])
     else:
-        cache_df = pd.read_csv(args['cache'])
-
+        cache_df = pd.read_csv(args['cache'])                    
+        
     # Extract comparator settings from benchmark description
     eval_comparator = comparator.EqualityComparator()
     if 'comparator' in benchmark:
