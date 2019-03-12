@@ -75,7 +75,7 @@ def main(args):
     # Compose the model list
     modeldict = {}
     if args['model']:
-        modeldict[bmark.fix_model_path(args['model'])] = {
+        modeldict[bmark.fix_model_path(args['model'], os.getcwd())] = {
             'load_specific_class' : args['classname']
         }
     
