@@ -152,7 +152,9 @@ class Evaluator(object):
         result_data = []
 
         # Pre-compute the training data dictionaries
-        train_data_dict = self.get_train_data_dict(self.train_data)
+        train_data_dict = None
+        if self.train_data is not None:
+            train_data_dict = self.get_train_data_dict(self.train_data)
 
         # Activate model context
         for idx, modelitem in enumerate(self.modeldict.items()):
@@ -167,13 +169,13 @@ class Evaluator(object):
             context = os.path.abspath(model)
             if os.path.isfile(context):
                 context = os.path.dirname(context)
-            
+
             # Extract load_specific_class
             specific_class = None
             if 'load_specific_class' in model_kwargs:
                 specific_class = model_kwargs['load_specific_class']
                 del model_kwargs['load_specific_class']
-            
+
             with dir_context(context):
                 importer = modelimporter.ModelImporter(
                     model, ccobra.CCobraModel,
