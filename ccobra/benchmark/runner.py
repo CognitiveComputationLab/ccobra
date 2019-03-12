@@ -78,7 +78,7 @@ def main(args):
         modeldict[bmark.fix_model_path(args['model'], os.getcwd())] = {
             'load_specific_class' : args['classname']
         }
-    
+
     # Load the benchmark settings
     benchmark = None
     benchmark = bmark.load_benchmark(args['benchmark'])
@@ -91,8 +91,8 @@ def main(args):
     if not args['cache']:
         modeldict.update(benchmark['models'])
     else:
-        cache_df = pd.read_csv(args['cache'])                    
-        
+        cache_df = pd.read_csv(args['cache'])
+
     # Extract comparator settings from benchmark description
     eval_comparator = comparator.EqualityComparator()
     if 'comparator' in benchmark:
@@ -128,7 +128,7 @@ def main(args):
         server.load_in_default_browser(html.encode('utf8'))
     elif args['output'] == 'server':
         html = htmlcrtr.to_html(res_df, args['benchmark'], embedded=True)
-        print(html)
+        sys.stdout.buffer.write(html.encode('utf-8'))
     elif args['output'] == 'html':
         html = htmlcrtr.to_html(res_df, args['benchmark'], embedded=False)
         print(html)
