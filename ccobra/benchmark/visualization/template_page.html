@@ -94,10 +94,7 @@
             var savebuttons = document.getElementsByClassName("figsave");
             for (i = 0; i < savebuttons.length; i++) {
                 var cur = savebuttons[i];
-                var plot_type = cur.getAttribute("plot_type");
-                console.log(cur);
                 cur.onclick = function(e) {
-                    console.log(e);
                     save_plot(e.target.getAttribute("plot_type"));
                 };
             }
