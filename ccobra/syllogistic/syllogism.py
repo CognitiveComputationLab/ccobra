@@ -111,16 +111,16 @@ class Syllogism():
 
         """
 
-        s = 'Syllogism:\n'
-        s += '\ttask: {}\n'.format(self.task)
-        s += '\tencoded_task: {}\n'.format(self.encoded_task)
-        s += '\tp1: {}\n'.format(self.p1)
-        s += '\tp2: {}\n'.format(self.p2)
-        s += '\tquantifier_p1: {}\n'.format(self.quantifier_p1)
-        s += '\tquantifier_p2: {}\n'.format(self.quantifier_p2)
-        s += '\tfigure: {}\n'.format(self.figure)
-        s += '\tTerms:\n'
-        s += '\t\tA: {}\n'.format(self.A)
-        s += '\t\tB: {}\n'.format(self.B)
-        s += '\t\tC: {}\n'.format(self.C)
-        return s
+        rep = 'Syllogism:\n'
+        rep += '\ttask: {}\n'.format(self.task)
+        rep += '\tencoded_task: {}\n'.format(self.encoded_task)
+        rep += '\tp1: {}\n'.format(self.p1)
+        rep += '\tp2: {}\n'.format(self.p2)
+        rep += '\tquantifier_p1: {}\n'.format(self.quantifier_p1)
+        rep += '\tquantifier_p2: {}\n'.format(self.quantifier_p2)
+        rep += '\tfigure: {}\n'.format(self.figure)
+        rep += '\tTerms:\n'
+        rep += '\t\tA: {}\n'.format(self.A)
+        rep += '\t\tB: {}\n'.format(self.B)
+        rep += '\t\tC: {}\n'.format(self.C)
+        return rep

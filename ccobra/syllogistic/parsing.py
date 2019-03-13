@@ -4,16 +4,16 @@
 
 #: List of syllogistic task identifiers.
 SYLLOGISMS = []
-for prem1 in ['A', 'I', 'E', 'O']:
-    for prem2 in ['A', 'I', 'E', 'O']:
-        for fig in ['1', '2', '3', '4']:
-            SYLLOGISMS.append(prem1 + prem2 + fig)
+for _prem1 in ['A', 'I', 'E', 'O']:
+    for _prem2 in ['A', 'I', 'E', 'O']:
+        for _fig in ['1', '2', '3', '4']:
+            SYLLOGISMS.append(_prem1 + _prem2 + _fig)
 
 #: List of syllogistic responses.
 RESPONSES = []
-for quant in ['A', 'I', 'E', 'O']:
-    for direction in ['ac', 'ca']:
-        RESPONSES.append(quant + direction)
+for _quant in ['A', 'I', 'E', 'O']:
+    for _direction in ['ac', 'ca']:
+        RESPONSES.append(_quant + _direction)
 RESPONSES.append('NVC')
 
 def encode_task(task_tuple):
@@ -34,21 +34,21 @@ def encode_task(task_tuple):
 
     """
 
-    p1, p2 = task_tuple
+    prem_1, prem_2 = task_tuple
 
-    quant1 = p1[0].replace('All', 'A').replace(
+    quant1 = prem_1[0].replace('All', 'A').replace(
         'Some not', 'O').replace('Some', 'I').replace('No', 'E')
-    quant2 = p2[0].replace('All', 'A').replace(
+    quant2 = prem_2[0].replace('All', 'A').replace(
         'Some not', 'O').replace('Some', 'I').replace('No', 'E')
     figure = 1
 
-    if p1[1] == p2[1]:
+    if prem_1[1] == prem_2[1]:
         figure = 4
-    elif p1[2] == p2[1]:
+    elif prem_1[2] == prem_2[1]:
         figure = 1
-    elif p1[2] == p2[2]:
+    elif prem_1[2] == prem_2[2]:
         figure = 3
-    elif p1[1] == p2[2]:
+    elif prem_1[1] == prem_2[2]:
         figure = 2
     else:
         raise ValueError('Could not determine figure of:', task_tuple)
