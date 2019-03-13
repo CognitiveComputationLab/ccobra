@@ -6,8 +6,21 @@ import http.server as httpserver
 import webbrowser
 
 def load_in_default_browser(html):
+    """ Opens the html content in the default web browser by temporarily launching a http get
+    server and providing the CCOBRA html output.
+
+    """
+
     class RequestHandler(httpserver.BaseHTTPRequestHandler):
+        """ CCOBRA html request handler.
+
+        """
+
         def do_GET(self):
+            """ Implement the get request handler responding with the html content.
+
+            """
+
             self.protocol_version = 'HTTP/1.0'
 
             self.send_response(200)

@@ -1,3 +1,7 @@
+""" CCOBRA benchmarking module.
+
+"""
+
 import os
 import json
 
@@ -29,6 +33,11 @@ def load_benchmark(benchmark_file):
     return benchmark
 
 def parse_model_info(model_info, base_path):
+    """ Parses the model information. Strings are directly interpreted as files. Otherwise,
+    dictionaries are parsed for the filename and constructor kwargs.
+
+    """
+
     if isinstance(model_info, str):
         return (fix_model_path(model_info, base_path), {})
 
@@ -42,39 +51,46 @@ def parse_model_info(model_info, base_path):
     return (model_file, kwargs)
 
 def fix_rel_path(path, base_path):
+    """ Fixes relative paths by prepending the benchmark filepath.
+
+    """
+
     if path and not os.path.isabs(path):
         return os.path.normpath(base_path + os.sep + path)
     return path
-    
+
 def fix_model_path(path, base_path=None):
+    """ Fixes the model path by checking if the path directly refers to a python file. Otherwise
+    searches for a subdirectory containing possible modules.
+
+    """
+
     abs_path = path
     if base_path:
         abs_path = fix_rel_path(path, base_path)
-    
+
     if os.path.isfile(abs_path) and abs_path[-2:] == "py":
         return abs_path
-        
+
     python_files = []
     sub_directories = []
-    for f in os.listdir(abs_path):
-        f_path = os.path.join(abs_path, f)
-        
-        if os.path.isfile(f_path) and f[-2:] == "py":
+    for f_name in os.listdir(abs_path):
+        f_path = os.path.join(abs_path, f_name)
+
+        if os.path.isfile(f_path) and f_name[-2:] == "py":
             python_files.append(f_path)
-        elif os.path.isdir(f_path) and f[0] != "." and f[:2] != "__":
+        elif os.path.isdir(f_path) and f_name[0] != "." and f_name[:2] != "__":
             sub_directories.append(f_path)
 
-    if len(python_files) > 0:
+    if python_files:
         return abs_path
-        
+
     if len(sub_directories) == 1:
         python_files = [
             os.path.join(sub_directories[0], f) for f in os.listdir(
                 sub_directories[0]) if os.path.isfile(
                     os.path.join(sub_directories[0], f)) and f[-2:] == "py"]
-        if len(python_files) > 0:
+        if python_files:
             return sub_directories[0]
-    
+
     raise ValueError("Could not identify model to load for '{}'".format(path))
-        
-        

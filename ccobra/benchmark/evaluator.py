@@ -1,3 +1,7 @@
+""" CCOBRA evaluation module.
+
+"""
+
 from contextlib import contextmanager
 import os
 import sys
@@ -13,6 +17,11 @@ from . import comparator
 
 @contextmanager
 def dir_context(path):
+    """ Context manager for the working directory. Stores the current working directory before
+    switching it. Finally, resets to the old wd.
+
+    """
+
     old_dir = os.getcwd()
     os.chdir(path)
     sys.path.append(path)
@@ -22,8 +31,13 @@ def dir_context(path):
         os.chdir(old_dir)
         sys.path.remove(path)
 
-class Evaluator(object):
-    def __init__(self, modeldict, eval_comparator, test_datafile, train_datafile=None, train_data_person=None, silent=False, corresponding_data=False):
+class Evaluator():
+    """ Main CCOBRA evaluation class. Hosts training data loading and model evaluation loop.
+
+    """
+
+    def __init__(self, modeldict, eval_comparator, test_datafile, train_datafile=None,
+                 train_data_person=None, silent=False, corresponding_data=False):
         """
 
         Parameters
@@ -69,7 +83,7 @@ class Evaluator(object):
                     try:
                         if idx_offset < float(identifier):
                             idx_offset = float(identifier)
-                    except:
+                    except ValueError:
                         pass
 
                 idx_offset = int(np.ceil(idx_offset)) + 1
@@ -86,11 +100,21 @@ class Evaluator(object):
                 pd.read_csv(train_data_person))
 
     def extract_optionals(self, data):
+        """ Extracts optional model information from a given dataset by obtaining all non-essential
+        columns (i.e., the non-required fields of CCOBRA datasets).
+
+        """
+
         essential = self.test_data.required_fields
         optionals = set(data.keys()) - set(essential)
         return {key: data[key] for key in optionals}
 
     def extract_demographics(self, data_df):
+        """ Extracts demographic information (age, gender, education, affinity, experience) from
+        a given dataset if the corresponding columns are available.
+
+        """
+
         demographics = {}
         demo_data = ['age', 'gender', 'education', 'affinity', 'experience']
         for data in demo_data:
@@ -103,21 +127,31 @@ class Evaluator(object):
         return demographics
 
     def check_model_applicability(self, pre_model):
+        """ Verifies the applicability of a model by checking its supported domains and response
+        types and comparing them with the evaluation dataset.
+
+        """
+
         missing_domains = self.domains - set(pre_model.supported_domains)
-        if len(missing_domains) > 0:
+        if missing_domains:
             raise ValueError(
                 'Model {} is not applicable to domains {} found in ' \
                 'the test dataset.'.format(
                     pre_model.name, missing_domains))
 
         missing_response_types = self.response_types - set(pre_model.supported_response_types)
-        if len(missing_response_types) > 0:
+        if missing_response_types:
             raise ValueError(
                 'Model {} is not applicable to response_types {} ' \
                 'found in the test dataset.'.format(
                     pre_model.name, missing_response_types))
 
     def get_train_data_dict(self, ccobra_data):
+        """ Extracts the training data dict mapping from subject identifiers to their corresponding
+        list of tasks and responses.
+
+        """
+
         train_data_dict = {}
         for id_info, subj_df in ccobra_data.get().groupby('id'):
             subj_data = []
@@ -133,7 +167,8 @@ class Evaluator(object):
                 # Convert the response to its list representation
                 if isinstance(row['response'], str):
                     if row['response_type'] == 'multiple-choice':
-                        train_dict['response'] = [y.split(';') for y in [x.split('/') for x in row['response'].split('|')]]
+                        train_dict['response'] = [y.split(';') for y in [
+                            x.split('/') for x in row['response'].split('|')]]
                     else:
                         train_dict['response'] = [x.split(';') for x in row['response'].split('/')]
                 else:
@@ -149,6 +184,10 @@ class Evaluator(object):
         return train_data_dict
 
     def evaluate(self):
+        """ CCobra evaluation loop. Iterates over the models and performs training and evaluation.
+
+        """
+
         result_data = []
 
         # Pre-compute the training data dictionaries
@@ -202,7 +241,8 @@ class Evaluator(object):
                     # corresponding data is set to true.
                     if self.train_data is not None and self.corresponding_data:
                         # Remove one participant
-                        cur_train_data_dict = [value for key, value in train_data_dict.items() if key != subj_id]
+                        cur_train_data_dict = [
+                            value for key, value in train_data_dict.items() if key != subj_id]
 
                         # Train on incomplete training data
                         model.pre_train(cur_train_data_dict)
@@ -237,7 +277,8 @@ class Evaluator(object):
 
                         if isinstance(truth, str):
                             if response_type == 'multiple-choice':
-                                truth = [y.split(';') for y in [x.split('/') for x in truth.split('|')]]
+                                truth = [y.split(';') for y in [
+                                    x.split('/') for x in truth.split('|')]]
                             else:
                                 truth = [x.split(';') for x in truth.split('/')]
 

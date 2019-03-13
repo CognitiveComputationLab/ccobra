@@ -7,9 +7,19 @@ import json
 
 import numpy as np
 
-from . import base
+def ccobracolor(idx, n_models, lightness=0.5):
+    """ Generates the CCOBRA plot color palette.
 
-class PlotVisualizer(base.CCobraVisualizer):
+    """
+
+    val = (idx + 1) / (n_models + 1)
+    col_r = (np.sin(val * 2 * np.pi * 1.247 + np.pi) * 127 + 128) * lightness
+    col_g = (np.sin(val * 2 * np.pi * 0.373) * 127 + 128) * lightness
+    col_b = (np.cos(val * 2 * np.pi * 0.91113) * 127 + 128) * lightness
+    return '#' + ''.join(
+        [('0' + hex(int(y)).replace('0x', ''))[-2:] for y in [col_r, col_g, col_b]])
+
+class PlotVisualizer():
     """ Plot visualizer baseclass providing functionality for inserting HTML
     content into the output templates.
 
@@ -65,7 +75,7 @@ class AccuracyVisualizer(PlotVisualizer):
             'x': acc_df.index.tolist(),
             'y': acc_df['mean'].tolist(),
             'marker': {
-                'color': [base.ccobracolor(x, n_models) + alpha for x in range(n_models)]
+                'color': [ccobracolor(x, n_models) + alpha for x in range(n_models)]
             },
             'type': 'bar',
             'name': acc_df.index.tolist()
@@ -116,7 +126,7 @@ class BoxplotVisualizer(PlotVisualizer):
 
         data = sorted(data, key=lambda x: np.mean(x['y']))
         for idx, datum in enumerate(data):
-            datum['marker']['color'] = base.ccobracolor(idx, n_models)
+            datum['marker']['color'] = ccobracolor(idx, n_models)
 
         # Compute the explicit ordering
         ordering = result_df.groupby(

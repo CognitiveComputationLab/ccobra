@@ -9,7 +9,6 @@ Daniel Brand <daniel.brand@cognition.uni-freiburg.de>
 """
 
 import argparse
-import json
 import os
 import sys
 from contextlib import contextmanager
@@ -30,10 +29,13 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('benchmark', type=str, help='Benchmark file.')
     parser.add_argument('-m', '--model', type=str, help='Model file.')
-    parser.add_argument('-o', '--output', type=str, default='browser', help='Output style (browser/html).')
+    parser.add_argument(
+        '-o', '--output', type=str, default='browser', help='Output style (browser/html).')
     parser.add_argument('-c', '--cache', type=str, help='Load specified cache file.')
     parser.add_argument('-s', '--save', type=str, help='Store results as csv table.')
-    parser.add_argument('-cn', '--classname', type=str, help='Load a specific class from a folder containing multiple classes.')
+    parser.add_argument(
+        '-cn', '--classname', type=str,
+        help='Load a specific class from a folder containing multiple classes.')
 
     args = vars(parser.parse_args())
 
@@ -101,7 +103,7 @@ def main(args):
 
     # Run the model evaluation
     is_silent = (args['output'] in ['html', 'server'])
-    ev = evaluator.Evaluator(
+    eva = evaluator.Evaluator(
         modeldict,
         eval_comparator,
         benchmark['data.test'],
@@ -111,7 +113,7 @@ def main(args):
         corresponding_data=corresponding_data)
 
     with silence_stdout(is_silent):
-        res_df = ev.evaluate()
+        res_df = eva.evaluate()
         res_df = pd.concat([res_df, cache_df])
 
     if 'save' in args:
@@ -134,18 +136,23 @@ def main(args):
         print(html)
 
 def entry_point():
+    """ Entry point for the CCOBRA executables.
+
+    """
+
     args = parse_arguments()
 
     try:
         main(args)
-    except Exception as e:
+    except Exception as exc:
         if args['output'] != 'html':
             raise
-        msg = 'Error: ' + str(e)
+        msg = 'Error: ' + str(exc)
         if args['output'] == 'html':
-            print('<p>{}</p><script>document.getElementById(\"result\").style.backgroundColor = \"Tomato\";</script>'.format(msg))
+            print('<p>{}</p><script>document.getElementById(\"result\").style.backgroundColor ' \
+                '= \"Tomato\";</script>'.format(msg))
         else:
-            print(e)
+            print(exc)
         sys.exit()
 
 if __name__ == '__main__':

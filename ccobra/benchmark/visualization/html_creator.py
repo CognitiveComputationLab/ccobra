@@ -1,9 +1,17 @@
+""" Module for the html output creation class.
+
+"""
+
 import os
 import datetime
 import json
 import codecs
 
 class HTMLCreator():
+    """ Html output construction class.
+
+    """
+
     def __init__(self, metrics):
         self.metrics = metrics
 
@@ -14,7 +22,7 @@ class HTMLCreator():
             'html2canvas': '',
             'cssness': ''
         }
-        
+
         ext_content_paths = {
             'template': 'template_page.html',
             'plotly': 'plotly-latest.min.js',
@@ -23,10 +31,14 @@ class HTMLCreator():
         }
         for key, path in ext_content_paths.items():
             path = os.path.dirname(__file__) + os.sep + path
-            with codecs.open(path, "r", "utf-8") as tf:
-                self.external_contents[key] = tf.read()
+            with codecs.open(path, "r", "utf-8") as file_handle:
+                self.external_contents[key] = file_handle.read()
 
     def to_html(self, result_df, benchmark_name, embedded=False):
+        """ Generates the html output string.
+
+        """
+
         result_data = json.dumps(result_df.to_csv(index=False).split('\n'))
         benchmark_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 

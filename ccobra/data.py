@@ -112,6 +112,10 @@ class Item():
         self.sequence_number = sequence_number
 
     def __eq__(self, other):
+        """ Equality comparator.
+
+        """
+
         if not isinstance(other, Item):
             return False
 

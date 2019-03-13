@@ -15,13 +15,17 @@ import sys
 
 from .. import CCobraModel
 
-class ModelImporter(object):
+class ModelImporter():
     """ Model importer class. Supports dynamical importing of modules,
     detection of model classes, and instantiation of said classes.
 
     """
 
-    def get_class(self, model_path, superclass=CCobraModel, load_specific_class=None):
+    def get_class(self, model_path):
+        """ Determines the model class attribute.
+
+        """
+
         python_files = []
         abs_path = os.path.abspath(model_path)
         if os.path.isfile(abs_path):
@@ -38,8 +42,14 @@ class ModelImporter(object):
         for python_file in python_files:
             module_name = os.path.splitext(os.path.basename(python_file))[0]
 
-            module = importlib.machinery.SourceFileLoader(
-                module_name, python_file).load_module(module_name)
+            importlib.machinery.SourceFileLoader(module_name, python_file)
+            module = importlib.import_module(module_name)
+
+            # import types
+            # loader = importlib.machinery.SourceFileLoader(module_name, python_file)
+            # module = types.ModuleType(loader.name)
+            # loader.exec_module(module)
+            # print(module)
 
             member_class_modules = inspect.getmembers(module, inspect.isclass)
 
@@ -48,18 +58,18 @@ class ModelImporter(object):
             for member_class_module in member_class_modules:
                 member_class = member_class_module[1]
 
-                if member_class is superclass:
+                if member_class is self.superclass:
                     continue
-                elif issubclass(member_class, superclass):
-                    if load_specific_class is None and candidate_module:
+                elif issubclass(member_class, self.superclass):
+                    if self.load_specific_class is None and candidate_module:
                         raise ValueError(
-                        'Multiple model classes found in file ' \
-                        '(e.g., {} and {}). ' \
-                        'Please only specify one per file.'.format(
-                            member_class.__name__, candidate_class.__name__))
-                    
-                    if load_specific_class is None \
-                        or load_specific_class == member_class.__name__:
+                            'Multiple model classes found in file ' \
+                            '(e.g., {} and {}). ' \
+                            'Please only specify one per file.'.format(
+                                member_class.__name__, candidate_class.__name__))
+
+                    if self.load_specific_class is None \
+                        or self.load_specific_class == member_class.__name__:
                         candidate_module = module
                         candidate_class = member_class
 
@@ -69,25 +79,27 @@ class ModelImporter(object):
                 candidates[full_name] = (candidate_module, candidate_class)
                 candidate_class_names.add(full_name)
 
-        if len(candidates) == 0:
+        if not candidates:
             raise ValueError(
                 "No suitable classes found in model_path '{}'.".format(
                     model_path))
         if len(candidates) == 1:
             return list(candidates.values())[0][1]
 
-        if load_specific_class is not None:
-            if load_specific_class in candidates:
-                print("Selecting {} because the mighty user demands it".format(load_specific_class))
-                return candidates[load_specific_class][1]
-            else:
-                for candidate in candidates.values():
-                    candidate_class = candidate[1]
-                    if candidate_class.__name__ == load_specific_class:
-                        print("Selecting {} because the mighty user was not mighty enough to provide a full path".format(load_specific_class))
-                        return candidate_class
-            
-        remaining_classes = set([x[1] for x in candidates.values()])
+        if self.load_specific_class is not None:
+            if self.load_specific_class in candidates:
+                print("Selecting {} because the mighty user demands it".format(
+                    self.load_specific_class))
+                return candidates[self.load_specific_class][1]
+
+            for candidate in candidates.values():
+                candidate_class = candidate[1]
+                if candidate_class.__name__ == self.load_specific_class:
+                    print("Selecting {} because the mighty user was not mighty enough " \
+                        "to provide a full path".format(self.load_specific_class))
+                    return candidate_class
+
+        remaining_classes = {x[1] for x in candidates.values()}
         for full_name, content in candidates.items():
             candidate_module = content[0]
             candidate_class = content[1]
@@ -113,7 +125,7 @@ class ModelImporter(object):
         else:
             raise ValueError("Could not determine main class.")
 
-    def __init__(self, model_path, superclass=object, load_specific_class=None):
+    def __init__(self, model_path, superclass=CCobraModel, load_specific_class=None):
         """ Imports a model based on a given python source script. Dynamically
         identifies the contained model class and prepares for instantiation.
 
@@ -138,8 +150,11 @@ class ModelImporter(object):
 
         """
 
+        self.load_specific_class = load_specific_class
+        self.superclass = superclass
+
         self.old_modules = set(sys.modules)
-        self.class_attribute = self.get_class(model_path, superclass, load_specific_class)
+        self.class_attribute = self.get_class(model_path)
 
     def unimport(self):
         """ Cuts off all dependencies loaded together with the module from
