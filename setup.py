@@ -27,5 +27,8 @@ setuptools.setup(
     ],
     entry_points={
         'console_scripts': ['ccobra=ccobra.benchmark.runner:entry_point']
+    },
+    package_data={
+        'ccobra.benchmark.visualization': ['*.js', '*.html', '*.css']
     }
 )

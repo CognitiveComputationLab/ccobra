@@ -24,4 +24,4 @@ from . import benchmark
 from .data import CCobraData, Item
 from .model import CCobraModel
 
-__version__ = '0.0.12'
+__version__ = '0.0.14'
