@@ -20,6 +20,11 @@ def dir_context(path):
     """ Context manager for the working directory. Stores the current working directory before
     switching it. Finally, resets to the old wd.
 
+    Parameters
+    ----------
+    path : str
+        String to set the working directory to.
+
     """
 
     old_dir = os.getcwd()
@@ -42,6 +47,24 @@ class Evaluator():
 
         Parameters
         ----------
+        modeldict : dict
+            Dictionary containing model paths and keyword arguments for model initialization.
+
+        eval_comparator : Comparator
+            Comparator to be used for computing hits/misses.
+
+        test_datafile : str
+            Path to the test data file.
+
+        train_datafile : str
+            Path to the general training data file.
+
+        train_data_person : str
+            Path to the person training data file.
+
+        silent : bool
+            Indicates whether evaluation progress should be logged using print statements.
+
         corresponding_data : bool
             Indicates whether test and training data should contain the same
             user ids.
@@ -103,6 +126,16 @@ class Evaluator():
         """ Extracts optional model information from a given dataset by obtaining all non-essential
         columns (i.e., the non-required fields of CCOBRA datasets).
 
+        Parameters
+        ----------
+        data : pd.Series
+            Pandas series (i.e. row of the data) to extract optional information from.
+
+        Returns
+        -------
+        dict(str, object)
+            Dictionary containing optional information stored in the data (e.g., age, gender).
+
         """
 
         essential = self.test_data.required_fields
@@ -112,6 +145,16 @@ class Evaluator():
     def extract_demographics(self, data_df):
         """ Extracts demographic information (age, gender, education, affinity, experience) from
         a given dataset if the corresponding columns are available.
+
+        Parameters
+        ----------
+        data_df : pd.DataFrame
+            Dataframe to extract demographic information from.
+
+        Returns
+        -------
+        dict(str, object)
+            Dictionary containing demographic information.
 
         """
 
@@ -129,6 +172,17 @@ class Evaluator():
     def check_model_applicability(self, pre_model):
         """ Verifies the applicability of a model by checking its supported domains and response
         types and comparing them with the evaluation dataset.
+
+        Parameters
+        ----------
+        pre_model : CCobraModel
+            Model to check applicability for.
+
+        Raises
+        ------
+        ValueError
+            Exception thrown when model is not applicable to some domains or response types
+            in the test data.
 
         """
 
@@ -149,6 +203,16 @@ class Evaluator():
     def get_train_data_dict(self, ccobra_data):
         """ Extracts the training data dict mapping from subject identifiers to their corresponding
         list of tasks and responses.
+
+        Parameters
+        ----------
+        ccobra_data : ccobra.CCobraData
+            Data to convert to the training data representation.
+
+        Returns
+        -------
+        dict
+            Dictionary containing the training information (item, response, etc.).
 
         """
 
@@ -185,6 +249,11 @@ class Evaluator():
 
     def evaluate(self):
         """ CCobra evaluation loop. Iterates over the models and performs training and evaluation.
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame containing the CCOBRA evaluation results.
 
         """
 

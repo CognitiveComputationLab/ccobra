@@ -14,6 +14,11 @@ def load_benchmark(benchmark_file):
     benchmark_file : str
         Path to the benchmark file to load.
 
+    Returns
+    -------
+    dict(str, str)
+        Dictionary containing benchmark information (e.g., paths to data and models).
+
     """
 
     benchmark = None
@@ -36,6 +41,21 @@ def parse_model_info(model_info, base_path):
     """ Parses the model information. Strings are directly interpreted as files. Otherwise,
     dictionaries are parsed for the filename and constructor kwargs.
 
+    Parameters
+    ----------
+    model_info : object
+        Model info object. Can be either str if the benchmark directly contained the model's path
+        or a dictionary if extended model specification (kwargs) are available.
+
+    base_path : str
+        Base path of the benchmark file to fix relative paths with.
+
+    Returns
+    -------
+    tuple(str, dict)
+        Tuple consisting of the absolute model path information and the dictionary containing
+        keyword arguments for model construction.
+
     """
 
     if isinstance(model_info, str):
@@ -53,6 +73,19 @@ def parse_model_info(model_info, base_path):
 def fix_rel_path(path, base_path):
     """ Fixes relative paths by prepending the benchmark filepath.
 
+    Parameters
+    ----------
+    path : str
+        Path to fix.
+
+    base_path : str
+        Basepath used to fix relative paths with. Is prepended to the relative path.
+
+    Returns
+    -------
+    str
+        Fixed absolute path.
+
     """
 
     if path and not os.path.isabs(path):
@@ -62,6 +95,19 @@ def fix_rel_path(path, base_path):
 def fix_model_path(path, base_path=None):
     """ Fixes the model path by checking if the path directly refers to a python file. Otherwise
     searches for a subdirectory containing possible modules.
+
+    Parameters
+    ----------
+    path : str
+        Model path to fix.
+
+    base_path : str, optional
+        Base path to fix the model path with if it is relative.
+
+    Returns
+    -------
+    str
+        Path pointing to the file assumed to contain the model.
 
     """
 

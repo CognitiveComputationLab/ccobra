@@ -9,6 +9,11 @@ def load_in_default_browser(html):
     """ Opens the html content in the default web browser by temporarily launching a http get
     server and providing the CCOBRA html output.
 
+    Parameters
+    ----------
+    html : str
+        Html content to serve.
+
     """
 
     class RequestHandler(httpserver.BaseHTTPRequestHandler):

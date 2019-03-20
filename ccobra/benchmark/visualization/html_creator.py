@@ -8,11 +8,23 @@ import json
 import codecs
 
 class HTMLCreator():
-    """ Html output construction class.
+    """ Html output creator. Constructs the HTML string for displaying the CCOBRA evaluation
+    results.
 
     """
 
     def __init__(self, metrics):
+        """ Initializes the html creator with a list of metrics, i.e., components for constructing
+        different views on the data (e.g., an accuracy plot).
+
+        Parameters
+        ----------
+        metrics : list
+            List of metric visualization objects, i.e., components for creating html snippets
+            representing views (e.g., plots) on the data.
+
+        """
+
         self.metrics = metrics
 
         # Load the template
@@ -29,6 +41,7 @@ class HTMLCreator():
             'html2canvas': 'html2canvas.min.js',
             'cssness': 'html_style.css'
         }
+
         for key, path in ext_content_paths.items():
             path = os.path.dirname(__file__) + os.sep + path
             with codecs.open(path, "r", "utf-8") as file_handle:
@@ -36,6 +49,11 @@ class HTMLCreator():
 
     def to_html(self, result_df, benchmark_name, embedded=False):
         """ Generates the html output string.
+
+        Returns
+        -------
+        str
+            String containing html code representing the CCOBRA evaluation results.
 
         """
 

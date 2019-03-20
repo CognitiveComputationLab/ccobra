@@ -105,6 +105,11 @@ def decode_response(enc_response, task):
         Syllogistic task in the tuple list representation (e.g.,
         [['Some', 'models', 'managers'], ['All', 'models', 'clerks']]).
 
+    Returns
+    -------
+    list
+        List representation of the response to decode.
+
     """
 
     if enc_response == 'NVC':

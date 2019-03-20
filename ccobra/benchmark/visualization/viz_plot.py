@@ -1,4 +1,4 @@
-""" Plot-Based visualizations.
+""" Plot-Based visualizations of the CCOBRA evaluation results.
 
 """
 
@@ -10,6 +10,22 @@ import numpy as np
 def ccobracolor(idx, n_models, lightness=0.5):
     """ Generates the CCOBRA plot color palette.
 
+    Parameters
+    ----------
+    idx : int
+        Position in the CCOBRA color spectrum.
+
+    n_models : int
+        Number of models, i.e., number of colors to construct the color spectrum for.
+
+    lightness : float, optional
+        Lightness scaling factor of the color.
+
+    Returns
+    -------
+    str
+        Hexadecimal representation of the color (e.g, '#a65959')
+
     """
 
     val = (idx + 1) / (n_models + 1)
@@ -20,12 +36,21 @@ def ccobracolor(idx, n_models, lightness=0.5):
         [('0' + hex(int(y)).replace('0x', ''))[-2:] for y in [col_r, col_g, col_b]])
 
 class PlotVisualizer():
-    """ Plot visualizer baseclass providing functionality for inserting HTML
+    """ Plot visualizer base class providing functionality for inserting HTML
     content into the output templates.
 
     """
 
     def __init__(self, template_file):
+        """ Initializes the Plot visualizer based on a template HTML filepath.
+
+        Parameters
+        ----------
+        template_file : str
+            Path to the template file underlying this visualizer.
+
+        """
+
         super(PlotVisualizer, self).__init__()
 
         # Load the HTML template
@@ -38,12 +63,32 @@ class PlotVisualizer():
         """ Obtain the dictionary mapping from HTML template placeholders
         to content.
 
+        Parameters
+        ----------
+        result_df : pd.DataFrame
+            CCOBRA result dataframe.
+
+        Returns
+        -------
+        dict(str, str)
+            Returns the content dictionary mapping from template placeholders to html snippets.
+
         """
 
         raise NotImplementedError()
 
     def to_html(self, result_df):
         """ Fill template with content
+
+        Parameters
+        ----------
+        result_df : pd.DataFrame
+            CCOBRA result dataframe.
+
+        Returns
+        -------
+        str
+            Html content string for this visualizer.
 
         """
 
@@ -63,9 +108,27 @@ class AccuracyVisualizer(PlotVisualizer):
     """
 
     def __init__(self):
+        """ Constructs the visualizer by providing the super class with the html template.
+
+        """
+
         super(AccuracyVisualizer, self).__init__('template_accuracy.html')
 
     def get_content_dict(self, result_df):
+        """ Constructs the template-html mapping dictionary.
+
+        Parameters
+        ----------
+        result_df : pd.DataFrame
+            CCOBRA result dataframe.
+
+        Returns
+        -------
+        dict(str, str)
+            Returns the content dictionary mapping from template placeholders to html snippets.
+
+        """
+
         acc_df = result_df.groupby(
             'model', as_index=False)['hit'].agg(['mean', 'std']).sort_values('mean')
 
@@ -99,9 +162,27 @@ class BoxplotVisualizer(PlotVisualizer):
     """
 
     def __init__(self):
+        """ Constructs the visualizer by providing the super class with the html template.
+
+        """
+
         super(BoxplotVisualizer, self).__init__('template_box.html')
 
     def get_content_dict(self, result_df):
+        """ Constructs the template-html mapping dictionary.
+
+        Parameters
+        ----------
+        result_df : pd.DataFrame
+            CCOBRA result dataframe.
+
+        Returns
+        -------
+        dict(str, str)
+            Returns the content dictionary mapping from template placeholders to html snippets.
+
+        """
+
         subj_df = result_df.groupby(
             ['model', 'id'], as_index=False)['hit'].agg('mean')
         data = []

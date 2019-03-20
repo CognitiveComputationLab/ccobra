@@ -24,6 +24,21 @@ class ModelImporter():
     def get_class(self, model_path):
         """ Determines the model class attribute.
 
+        Parameters
+        ----------
+        model_path : str
+            Path to the file to scan for CCobraModel classes.
+
+        Returns
+        -------
+        str
+            CCobraModel class attribute.
+
+        Raises
+        ------
+        ValueError
+            Thrown if the class to load could not be determined.
+
         """
 
         python_files = []
@@ -44,13 +59,6 @@ class ModelImporter():
 
             importlib.machinery.SourceFileLoader(module_name, python_file)
             module = importlib.import_module(module_name)
-
-            # import types
-            # loader = importlib.machinery.SourceFileLoader(module_name, python_file)
-            # module = types.ModuleType(loader.name)
-            # loader.exec_module(module)
-            # print(module)
-
             member_class_modules = inspect.getmembers(module, inspect.isclass)
 
             candidate_module = None
@@ -88,15 +96,14 @@ class ModelImporter():
 
         if self.load_specific_class is not None:
             if self.load_specific_class in candidates:
-                print("Selecting {} because the mighty user demands it".format(
-                    self.load_specific_class))
+                # print("Selecting {} because the user demands it".format(self.load_specific_class))
                 return candidates[self.load_specific_class][1]
 
             for candidate in candidates.values():
                 candidate_class = candidate[1]
                 if candidate_class.__name__ == self.load_specific_class:
-                    print("Selecting {} because the mighty user was not mighty enough " \
-                        "to provide a full path".format(self.load_specific_class))
+                    # print("Selecting {} because the user did not " \
+                    #     "provide a full path".format(self.load_specific_class))
                     return candidate_class
 
         remaining_classes = {x[1] for x in candidates.values()}
@@ -138,6 +145,9 @@ class ModelImporter():
             Superclass determining which classes to consider for
             initialization.
 
+        load_specific_class : str, optional
+            Name of the class to load. Required if model file contains multiple CCobraModels.
+
         Raises
         ------
         ValueError
@@ -174,6 +184,11 @@ class ModelImporter():
     def instantiate(self, model_kwargs):
         """ Creates an instance of the imported model by calling the empy
         default constructor.
+
+        Returns
+        -------
+        CCobraModel
+            CCobraModel instance.
 
         """
 

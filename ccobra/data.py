@@ -26,6 +26,7 @@ class CCobraData():
             'id', 'sequence', 'task', 'choices', 'response',
             'response_type', 'domain'
         ]
+
         if required_fields:
             self.required_fields = required_fields
 
@@ -39,6 +40,11 @@ class CCobraData():
         ----------
         data : pd.DataFrame
             DataFrame to verify.
+
+        Raises
+        ------
+        ValueError
+            Thrown if data does not contain required columns.
 
         """
 
@@ -80,6 +86,12 @@ class Item():
             Task text in tuple string encoding (e.g.,
             'All;pilots;gardeners/Some;gardeners;cooks').
 
+        resp_type : str
+            Response type (e.g., 'single-choice').
+
+        choices : list(str)
+            Response options in string representation.
+
         sequence_number : int
             Position of the item in the experimental sequence.
 
@@ -114,6 +126,16 @@ class Item():
     def __eq__(self, other):
         """ Equality comparator.
 
+        Parameters
+        ----------
+        other : object
+            Object to compare with.
+
+        Returns
+        -------
+        bool
+            True, if object is equal, false otherwise.
+
         """
 
         if not isinstance(other, Item):
@@ -135,9 +157,32 @@ class Item():
         return True
 
     def __ne__(self, other):
+        """ Not-Equal comparator. Defines unequality as the converse of equality.
+
+        Parameters
+        ----------
+        other : object
+            Object to compare to.
+
+        Returns
+        -------
+        bool
+            True, if object is unequal.
+
+        """
+
         return not self.__eq__(other)
 
     def __str__(self):
+        """ String representation of the item.
+
+        Returns
+        -------
+        str
+            String representation of the item.
+
+        """
+
         rep = 'CCOBRA Item:\n'
         rep += '\tIdentifier: {}\n'.format(self.identifier)
         rep += '\tTask: {}\n'.format(self.task)

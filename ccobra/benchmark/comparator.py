@@ -5,13 +5,37 @@
 import copy
 
 def tuple_to_string(tuptup):
-    """ Converts a tuple to its string representation.
+    """ Converts a tuple to its string representation. Uses different separators (;, /, |) for
+    different depths of the representation.
+
+    Parameters
+    ----------
+    tuptup : list
+        Tuple to convert to its string representation.
+
+    Returns
+    -------
+    str
+        String representation of the input tuple.
 
     """
 
     def join_deepest(tup, sep=';'):
-        """ Recursive method to create the string representation for the deepest level of the
+        """ Recursive function to create the string representation for the deepest level of the
         tuptup list.
+
+        Parameters
+        ----------
+        tup : object
+            Element to join if list or list of lists.
+
+        sep : str, optional
+            Separation character to join the list elements by.
+
+        Returns
+        -------
+        object
+            List containing joined string in max depth. Str if input depth = 1.
 
         """
 
@@ -38,6 +62,19 @@ class Comparator():
     def compare(self, obj_a, obj_b):
         """ Base comparison method.
 
+        Parameters
+        ----------
+        obj_a : object
+            Object A for comparison.
+
+        obj_b : object
+            Object B for comparison.
+
+        Returns
+        -------
+        object
+            Comparison result.
+
         """
 
         raise NotImplementedError()
@@ -49,6 +86,19 @@ class EqualityComparator():
 
     def compare(self, obj_a, obj_b):
         """ Compares two response objects based on equality.
+
+        Parameters
+        ----------
+        obj_a : tuple
+            Response tuple A for comparison.
+
+        obj_b : tuple
+            Response tuple B for comparison.
+
+        Returns
+        -------
+        bool
+            True if both objects are equal, false otherwise.
 
         """
 
@@ -62,6 +112,19 @@ class NVCComparator():
     def compare(self, obj_a, obj_b):
         """ Compares two response objects based on their NVCness. Only returns true if both
         responses are in agreement with either responding NVC or not NVC.
+
+        Parameters
+        ----------
+        obj_a : tuple
+            Response tuple A for comparison.
+
+        obj_b : tuple
+            Response tuple B for comparison.
+
+        Returns
+        -------
+        bool
+            True only if both objects agree on whether the response is NVC or not.
 
         """
 

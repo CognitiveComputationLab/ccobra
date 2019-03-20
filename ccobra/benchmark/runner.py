@@ -24,6 +24,11 @@ from .visualization import html_creator, viz_plot
 def parse_arguments():
     """ Parses the command line arguments for the benchmark runner.
 
+    Returns
+    -------
+    dict
+        Dictionary mapping from cmd arguments to values.
+
     """
 
     parser = argparse.ArgumentParser(description='')
@@ -71,6 +76,11 @@ def silence_stdout(silent, target=os.devnull):
 def main(args):
     """ Main benchmark routine. Parses the arguments, loads models and data,
     runs the evaluation loop and produces the output.
+
+    Parameters
+    ----------
+    args : dict
+        Command line argument dictionary.
 
     """
 
