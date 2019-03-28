@@ -15,6 +15,10 @@ import ccobra
 from . import modelimporter
 from . import comparator
 
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+
 @contextmanager
 def dir_context(path):
     """ Context manager for the working directory. Stores the current working directory before
@@ -42,7 +46,8 @@ class Evaluator():
     """
 
     def __init__(self, modeldict, eval_comparator, test_datafile, train_datafile=None,
-                 train_data_person=None, silent=False, corresponding_data=False):
+                 train_data_person=None, silent=False, corresponding_data=False,
+                 learning_curves=None):
         """
 
         Parameters
@@ -70,6 +75,10 @@ class Evaluator():
             user ids.
 
         """
+
+        if learning_curves:
+            learning_curves = learning_curves.rstrip('/')
+        self.learning_curves = learning_curves
 
         self.modeldict = modeldict
         self.silent = silent
@@ -259,6 +268,8 @@ class Evaluator():
 
         result_data = []
 
+        model_checkpoints = {}
+
         # Pre-compute the training data dictionaries
         train_data_dict = None
         if self.train_data is not None:
@@ -292,6 +303,8 @@ class Evaluator():
                 # Instantiate and prepare the model for predictions
                 pre_model = importer.instantiate(model_kwargs)
 
+                model_checkpoints[pre_model.name] = {}
+
                 # Check if model is applicable to domains/response types
                 self.check_model_applicability(pre_model)
 
@@ -305,6 +318,8 @@ class Evaluator():
                 # Iterate subject
                 for subj_id, subj_df in self.test_data.get().groupby('id'):
                     model = copy.deepcopy(pre_model)
+
+                    model_checkpoints[model.name][subj_id] = {}
 
                     # Perform pre-training for individual subjects only if
                     # corresponding data is set to true.
@@ -330,8 +345,16 @@ class Evaluator():
                     # Extract the subject demographics
                     demographics = self.extract_demographics(subj_df)
 
+                    model_checkpoints[model.name][subj_id][
+                        'pre_train'] = []
+
                     # Set the models to new participant
-                    model.start_participant(id=subj_id, **demographics)
+                    model.start_participant(
+                        id=subj_id, checkpoints=model_checkpoints[model.name][
+                            subj_id]['pre_train'], **demographics)
+
+                    model_checkpoints[model.name][subj_id]['main_train'] = [
+                        copy.deepcopy(model)]
 
                     for _, row in subj_df.sort_values('sequence').iterrows():
                         optionals = self.extract_optionals(row)
@@ -364,6 +387,9 @@ class Evaluator():
                             sequence)
                         model.adapt(adapt_item, truth, **optionals)
 
+                        model_checkpoints[model.name][subj_id][
+                            'main_train'].append(copy.deepcopy(model))
+
                         result_data.append({
                             'model': model.name,
                             'id': subj_id,
@@ -380,4 +406,103 @@ class Evaluator():
                 # cause garbage collection issues.
                 importer.unimport()
 
+            if self.learning_curves:
+                self.generate_learning_curves(model_checkpoints)
+
         return pd.DataFrame(result_data)
+
+    def item_from_row(self, row, subj_id):
+        optionals = self.extract_optionals(row)
+
+        sequence = row['sequence']
+        task = row['task']
+        choices = row['choices']
+        truth = row['response']
+        response_type = row['response_type']
+        domain = row['domain']
+
+        if isinstance(truth, str):
+            if response_type == 'multiple-choice':
+                truth = [y.split(';') for y in [
+                    x.split('/') for x in truth.split('|')]]
+            else:
+                truth = [x.split(';') for x in truth.split('/')]
+
+        item = ccobra.data.Item(
+            subj_id, domain, task, response_type, choices,
+            sequence)
+
+        return tuple((item, optionals))
+
+    def rollout(self, checkpoint, subj_id):
+        subj_train_data = self.train_data._data.loc[
+            self.train_data._data['id'] == subj_id].sort_values('sequence')
+        subj_test_data = self.test_data._data.loc[
+            self.test_data._data['id'] == subj_id].sort_values('sequence')
+
+        train_items = [self.item_from_row(r, subj_id) for _, r in
+                       subj_train_data.iterrows()]
+        test_items = [self.item_from_row(r, subj_id) for _, r in
+                      subj_test_data.iterrows()]
+
+        train_targets = [r['response'] for _, r in subj_train_data.iterrows()]
+        test_targets = [r['response'] for _, r in subj_test_data.iterrows()]
+
+        train_accuracy = np.mean([int(self.comparator.compare(
+            checkpoint.predict(i[0], **i[1]), t))
+            for i, t in zip(train_items, train_targets)])
+
+        test_accuracy = np.mean([int(self.comparator.compare(
+            checkpoint.predict(i[0], **i[1]), t))
+            for i, t in zip(test_items, test_targets)])
+
+        return train_accuracy, test_accuracy
+
+    def generate_learning_curves(self, model_checkpoints):
+        # eval all checkpoints
+        data = []
+        for model, model_dict in model_checkpoints.items():
+            for subject, phase_dictionary in model_dict.items():
+                for phase, epoch_checkpoints in phase_dictionary.items():
+                    e = 0
+                    for checkpoint in epoch_checkpoints:
+                        e += 1
+                        train_acc, test_acc = self.rollout(checkpoint, subject)
+                        data.append({'Model': model,
+                                     'Subject': subject,
+                                     'Phase': phase,
+                                     'Epoch': e,
+                                     'Acc': train_acc,
+                                     'Train/Test': 'train'
+                                     })
+                        data.append({'Model': model,
+                                     'Subject': subject,
+                                     'Phase': phase,
+                                     'Epoch': e,
+                                     'Acc': test_acc,
+                                     'Train/Test': 'test'
+                                     })
+        df = pd.DataFrame(data)
+
+        sns.set(style='whitegrid')
+
+        for model in set(df['Model']):
+            for phase in set(df['Phase']):
+                sns.lineplot(x="Epoch", y="Acc", hue='Train/Test',
+                             data=df.loc[(df['Model'] == model)
+                                         & (df['Phase'] == phase)])
+
+                handles, labels = plt.gca().get_legend_handles_labels()
+                plt.gca().legend(
+                    handles=handles[1:], labels=labels[1:],
+                    bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+                    ncol=2, mode="expand", borderaxespad=0., frameon=False)
+
+                plt.title('Network Training\nPerformance')
+                plt.xlabel('Epochs')
+                plt.ylabel('Predictive Accuracy')
+
+                plt.tight_layout()
+                plt.savefig('{}/{}_{}.png'.format(self.learning_curves, model,
+                                                  phase))
+                plt.cla()

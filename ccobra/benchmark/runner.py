@@ -41,6 +41,10 @@ def parse_arguments():
     parser.add_argument(
         '-cn', '--classname', type=str,
         help='Load a specific class from a folder containing multiple classes.')
+    parser.add_argument('--learning_curves', type=str,
+                        help='Generate learning curves for the models and save'
+                        'in the specified folder. This is expensive, since '
+                        'rollouts are performed every training epoch.')
 
     args = vars(parser.parse_args())
 
@@ -120,7 +124,8 @@ def main(args):
         train_datafile=benchmark['data.train'],
         train_data_person=benchmark['data.train_person'],
         silent=is_silent,
-        corresponding_data=corresponding_data)
+        corresponding_data=corresponding_data,
+        learning_curves=args['learning_curves'])
 
     with silence_stdout(is_silent):
         res_df = eva.evaluate()
