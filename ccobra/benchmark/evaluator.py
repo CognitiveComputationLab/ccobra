@@ -268,8 +268,6 @@ class Evaluator():
 
         result_data = []
 
-        model_checkpoints = {}
-
         # Pre-compute the training data dictionaries
         train_data_dict = None
         if self.train_data is not None:
@@ -304,8 +302,6 @@ class Evaluator():
                 # Instantiate and prepare the model for predictions
                 pre_model = importer.instantiate(model_kwargs)
 
-                model_checkpoints[pre_model.name] = {}
-
                 # Check if model is applicable to domains/response types
                 self.check_model_applicability(pre_model)
 
@@ -320,7 +316,7 @@ class Evaluator():
                 for subj_id, subj_df in self.test_data.get().groupby('id'):
                     model = copy.deepcopy(pre_model)
 
-                    model_checkpoints[model.name][subj_id] = {}
+                    model_checkpoints[subj_id] = {}
 
                     # Perform pre-training for individual subjects only if
                     # corresponding data is set to true.
@@ -346,15 +342,14 @@ class Evaluator():
                     # Extract the subject demographics
                     demographics = self.extract_demographics(subj_df)
 
-                    model_checkpoints[model.name][subj_id][
-                        'pre_train'] = []
+                    model_checkpoints[subj_id]['pre_train'] = []
 
                     # Set the models to new participant
                     model.start_participant(
-                        id=subj_id, checkpoints=model_checkpoints[model.name][
+                        id=subj_id, checkpoints=model_checkpoints[
                             subj_id]['pre_train'], **demographics)
 
-                    model_checkpoints[model.name][subj_id]['main_train'] = [
+                    model_checkpoints[subj_id]['main_train'] = [
                         copy.deepcopy(model)]
 
                     for _, row in subj_df.sort_values('sequence').iterrows():
@@ -388,7 +383,7 @@ class Evaluator():
                             sequence)
                         model.adapt(adapt_item, truth, **optionals)
 
-                        model_checkpoints[model.name][subj_id][
+                        model_checkpoints[subj_id][
                             'main_train'].append(copy.deepcopy(model))
 
                         result_data.append({
@@ -407,8 +402,9 @@ class Evaluator():
                 # cause garbage collection issues.
                 importer.unimport()
 
-            if self.learning_curves:
-                self.generate_learning_curves(model_checkpoints)
+                if self.learning_curves:
+                    self.generate_learning_curves(model.name,
+                                                  model_checkpoints)
 
         return pd.DataFrame(result_data)
 
@@ -459,51 +455,49 @@ class Evaluator():
 
         return train_accuracy, test_accuracy
 
-    def generate_learning_curves(self, model_checkpoints):
+    def generate_learning_curves(self, model, model_checkpoints):
         # eval all checkpoints
         data = []
-        for model, model_dict in model_checkpoints.items():
-            for subject, phase_dictionary in model_dict.items():
-                for phase, epoch_checkpoints in phase_dictionary.items():
-                    e = 0
-                    for checkpoint in epoch_checkpoints:
-                        e += 1
-                        train_acc, test_acc = self.rollout(checkpoint, subject)
-                        data.append({'Model': model,
-                                     'Subject': subject,
-                                     'Phase': phase,
-                                     'Epoch': e,
-                                     'Acc': train_acc,
-                                     'Train/Test': 'train'
-                                     })
-                        data.append({'Model': model,
-                                     'Subject': subject,
-                                     'Phase': phase,
-                                     'Epoch': e,
-                                     'Acc': test_acc,
-                                     'Train/Test': 'test'
-                                     })
+        for subject, phase_dictionary in model_checkpoints.items():
+            for phase, epoch_checkpoints in phase_dictionary.items():
+                e = 0
+                for checkpoint in epoch_checkpoints:
+                    e += 1
+                    train_acc, test_acc = self.rollout(checkpoint, subject)
+                    data.append({'Model': model,
+                                 'Subject': subject,
+                                 'Phase': phase,
+                                 'Epoch': e,
+                                 'Acc': train_acc,
+                                 'Train/Test': 'train'
+                                 })
+                    data.append({'Model': model,
+                                 'Subject': subject,
+                                 'Phase': phase,
+                                 'Epoch': e,
+                                 'Acc': test_acc,
+                                 'Train/Test': 'test'
+                                 })
         df = pd.DataFrame(data)
 
         sns.set(style='whitegrid')
 
-        for model in set(df['Model']):
-            for phase in set(df['Phase']):
-                sns.lineplot(x="Epoch", y="Acc", hue='Train/Test',
-                             data=df.loc[(df['Model'] == model)
-                                         & (df['Phase'] == phase)])
+        for phase in set(df['Phase']):
+            sns.lineplot(x="Epoch", y="Acc", hue='Train/Test',
+                         data=df.loc[(df['Model'] == model)
+                                     & (df['Phase'] == phase)])
 
-                handles, labels = plt.gca().get_legend_handles_labels()
-                plt.gca().legend(
-                    handles=handles[1:], labels=labels[1:],
-                    bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
-                    ncol=2, mode="expand", borderaxespad=0., frameon=False)
+            handles, labels = plt.gca().get_legend_handles_labels()
+            plt.gca().legend(
+                handles=handles[1:], labels=labels[1:],
+                bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+                ncol=2, mode="expand", borderaxespad=0., frameon=False)
 
-                plt.title('Network Training\nPerformance')
-                plt.xlabel('Epochs')
-                plt.ylabel('Predictive Accuracy')
+            plt.title('Network Training\nPerformance')
+            plt.xlabel('Epochs')
+            plt.ylabel('Predictive Accuracy')
 
-                plt.tight_layout()
-                plt.savefig('{}/{}_{}.png'.format(self.learning_curves, model,
-                                                  phase))
-                plt.cla()
+            plt.tight_layout()
+            plt.savefig('{}/{}_{}.png'.format(self.learning_curves, model,
+                                              phase))
+            plt.cla()
