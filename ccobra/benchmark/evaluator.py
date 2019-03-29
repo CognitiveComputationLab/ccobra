@@ -277,6 +277,7 @@ class Evaluator():
 
         # Activate model context
         for idx, modelitem in enumerate(self.modeldict.items()):
+            model_checkpoints = {}
             model, model_kwargs = modelitem
 
             # Print the progress
