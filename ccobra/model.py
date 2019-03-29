@@ -42,7 +42,7 @@ class CCobraModel():
 
         pass
 
-    def pre_train(self, dataset):
+    def pre_train(self, dataset, **kwargs):
         """ Pre-trains the model based on given training data.
 
         Parameters
@@ -57,7 +57,7 @@ class CCobraModel():
 
         pass
 
-    def person_train(self, data):
+    def person_train(self, data, **kwargs):
         """ Trains the model based on background data of the individual to
         be tested on.
 

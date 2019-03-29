@@ -325,8 +325,12 @@ class Evaluator():
                         cur_train_data_dict = [
                             value for key, value in train_data_dict.items() if key != subj_id]
 
+                        model_checkpoints[subj_id]['start_participant'] = []
+
                         # Train on incomplete training data
-                        model.pre_train(cur_train_data_dict)
+                        model.pre_train(cur_train_data_dict,
+                                        checkpoints=model_checkpoints[subj_id][
+                                            'pre_train'])
 
                     # Perform the personalized pre-training
                     if self.train_data_person is not None:
@@ -335,22 +339,28 @@ class Evaluator():
                         subj_pre_train_data_person = self.train_data_person.get().loc[
                             self.train_data_person.get()['id'] == subj_id]
 
+                        model_checkpoints[subj_id]['person_train'] = []
+
                         person_train_data = self.get_train_data_dict(
                             ccobra.CCobraData(subj_pre_train_data_person))
-                        model.person_train(person_train_data[subj_id])
+                        model.person_train(person_train_data[subj_id],
+                                           checkpoints=model_checkpoints[
+                                            subj_id]['person_train'])
 
                     # Extract the subject demographics
                     demographics = self.extract_demographics(subj_df)
 
-                    model_checkpoints[subj_id]['pre_train'] = []
+                    model_checkpoints[subj_id]['start_participant'] = []
 
                     # Set the models to new participant
                     model.start_participant(
                         id=subj_id, checkpoints=model_checkpoints[
-                            subj_id]['pre_train'], **demographics)
+                            subj_id]['start_participant'], **demographics)
 
                     model_checkpoints[subj_id]['main_train'] = [
                         copy.deepcopy(model)]
+
+                    model_checkpoints[subj_id]['adapt'] = {}
 
                     for _, row in subj_df.sort_values('sequence').iterrows():
                         optionals = self.extract_optionals(row)
@@ -377,11 +387,15 @@ class Evaluator():
                         prediction = model.predict(item, **optionals)
                         hit = int(self.comparator.compare(prediction, truth))
 
+                        model_checkpoints[subj_id]['adapt'][sequence] = []
+
                         # Adapt to true response
                         adapt_item = ccobra.data.Item(
                             subj_id, domain, task, response_type, choices,
                             sequence)
-                        model.adapt(adapt_item, truth, **optionals)
+                        model.adapt(adapt_item, truth,
+                                    checkpoints=model_checkpoints[subj_id][
+                                        'adapt'][sequence], **optionals)
 
                         model_checkpoints[subj_id][
                             'main_train'].append(copy.deepcopy(model))
@@ -460,6 +474,36 @@ class Evaluator():
         data = []
         for subject, phase_dictionary in model_checkpoints.items():
             for phase, epoch_checkpoints in phase_dictionary.items():
+                if phase == 'adapt':
+                    continue  # handled seperately below
+                else:
+                    e = 0
+                    for checkpoint in epoch_checkpoints:
+                        e += 1
+                        train_acc, test_acc = self.rollout(checkpoint, subject)
+                        data.append({'Model': model,
+                                     'Subject': subject,
+                                     'Phase': phase,
+                                     'Epoch': e,
+                                     'Acc': train_acc,
+                                     'Train/Test': 'train'
+                                     })
+                        data.append({'Model': model,
+                                     'Subject': subject,
+                                     'Phase': phase,
+                                     'Epoch': e,
+                                     'Acc': test_acc,
+                                     'Train/Test': 'test'
+                                     })
+
+        df1 = pd.DataFrame(data)
+
+        # handle adaption: similar to other phases but exec per item, so avg!
+        data = []
+        for subject, phase_dictionary in model_checkpoints.items():
+            phase = 'adapt'
+            item_dict = phase_dictionary[phase]
+            for item, epoch_checkpoints in item_dict.items():
                 e = 0
                 for checkpoint in epoch_checkpoints:
                     e += 1
@@ -469,16 +513,23 @@ class Evaluator():
                                  'Phase': phase,
                                  'Epoch': e,
                                  'Acc': train_acc,
-                                 'Train/Test': 'train'
+                                 'Train/Test': 'train',
+                                 'Item': item
                                  })
                     data.append({'Model': model,
                                  'Subject': subject,
                                  'Phase': phase,
                                  'Epoch': e,
                                  'Acc': test_acc,
-                                 'Train/Test': 'test'
+                                 'Train/Test': 'test',
+                                 'Item': item
                                  })
-        df = pd.DataFrame(data)
+        df2 = pd.DataFrame(data)
+        # average over adaption runs of one model and subject
+        df2.groupby(['Model', 'Subject', 'Epoch', 'Train/Test']).mean()
+
+        df2.drop('Item', axis=1, inplace=True)
+        df = pd.concat(df1, df2)
 
         sns.set(style='whitegrid')
 
