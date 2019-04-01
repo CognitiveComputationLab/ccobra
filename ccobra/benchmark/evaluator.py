@@ -708,4 +708,4 @@ class LC_Evaluator(Evaluator):
             plt.tight_layout()
             plt.savefig('{}/{}_{}.png'.format(self.learning_curves, model,
                                               phase))
-            plt.cla()
+            plt.clf()
