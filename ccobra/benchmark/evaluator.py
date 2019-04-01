@@ -389,6 +389,7 @@ class LC_Evaluator(Evaluator):
         super().__init__(*args, **kwargs)
         if learning_curves:
             learning_curves = learning_curves.rstrip('/')
+        assert os.path.isdir(learning_curves)
         self.learning_curves = learning_curves
 
     def evaluate(self):
