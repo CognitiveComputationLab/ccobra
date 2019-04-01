@@ -46,8 +46,7 @@ class Evaluator():
     """
 
     def __init__(self, modeldict, eval_comparator, test_datafile, train_datafile=None,
-                 train_data_person=None, silent=False, corresponding_data=False,
-                 learning_curves=None):
+                 train_data_person=None, silent=False, corresponding_data=False):
         """
 
         Parameters
@@ -75,11 +74,6 @@ class Evaluator():
             user ids.
 
         """
-
-        if learning_curves:
-            learning_curves = learning_curves.rstrip('/')
-        self.learning_curves = learning_curves
-
         self.modeldict = modeldict
         self.silent = silent
 
@@ -258,12 +252,10 @@ class Evaluator():
 
     def evaluate(self):
         """ CCobra evaluation loop. Iterates over the models and performs training and evaluation.
-
         Returns
         -------
         pd.DataFrame
             DataFrame containing the CCOBRA evaluation results.
-
         """
 
         result_data = []
@@ -275,7 +267,6 @@ class Evaluator():
 
         # Activate model context
         for idx, modelitem in enumerate(self.modeldict.items()):
-            model_checkpoints = {}
             model, model_kwargs = modelitem
 
             # Print the progress
@@ -316,8 +307,6 @@ class Evaluator():
                 for subj_id, subj_df in self.test_data.get().groupby('id'):
                     model = copy.deepcopy(pre_model)
 
-                    model_checkpoints[subj_id] = {}
-
                     # Perform pre-training for individual subjects only if
                     # corresponding data is set to true.
                     if self.train_data is not None and self.corresponding_data:
@@ -325,12 +314,8 @@ class Evaluator():
                         cur_train_data_dict = [
                             value for key, value in train_data_dict.items() if key != subj_id]
 
-                        model_checkpoints[subj_id]['start_participant'] = []
-
                         # Train on incomplete training data
-                        model.pre_train(cur_train_data_dict,
-                                        checkpoints=model_checkpoints[subj_id][
-                                            'pre_train'])
+                        model.pre_train(cur_train_data_dict)
 
                     # Perform the personalized pre-training
                     if self.train_data_person is not None:
@@ -339,28 +324,15 @@ class Evaluator():
                         subj_pre_train_data_person = self.train_data_person.get().loc[
                             self.train_data_person.get()['id'] == subj_id]
 
-                        model_checkpoints[subj_id]['person_train'] = []
-
                         person_train_data = self.get_train_data_dict(
                             ccobra.CCobraData(subj_pre_train_data_person))
-                        model.person_train(person_train_data[subj_id],
-                                           checkpoints=model_checkpoints[
-                                            subj_id]['person_train'])
+                        model.person_train(person_train_data[subj_id])
 
                     # Extract the subject demographics
                     demographics = self.extract_demographics(subj_df)
 
-                    model_checkpoints[subj_id]['start_participant'] = []
-
                     # Set the models to new participant
-                    model.start_participant(
-                        id=subj_id, checkpoints=model_checkpoints[
-                            subj_id]['start_participant'], **demographics)
-
-                    model_checkpoints[subj_id]['main_train'] = [
-                        copy.deepcopy(model)]
-
-                    model_checkpoints[subj_id]['adapt'] = {}
+                    model.start_participant(id=subj_id, **demographics)
 
                     for _, row in subj_df.sort_values('sequence').iterrows():
                         optionals = self.extract_optionals(row)
@@ -387,18 +359,196 @@ class Evaluator():
                         prediction = model.predict(item, **optionals)
                         hit = int(self.comparator.compare(prediction, truth))
 
-                        model_checkpoints[subj_id]['adapt'][sequence] = []
+                        # Adapt to true response
+                        adapt_item = ccobra.data.Item(
+                            subj_id, domain, task, response_type, choices,
+                            sequence)
+                        model.adapt(adapt_item, truth, **optionals)
+
+                        result_data.append({
+                            'model': model.name,
+                            'id': subj_id,
+                            'domain': domain,
+                            'sequence': sequence,
+                            'task': task,
+                            'choices': choices,
+                            'truth': row['response'],
+                            'prediction': comparator.tuple_to_string(prediction),
+                            'hit': hit,
+                        })
+
+                # De-load the imported model and its dependencies. Might
+                # cause garbage collection issues.
+                importer.unimport()
+
+        return pd.DataFrame(result_data)
+
+
+class LC_Evaluator(Evaluator):
+    def __init__(self, *args, learning_curves=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if learning_curves:
+            learning_curves = learning_curves.rstrip('/')
+        self.learning_curves = learning_curves
+
+    def evaluate(self):
+        """ CCobra evaluation loop. Iterates over the models and performs training and evaluation.
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame containing the CCOBRA evaluation results.
+
+        """
+
+        result_data = []
+
+        # Pre-compute the training data dictionaries
+        train_data_dict = None
+        if self.train_data is not None:
+            train_data_dict = self.get_train_data_dict(self.train_data)
+
+        # Activate model context
+        for idx, modelitem in enumerate(self.modeldict.items()):
+            model_evaluations = {}
+            model, model_kwargs = modelitem
+
+            # Print the progress
+            if not self.silent:
+                print("Evaluating '{}' ({}/{})...".format(
+                    model, idx + 1, len(self.modeldict)))
+
+            # Setup the model context
+            context = os.path.abspath(model)
+            if os.path.isfile(context):
+                context = os.path.dirname(context)
+
+            # Extract load_specific_class
+            specific_class = None
+            if 'load_specific_class' in model_kwargs:
+                specific_class = model_kwargs['load_specific_class']
+                del model_kwargs['load_specific_class']
+
+            with dir_context(context):
+                importer = modelimporter.ModelImporter(
+                    model, ccobra.CCobraModel,
+                    load_specific_class=specific_class)
+
+                # Instantiate and prepare the model for predictions
+                pre_model = importer.instantiate(model_kwargs)
+
+                # Check if model is applicable to domains/response types
+                self.check_model_applicability(pre_model)
+
+                # Only perform general pre-training if training data is
+                # supplied and corresponding data is false. Otherwise, the
+                # model has to be re-trained for each subject.
+                if self.train_data is not None and not self.corresponding_data:
+                    # Prepare training data
+                    pre_model.pre_train(list(train_data_dict.values()))
+
+                # Iterate subject
+                for subj_id, subj_df in self.test_data.get().groupby('id'):
+                    model = copy.deepcopy(pre_model)
+
+                    model_evaluations[subj_id] = {}
+
+                    # Perform pre-training for individual subjects only if
+                    # corresponding data is set to true.
+                    if self.train_data is not None and self.corresponding_data:
+                        # Remove one participant
+                        cur_train_data_dict = [
+                            value for key, value in train_data_dict.items() if key != subj_id]
+
+                        model_checkpoints = []
+                        # Train on incomplete training data
+                        model.pre_train(cur_train_data_dict,
+                                        checkpoints=model_checkpoints)
+
+                        model_evaluations[subj_id][
+                            'pre_train'] = self.evaluate_checkpoints(
+                            model_checkpoints, subj_id)
+
+                    # Perform the personalized pre-training
+                    if self.train_data_person is not None:
+                        # Pick out the person training data for the current
+                        # individual
+                        subj_pre_train_data_person = self.train_data_person.get().loc[
+                            self.train_data_person.get()['id'] == subj_id]
+
+                        model_checkpoints = []
+
+                        person_train_data = self.get_train_data_dict(
+                            ccobra.CCobraData(subj_pre_train_data_person))
+                        model.person_train(person_train_data[subj_id],
+                                           checkpoints=model_checkpoints)
+
+                        model_evaluations[subj_id][
+                            'person_train'] = self.evaluate_checkpoints(
+                            model_checkpoints, subj_id)
+
+                    # Extract the subject demographics
+                    demographics = self.extract_demographics(subj_df)
+
+                    model_checkpoints = []
+
+                    # Set the models to new participant
+                    model.start_participant(
+                        id=subj_id, checkpoints=model_checkpoints,
+                        **demographics)
+
+                    model_evaluations[subj_id][
+                        'start_participant'] = self.evaluate_checkpoints(
+                        model_checkpoints, subj_id)
+
+                    model_evaluations[subj_id][
+                        'main_train'] = self.evaluate_checkpoints(
+                        [copy.deepcopy(model)], subj_id)
+
+                    model_evaluations[subj_id]['adapt'] = {}
+
+                    for _, row in subj_df.sort_values('sequence').iterrows():
+                        optionals = self.extract_optionals(row)
+
+                        # Evaluation
+                        sequence = row['sequence']
+                        task = row['task']
+                        choices = row['choices']
+                        truth = row['response']
+                        response_type = row['response_type']
+                        domain = row['domain']
+
+                        if isinstance(truth, str):
+                            if response_type == 'multiple-choice':
+                                truth = [y.split(';') for y in [
+                                    x.split('/') for x in truth.split('|')]]
+                            else:
+                                truth = [x.split(';') for x in truth.split('/')]
+
+                        item = ccobra.data.Item(
+                            subj_id, domain, task, response_type, choices,
+                            sequence)
+
+                        prediction = model.predict(item, **optionals)
+                        hit = int(self.comparator.compare(prediction, truth))
+
+                        model_checkpoints = []
 
                         # Adapt to true response
                         adapt_item = ccobra.data.Item(
                             subj_id, domain, task, response_type, choices,
                             sequence)
                         model.adapt(adapt_item, truth,
-                                    checkpoints=model_checkpoints[subj_id][
-                                        'adapt'][sequence], **optionals)
+                                    checkpoints=model_checkpoints,
+                                    **optionals)
 
-                        model_checkpoints[subj_id][
-                            'main_train'].append(copy.deepcopy(model))
+                        model_evaluations[subj_id]['adapt'][
+                            sequence] = self.evaluate_checkpoints(
+                            model_checkpoints, subj_id)
+
+                        model_evaluations[subj_id][
+                            'main_train'].append(self.evaluate_checkpoints(
+                                [copy.deepcopy(model)], subj_id))
 
                         result_data.append({
                             'model': model.name,
@@ -418,7 +568,7 @@ class Evaluator():
 
                 if self.learning_curves:
                     self.generate_learning_curves(model.name,
-                                                  model_checkpoints)
+                                                  model_evaluations)
 
         return pd.DataFrame(result_data)
 
@@ -467,20 +617,26 @@ class Evaluator():
             checkpoint.predict(i[0], **i[1]), t))
             for i, t in zip(test_items, test_targets)])
 
-        return train_accuracy, test_accuracy
+        return (train_accuracy, test_accuracy)
 
-    def generate_learning_curves(self, model, model_checkpoints):
+    def evaluate_checkpoints(self, checkpoint_list, subj_id):
+        res = []
+        for checkpoint in checkpoint_list:
+            res.append(self.rollout(checkpoint, subj_id))
+        return res
+
+    def generate_learning_curves(self, model, model_evaluations):
         # eval all checkpoints
         data = []
-        for subject, phase_dictionary in model_checkpoints.items():
-            for phase, epoch_checkpoints in phase_dictionary.items():
+        for subject, phase_dictionary in model_evaluations.items():
+            for phase, checkpoint_evaluations in phase_dictionary.items():
                 if phase == 'adapt':
                     continue  # handled seperately below
                 else:
                     e = 0
-                    for checkpoint in epoch_checkpoints:
+                    for value_pair in checkpoint_evaluations:
                         e += 1
-                        train_acc, test_acc = self.rollout(checkpoint, subject)
+                        train_acc, test_acc = value_pair
                         data.append({'Model': model,
                                      'Subject': subject,
                                      'Phase': phase,
@@ -500,14 +656,14 @@ class Evaluator():
 
         # handle adaption: similar to other phases but exec per item, so avg!
         data = []
-        for subject, phase_dictionary in model_checkpoints.items():
+        for subject, phase_dictionary in model_evaluations.items():
             phase = 'adapt'
             item_dict = phase_dictionary[phase]
-            for item, epoch_checkpoints in item_dict.items():
+            for item, checkpoint_evaluations in item_dict.items():
                 e = 0
-                for checkpoint in epoch_checkpoints:
+                for value_pair in checkpoint_evaluations:
                     e += 1
-                    train_acc, test_acc = self.rollout(checkpoint, subject)
+                    train_acc, test_acc = value_pair
                     data.append({'Model': model,
                                  'Subject': subject,
                                  'Phase': phase,

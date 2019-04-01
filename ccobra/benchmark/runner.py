@@ -117,15 +117,27 @@ def main(args):
 
     # Run the model evaluation
     is_silent = (args['output'] in ['html', 'server'])
-    eva = evaluator.Evaluator(
-        modeldict,
-        eval_comparator,
-        benchmark['data.test'],
-        train_datafile=benchmark['data.train'],
-        train_data_person=benchmark['data.train_person'],
-        silent=is_silent,
-        corresponding_data=corresponding_data,
-        learning_curves=args['learning_curves'])
+    if args['learning_curves']:
+        eva = evaluator.LC_Evaluator(
+                modeldict,
+                eval_comparator,
+                benchmark['data.test'],
+                train_datafile=benchmark['data.train'],
+                train_data_person=benchmark['data.train_person'],
+                silent=is_silent,
+                corresponding_data=corresponding_data,
+                learning_curves=args['learning_curves']
+                )
+    else:
+        eva = evaluator.Evaluator(
+                modeldict,
+                eval_comparator,
+                benchmark['data.test'],
+                train_datafile=benchmark['data.train'],
+                train_data_person=benchmark['data.train_person'],
+                silent=is_silent,
+                corresponding_data=corresponding_data,
+            )
 
     with silence_stdout(is_silent):
         res_df = eva.evaluate()
