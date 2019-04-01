@@ -548,7 +548,7 @@ class LC_Evaluator(Evaluator):
 
                         model_evaluations[subj_id][
                             'main_train'].append(self.evaluate_checkpoints(
-                                [copy.deepcopy(model)], subj_id))
+                                [copy.deepcopy(model)], subj_id)[0])
 
                         result_data.append({
                             'model': model.name,
