@@ -685,7 +685,7 @@ class LC_Evaluator(Evaluator):
         df2.groupby(['Model', 'Subject', 'Epoch', 'Train/Test']).mean()
 
         df2.drop('Item', axis=1, inplace=True)
-        df = pd.concat(df1, df2)
+        df = pd.concat([df1, df2])
 
         sns.set(style='whitegrid')
 
