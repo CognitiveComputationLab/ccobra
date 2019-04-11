@@ -682,11 +682,15 @@ class LC_Evaluator(Evaluator):
                                  'Item': item
                                  })
         df2 = pd.DataFrame(data)
-        # average over adaption runs of one model and subject
-        df2.groupby(['Model', 'Subject', 'Epoch', 'Train/Test']).mean()
 
-        df2.drop('Item', axis=1, inplace=True)
-        df = pd.concat([df1, df2])
+        if not df2.empty:
+            # average over adaption runs of one model and subject
+            df2.groupby(['Model', 'Subject', 'Epoch', 'Train/Test']).mean()
+
+            df2.drop('Item', axis=1, inplace=True)
+            df = pd.concat([df1, df2])
+        else:
+            df = df1
 
         sns.set(style='whitegrid')
 
