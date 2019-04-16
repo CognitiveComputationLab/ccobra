@@ -41,10 +41,16 @@ def parse_arguments():
     parser.add_argument(
         '-cn', '--classname', type=str,
         help='Load a specific class from a folder containing multiple classes.')
-    parser.add_argument('--learning_curves', type=str,
+    parser.add_argument('--learning_curves_folder', type=str,
                         help='Generate learning curves for the models and save'
                         'in the specified folder. This is expensive, since '
                         'rollouts are performed every training epoch.')
+    parser.add_argument('--learning_curves_for', type=str, nargs='+',
+                        help='The phases to generate learning curves for '
+                        '(main_train, pre_train, adapt, start_participant, '
+                        'person_train). Enter as list without seperator.',
+                        default=['main_train', 'pre_train', 'adapt',
+                                 'start_participant', 'person_train'])
 
     args = vars(parser.parse_args())
 
@@ -117,7 +123,7 @@ def main(args):
 
     # Run the model evaluation
     is_silent = (args['output'] in ['html', 'server'])
-    if args['learning_curves']:
+    if args['learning_curves_folder']:
         eva = evaluator.LC_Evaluator(
                 modeldict,
                 eval_comparator,
@@ -126,7 +132,8 @@ def main(args):
                 train_data_person=benchmark['data.train_person'],
                 silent=is_silent,
                 corresponding_data=corresponding_data,
-                learning_curves=args['learning_curves']
+                learning_curves_folder=args['learning_curves_folder'],
+                learning_curves_for=args['learning_curves_for']
                 )
     else:
         eva = evaluator.Evaluator(

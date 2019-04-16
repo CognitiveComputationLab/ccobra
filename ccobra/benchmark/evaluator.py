@@ -19,6 +19,12 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 
+pre_train_str = 'pre_train'
+main_train_str = 'main_train'
+adapt_str = 'adapt'
+start_participant_str = 'start_participant'
+person_train_str = 'person_train'
+
 @contextmanager
 def dir_context(path):
     """ Context manager for the working directory. Stores the current working directory before
@@ -385,12 +391,14 @@ class Evaluator():
 
 
 class LC_Evaluator(Evaluator):
-    def __init__(self, *args, learning_curves=None, **kwargs):
+    def __init__(self, *args, learning_curves_folder=None,
+                 learning_curves_for=None, **kwargs):
         super().__init__(*args, **kwargs)
-        if learning_curves:
-            learning_curves = learning_curves.rstrip('/')
-        assert os.path.isdir(learning_curves)
-        self.learning_curves = learning_curves
+        if learning_curves_folder:
+            learning_curves_folder = learning_curves_folder.rstrip('/')
+        assert os.path.isdir(learning_curves_folder)
+        self.learning_curves_folder = learning_curves_folder
+        self.learning_curves_for = learning_curves_for
 
     def evaluate(self):
         """ CCobra evaluation loop. Iterates over the models and performs training and evaluation.
@@ -466,9 +474,10 @@ class LC_Evaluator(Evaluator):
                         model.pre_train(cur_train_data_dict,
                                         checkpoints=model_checkpoints)
 
-                        model_evaluations[subj_id][
-                            'pre_train'] = self.evaluate_checkpoints(
-                            model_checkpoints, subj_id)
+                        if pre_train_str in self.learning_curves_for:
+                            model_evaluations[subj_id][
+                                pre_train_str] = self.evaluate_checkpoints(
+                                model_checkpoints, subj_id)
 
                     # Perform the personalized pre-training
                     if self.train_data_person is not None:
@@ -484,9 +493,10 @@ class LC_Evaluator(Evaluator):
                         model.person_train(person_train_data[subj_id],
                                            checkpoints=model_checkpoints)
 
-                        model_evaluations[subj_id][
-                            'person_train'] = self.evaluate_checkpoints(
-                            model_checkpoints, subj_id)
+                        if person_train_str in self.learning_curves_for:
+                            model_evaluations[subj_id][
+                                person_train_str] = self.evaluate_checkpoints(
+                                model_checkpoints, subj_id)
 
                     # Extract the subject demographics
                     demographics = self.extract_demographics(subj_df)
@@ -498,15 +508,18 @@ class LC_Evaluator(Evaluator):
                         id=subj_id, checkpoints=model_checkpoints,
                         **demographics)
 
-                    model_evaluations[subj_id][
-                        'start_participant'] = self.evaluate_checkpoints(
-                        model_checkpoints, subj_id)
+                    if start_participant_str in self.learning_curves_for:
+                        model_evaluations[subj_id][
+                            start_participant_str] = self.evaluate_checkpoints(
+                            model_checkpoints, subj_id)
 
-                    model_evaluations[subj_id][
-                        'main_train'] = self.evaluate_checkpoints(
-                        [copy.deepcopy(model)], subj_id)
+                    if main_train_str in self.learning_curves_for:
+                        model_evaluations[subj_id][
+                            main_train_str] = self.evaluate_checkpoints(
+                            [copy.deepcopy(model)], subj_id)
 
-                    model_evaluations[subj_id]['adapt'] = {}
+                    if adapt_str in self.learning_curves_for:
+                        model_evaluations[subj_id][adapt_str] = {}
 
                     for _, row in subj_df.sort_values('sequence').iterrows():
                         optionals = self.extract_optionals(row)
@@ -543,13 +556,16 @@ class LC_Evaluator(Evaluator):
                                     checkpoints=model_checkpoints,
                                     **optionals)
 
-                        model_evaluations[subj_id]['adapt'][
-                            sequence] = self.evaluate_checkpoints(
-                            model_checkpoints, subj_id)
+                        if adapt_str in self.learning_curves_for:
+                            model_evaluations[subj_id][adapt_str][
+                                sequence] = self.evaluate_checkpoints(
+                                model_checkpoints, subj_id)
 
-                        model_evaluations[subj_id][
-                            'main_train'].append(self.evaluate_checkpoints(
-                                [copy.deepcopy(model)], subj_id)[0])
+                        if main_train_str in self.learning_curves_for:
+                            model_evaluations[subj_id][
+                                main_train_str].append(
+                                    self.evaluate_checkpoints(
+                                        [copy.deepcopy(model)], subj_id)[0])
 
                         result_data.append({
                             'model': model.name,
@@ -567,7 +583,7 @@ class LC_Evaluator(Evaluator):
                 # cause garbage collection issues.
                 importer.unimport()
 
-                if self.learning_curves:
+                if self.learning_curves_folder:
                     self.generate_learning_curves(model.name,
                                                   model_evaluations)
 
@@ -694,6 +710,8 @@ class LC_Evaluator(Evaluator):
 
         sns.set(style='whitegrid')
 
+        print(df)
+
         for phase in set(df['Phase']):
             sns.lineplot(x="Epoch", y="Acc", hue='Train/Test',
                          data=df.loc[(df['Model'] == model)
@@ -710,6 +728,6 @@ class LC_Evaluator(Evaluator):
             plt.ylabel('Predictive Accuracy')
 
             plt.tight_layout()
-            plt.savefig('{}/{}_{}.png'.format(self.learning_curves, model,
-                                              phase))
+            plt.savefig('{}/{}_{}.png'.format(self.learning_curves_folder,
+                                              model, phase))
             plt.clf()
