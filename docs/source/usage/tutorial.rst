@@ -21,7 +21,7 @@ for a single prediction in response to a presented problem.
 In syllogistic reasoning, a toy model might be constructed in a way that it is
 always supposed to respond with *No valid response* indicating that no logical
 inference can be drawn in response to the given task. Consequently, its
-``predict`` method will always return ``[NVC]``.
+``predict`` method will always return ``[[NVC]]``.
 
 The sheer simplicity of CCOBRA sets it apart from most contemporary modeling
 approaches. Models are not required to adhere to rigorous Bayesian fundamentals
@@ -66,6 +66,13 @@ from which only the ``predict`` method is mandatory:
             """ Model constructor.
 
             """
+
+            # Call the super constructor to fully initialize the model
+            supported_domains = ['syllogistic']
+            supported_response_types = ['single-choice']
+            super(MyModel, self).__init__(
+                name, supported_domains, supported_response_types)
+
             ...
 
         def start_participant(self, **kwargs):
@@ -104,7 +111,8 @@ This can be achieved by writing the following lines of code:
 
     class NVCModel(ccobra.CCobraModel):
         def __init__(self, name='NVCModel'):
-            super(NVCModel, self).__init__(name, ['syllogistic'], ['single-choice'])
+            super(NVCModel, self).__init__(
+                name, ['syllogistic'], ['single-choice'])
 
         def predict(self, item, **kwargs):
             return [['NVC']]
@@ -142,18 +150,19 @@ are considered relative to the location of the benchmark file itself. Assuming
 the JSON file to be located at ``~/benchmarks/benchmark.json``, the first model
 would refer to the file ``~/benchmarks/path/to/model1.py``.
 
-To run benchmarks, the script ``runner.py`` which is located in the
-``ccobra-bench`` directory can be used. Execute the following commands:
+After installing CCOBRA, a command line program ``ccobra`` is registered. Benchmarks
+are run by calling this program and supplying the json configuration file (alternatively
+you can use ``ccobra`` executable found in the ``benchmarks`` directory of the repository):
 
     .. code::
 
-        $> python runner.py /path/to/benchmark.json
+        $> ccobra /path/to/benchmark.json
 
 To evaluate a model against a benchmark, the ``-m`` flag is used:
 
     .. code::
 
-        $> python runner.py /path/to/benchmark.json -m /path/to/model.py
+        $> ccobra /path/to/benchmark.json -m /path/to/model.py
 
 In this case, the additional model does not need to be integrated into the
 benchmark file.
