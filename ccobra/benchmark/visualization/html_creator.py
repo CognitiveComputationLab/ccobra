@@ -70,11 +70,11 @@ class HTMLCreator():
         scripts = []
         if not embedded:
             scripts.append('\n'.join([
-                "           window.onresize = function() {",
+                "           window.addEventListener('resize', function() {",
                 "           var arr = document.getElementsByTagName('script')",
                 "           for (var n = 0; n < arr.length; n++)",
                 "               eval(arr[n].innerHTML);",
-                "           }"
+                "           });"
             ]))
 
         content_dict = {
