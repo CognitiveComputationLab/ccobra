@@ -1,7 +1,9 @@
 {
+    "corresponding_data": false,
     "data.train": "",
     "data.test": "data/data.csv",
-    "corresponding_data": false,
+    "domains": ["propositional"],
+    "response_types": ["single-choice"],
     "models": [
         "models/Baseline/Random-Model/random_model.py"
     ]

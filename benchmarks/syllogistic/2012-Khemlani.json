@@ -1,6 +1,9 @@
 {
+    "corresponding_data": false,
     "data.train": "",
     "data.test": "data/Ragni2016.csv",
+    "domains": ["syllogistic"],
+    "response_types": ["single-choice"],
     "models": [
         "models/2012-Khemlani/Atmosphere/atmosphere.py",
         "models/2012-Khemlani/Conversion/conversion.py",

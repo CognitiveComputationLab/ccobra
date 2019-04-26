@@ -1,6 +1,9 @@
 {
+    "corresponding_data": false,
     "data.train": "data/Ragni2016.csv",
     "data.test": "data/Veser2018.csv",
+    "domains": ["syllogistic"],
+    "response_types": ["single-choice"],
     "models": [
         "models/Baseline/NVC-Model/nvc_model.py",
         "models/Baseline/Uniform-Model/uniform_model.py",
