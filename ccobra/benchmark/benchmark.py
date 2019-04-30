@@ -37,6 +37,8 @@ class ModelInfo():
         #: Class name for dynamic loading. Is used whenever multiple alternative CCOBRA model
         #: classes are specified within the model file.
         self.load_specific_class = load_specific_class
+
+        #: Keyword arguments for the dynamic model instantiation
         self.args = {}
 
         if isinstance(model_info, str):
