@@ -49,6 +49,7 @@ extensions = [
 ]
 
 autosummary_generate = True
+autoclass_content = 'both'
 
 napoleon_google_docstring = False
 napoleon_use_param = False

@@ -5,6 +5,7 @@
 .. autosummary::
    :toctree: _autosummary
 
+   ccobra.benchmark
    ccobra.syllogistic
 
 .. rubric:: Classes
