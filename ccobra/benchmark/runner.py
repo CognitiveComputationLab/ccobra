@@ -85,11 +85,9 @@ def main(args):
     """
 
     # Compose the model list
-    modeldict = {}
+    modellist = []
     if args['model']:
-        modeldict[bmark.fix_model_path(args['model'], os.getcwd())] = {
-            'load_specific_class' : args['classname']
-        }
+        modellist.append(bmark.ModelInfo(args['model'], os.getcwd(), args['classname']))
 
     # Load the benchmark settings
     benchmark = None
@@ -101,7 +99,7 @@ def main(args):
     # Only extend if not cached
     cache_df = pd.DataFrame()
     if not args['cache']:
-        modeldict.update(benchmark['models'])
+        modellist.extend(benchmark['models'])
     else:
         cache_df = pd.read_csv(args['cache'])
 
@@ -114,7 +112,7 @@ def main(args):
     # Run the model evaluation
     is_silent = (args['output'] in ['html', 'server'])
     eva = evaluator.Evaluator(
-        modeldict,
+        modellist,
         eval_comparator,
         benchmark['data.test'],
         train_datafile=benchmark['data.train'],

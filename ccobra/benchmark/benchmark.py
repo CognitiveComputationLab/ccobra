@@ -5,6 +5,26 @@
 import os
 import json
 
+class ModelInfo():
+    def __init__(self, model_info, base_path, load_specific_class=None):
+        self.path = None
+        self.override_name = None
+        self.load_specific_class = load_specific_class
+        self.args = {}
+
+        if isinstance(model_info, str):
+            self.path = fix_model_path(model_info, base_path)
+        else:
+            self.path = fix_model_path(model_info['filename'], base_path)
+            self.override_name = model_info.get('override_name', self.override_name)
+            self.args = model_info.get('args', self.args)
+            self.load_specific_class = model_info.get(
+                'load_specific_class', self.load_specific_class)
+
+    def __str__(self):
+        return 'path={}, override_name={}, load_specific_class={}, args={}'.format(
+            self.path, self.override_name, self.load_specific_class, self.args)
+
 def load_benchmark(benchmark_file):
     """ Loads a benchmark file containing information about the data and models
     to run. Changes relative paths from `benchmark_file` to absolute ones.
@@ -33,7 +53,7 @@ def load_benchmark(benchmark_file):
     benchmark['data.train'] = fix_rel_path(benchmark.get('data.train'), base_path)
     benchmark['data.train_person'] = fix_rel_path(benchmark.get('data.train_person', ''), base_path)
     benchmark['data.test'] = fix_rel_path(benchmark.get('data.test', ''), base_path)
-    benchmark['models'] = dict([parse_model_info(x, base_path) for x in benchmark['models']])
+    benchmark['models'] = [ModelInfo(x, base_path) for x in benchmark['models']]
 
     return benchmark
 
@@ -59,16 +79,14 @@ def parse_model_info(model_info, base_path):
     """
 
     if isinstance(model_info, str):
-        return (fix_model_path(model_info, base_path), {})
+        return (fix_model_path(model_info, base_path), '', {})
 
-    model_file = None
-    kwargs = {}
-    for key, value in model_info.items():
-        if key == 'filename':
-            model_file = fix_model_path(value, base_path)
-        else:
-            kwargs[key] = value
-    return (model_file, kwargs)
+    model_file = fix_model_path(model_info['filename'], base_path)
+    override_name = model_info.get('override_name', None)
+
+    kwargs = model_info.get('args', {})
+
+    return (model_file, override_name, kwargs)
 
 def fix_rel_path(path, base_path):
     """ Fixes relative paths by prepending the benchmark filepath.

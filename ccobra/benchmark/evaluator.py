@@ -6,6 +6,7 @@ from contextlib import contextmanager
 import os
 import sys
 import copy
+import warnings
 
 import pandas as pd
 import numpy as np
@@ -41,14 +42,14 @@ class Evaluator():
 
     """
 
-    def __init__(self, modeldict, eval_comparator, test_datafile, train_datafile=None,
+    def __init__(self, modellist, eval_comparator, test_datafile, train_datafile=None,
                  train_data_person=None, silent=False, corresponding_data=False):
         """
 
         Parameters
         ----------
-        modeldict : dict
-            Dictionary containing model paths and keyword arguments for model initialization.
+        modellist : list(ccobra.ModelInfo)
+            List containing model paths and additional arguments for model initialization.
 
         eval_comparator : Comparator
             Comparator to be used for computing hits/misses.
@@ -71,7 +72,7 @@ class Evaluator():
 
         """
 
-        self.modeldict = modeldict
+        self.modellist = modellist
         self.silent = silent
 
         self.domains = set()
@@ -258,6 +259,7 @@ class Evaluator():
         """
 
         result_data = []
+        model_name_cache = set()
 
         # Pre-compute the training data dictionaries
         train_data_dict = None
@@ -265,35 +267,45 @@ class Evaluator():
             train_data_dict = self.get_train_data_dict(self.train_data)
 
         # Activate model context
-        for idx, modelitem in enumerate(self.modeldict.items()):
-            model, model_kwargs = modelitem
-
+        for idx, modelinfo in enumerate(self.modellist):
             # Print the progress
             if not self.silent:
                 print("Evaluating '{}' ({}/{})...".format(
-                    model, idx + 1, len(self.modeldict)))
+                    modelinfo.path, idx + 1, len(self.modellist)))
 
             # Setup the model context
-            context = os.path.abspath(model)
+            context = os.path.abspath(modelinfo.path)
             if os.path.isfile(context):
                 context = os.path.dirname(context)
 
-            # Extract load_specific_class
-            specific_class = None
-            if 'load_specific_class' in model_kwargs:
-                specific_class = model_kwargs['load_specific_class']
-                del model_kwargs['load_specific_class']
-
             with dir_context(context):
+                # Dynamically import the CCOBRA model
                 importer = modelimporter.ModelImporter(
-                    model, ccobra.CCobraModel,
-                    load_specific_class=specific_class)
+                    modelinfo.path, ccobra.CCobraModel,
+                    load_specific_class=modelinfo.load_specific_class)
 
                 # Instantiate and prepare the model for predictions
-                pre_model = importer.instantiate(model_kwargs)
+                pre_model = importer.instantiate(modelinfo.args)
 
                 # Check if model is applicable to domains/response types
                 self.check_model_applicability(pre_model)
+
+                # Only use the model's name if no override is specified
+                model_name = modelinfo.override_name
+                if not model_name:
+                    model_name = pre_model.name
+
+                # Ensure that names are unique and show a warning if duplicates are detected
+                original_model_name = model_name
+                changed = False
+                while model_name in model_name_cache:
+                    model_name = model_name + '\''
+                    changed = True
+                model_name_cache.add(model_name)
+
+                if changed:
+                    warnings.warn('Duplicate model name detected ("{}"). Changed to "{}".'.format(
+                        original_model_name, model_name))
 
                 # Only perform general pre-training if training data is
                 # supplied and corresponding data is false. Otherwise, the
@@ -301,6 +313,7 @@ class Evaluator():
                 if self.train_data is not None and not self.corresponding_data:
                     # Prepare training data
                     pre_model.pre_train(list(train_data_dict.values()))
+
 
                 # Iterate subject
                 for subj_id, subj_df in self.test_data.get().groupby('id'):
@@ -333,6 +346,7 @@ class Evaluator():
                     # Set the models to new participant
                     model.start_participant(id=subj_id, **demographics)
 
+                    # Iterate over individual tasks
                     for _, row in subj_df.sort_values('sequence').iterrows():
                         optionals = self.extract_optionals(row)
 
@@ -352,8 +366,7 @@ class Evaluator():
                                 truth = [x.split(';') for x in truth.split('/')]
 
                         item = ccobra.data.Item(
-                            subj_id, domain, task, response_type, choices,
-                            sequence)
+                            subj_id, domain, task, response_type, choices, sequence)
 
                         prediction = model.predict(item, **optionals)
                         hit = int(self.comparator.compare(prediction, truth))
@@ -364,8 +377,9 @@ class Evaluator():
                             sequence)
                         model.adapt(adapt_item, truth, **optionals)
 
+                        # Collect the evaluation result data
                         result_data.append({
-                            'model': model.name,
+                            'model': model_name,
                             'id': subj_id,
                             'domain': domain,
                             'sequence': sequence,
@@ -373,7 +387,7 @@ class Evaluator():
                             'choices': choices,
                             'truth': row['response'],
                             'prediction': comparator.tuple_to_string(prediction),
-                            'hit': hit,
+                            'hit': hit
                         })
 
                 # De-load the imported model and its dependencies. Might
