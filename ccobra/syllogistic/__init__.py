@@ -14,4 +14,4 @@
 """
 
 from .parsing import decode_response, encode_response, encode_task, SYLLOGISMS, RESPONSES
-from .syllogism import Syllogism
+from .syllogism import Syllogism, VALID_SYLLOGISMS, INVALID_SYLLOGISMS, SYLLOGISTIC_FOL_RESPONSES

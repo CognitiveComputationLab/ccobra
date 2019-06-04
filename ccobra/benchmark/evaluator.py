@@ -390,6 +390,9 @@ class Evaluator():
                             'hit': hit
                         })
 
+                    # Call the end participant hook
+                    model.end_participant(subj_id, **optionals)
+
                 # De-load the imported model and its dependencies. Might
                 # cause garbage collection issues.
                 importer.unimport()
