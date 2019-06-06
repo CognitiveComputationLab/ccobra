@@ -2,7 +2,6 @@
 
 """
 
-from contextlib import contextmanager
 import os
 import sys
 import copy
@@ -15,27 +14,8 @@ import ccobra
 
 from . import modelimporter
 from . import comparator
+from . import contextmanager
 
-@contextmanager
-def dir_context(path):
-    """ Context manager for the working directory. Stores the current working directory before
-    switching it. Finally, resets to the old wd.
-
-    Parameters
-    ----------
-    path : str
-        String to set the working directory to.
-
-    """
-
-    old_dir = os.getcwd()
-    os.chdir(path)
-    sys.path.append(path)
-    try:
-        yield
-    finally:
-        os.chdir(old_dir)
-        sys.path.remove(path)
 
 class Evaluator():
     """ Main CCOBRA evaluation class. Hosts training data loading and model evaluation loop.
@@ -43,7 +23,8 @@ class Evaluator():
     """
 
     def __init__(self, modellist, eval_comparator, test_datafile, train_datafile=None,
-                 train_data_person=None, silent=False, corresponding_data=False):
+                 train_data_person=None, silent=False, corresponding_data=False,
+                 domain_encoders=None):
         """
 
         Parameters
@@ -70,6 +51,9 @@ class Evaluator():
             Indicates whether test and training data should contain the same
             user ids.
 
+        domain_encoders : dict(str, ccobra.CCobraDomainEncoder)
+            Mapping from domain to encoder object.
+
         """
 
         self.modellist = modellist
@@ -80,6 +64,7 @@ class Evaluator():
 
         self.comparator = eval_comparator
         self.corresponding_data = corresponding_data
+        self.domain_encoders = domain_encoders
 
         # Load the test data
         self.test_data = ccobra.CCobraData(pd.read_csv(test_datafile))
@@ -274,11 +259,7 @@ class Evaluator():
                     modelinfo.path, idx + 1, len(self.modellist)))
 
             # Setup the model context
-            context = os.path.abspath(modelinfo.path)
-            if os.path.isfile(context):
-                context = os.path.dirname(context)
-
-            with dir_context(context):
+            with contextmanager.dir_context(modelinfo.path):
                 # Dynamically import the CCOBRA model
                 importer = modelimporter.ModelImporter(
                     modelinfo.path, ccobra.CCobraModel,
@@ -378,7 +359,7 @@ class Evaluator():
                         model.adapt(adapt_item, truth, **optionals)
 
                         # Collect the evaluation result data
-                        result_data.append({
+                        prediction_data = {
                             'model': model_name,
                             'id': subj_id,
                             'domain': domain,
@@ -388,7 +369,17 @@ class Evaluator():
                             'truth': row['response'],
                             'prediction': comparator.tuple_to_string(prediction),
                             'hit': hit
-                        })
+                        }
+
+                        # If domain encoders are specified, attach encodings to the result
+                        if self.domain_encoders:
+                            prediction_data.update({
+                                'task_enc': self.domain_encoders[domain].encode_task(item.task) if domain in self.domain_encoders else np.nan,
+                                'truth_enc': self.domain_encoders[domain].encode_response(truth, item.task) if domain in self.domain_encoders else np.nan,
+                                'prediction_enc': self.domain_encoders[domain].encode_response(prediction, item.task) if domain in self.domain_encoders else np.nan
+                            })
+
+                        result_data.append(prediction_data)
 
                     # Call the end participant hook
                     model.end_participant(subj_id, **optionals)
