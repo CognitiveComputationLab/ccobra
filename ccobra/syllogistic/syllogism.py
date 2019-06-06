@@ -3,8 +3,22 @@
 """
 
 from ..data import Item
-from .parsing import encode_response, encode_task, decode_response
+from .encoder_syl import SyllogisticEncoder
 
+
+#: List of syllogistic task identifiers.
+SYLLOGISMS = []
+for _prem1 in ['A', 'I', 'E', 'O']:
+    for _prem2 in ['A', 'I', 'E', 'O']:
+        for _fig in ['1', '2', '3', '4']:
+            SYLLOGISMS.append(_prem1 + _prem2 + _fig)
+
+#: List of syllogistic responses.
+RESPONSES = []
+for _quant in ['A', 'I', 'E', 'O']:
+    for _direction in ['ac', 'ca']:
+        RESPONSES.append(_quant + _direction)
+RESPONSES.append('NVC')
 
 #: List of valid syllogisms
 VALID_SYLLOGISMS = [
@@ -87,6 +101,51 @@ SYLLOGISTIC_FOL_RESPONSES = {
     'OO3': ['NVC'],
     'OO4': ['NVC']
 }
+
+def encode_task(task):
+    return SyllogisticEncoder.encode_task(task)
+
+def encode_response(response, task):
+    return SyllogisticEncoder.encode_response(response, task)
+
+
+def decode_response(enc_response, task):
+    """ Decodes an encoded syllogistic response by transforming it to the
+    corresponding tuple representation and inserting the appropriate terms.
+
+    Parameters
+    ----------
+    enc_response : str
+        Encoded syllogistic response (e.g., 'Aac').
+
+    task : list(str)
+        Syllogistic task in the tuple list representation (e.g.,
+        [['Some', 'models', 'managers'], ['All', 'models', 'clerks']]).
+
+    Returns
+    -------
+    list
+        List representation of the response to decode.
+
+    """
+
+    if enc_response == 'NVC':
+        return [['NVC']]
+    if enc_response == ['NVC']:
+        return [enc_response]
+    if enc_response == [['NVC']]:
+        return enc_response
+
+    obj_a = set(task[0][1:]) - set(task[1][1:])
+    obj_c = set(task[1][1:]) - set(task[0][1:])
+
+    quant = enc_response[0].replace('A', 'All').replace(
+        'I', 'Some').replace('O', 'Some not').replace('E', 'No')
+    if enc_response[1:] == 'ac':
+        return [[quant, list(obj_a)[0], list(obj_c)[0]]]
+
+    return [[quant, list(obj_c)[0], list(obj_a)[0]]]
+
 
 class Syllogism():
     """ Syllogistic helper class. Facilitates the extraction of premise

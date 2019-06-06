@@ -118,7 +118,8 @@ def main(args):
         train_datafile=benchmark['data.train'],
         train_data_person=benchmark['data.person_train'],
         silent=is_silent,
-        corresponding_data=corresponding_data)
+        corresponding_data=corresponding_data,
+        domain_encoders=benchmark['domain_encoders'])
 
     with silence_stdout(is_silent):
         res_df = eva.evaluate()
