@@ -415,6 +415,7 @@ class LC_Evaluator(Evaluator):
         if learning_curves_folder:
             learning_curves_folder = learning_curves_folder.rstrip('/')
         assert os.path.isdir(learning_curves_folder)
+        learning_curves_folder = os.path.abspath(learning_curves_folder)
         self.learning_curves_folder = learning_curves_folder
         self.learning_curves_for = learning_curves_for
 
@@ -677,7 +678,7 @@ class LC_Evaluator(Evaluator):
         data = []
         for subject, phase_dictionary in model_evaluations.items():
             for phase, checkpoint_evaluations in phase_dictionary.items():
-                if phase == 'adapt':
+                if phase == adapt_str:
                     continue  # handled seperately below
                 else:
                     e = 0
@@ -704,30 +705,31 @@ class LC_Evaluator(Evaluator):
         # handle adaption: similar to other phases but exec per item, so avg!
         data = []
         for subject, phase_dictionary in model_evaluations.items():
-            phase = 'adapt'
-            item_dict = phase_dictionary[phase]
-            for item, checkpoint_evaluations in item_dict.items():
-                e = 0
-                for value_pair in checkpoint_evaluations:
-                    e += 1
-                    train_acc, test_acc = value_pair
-                    data.append({'Model': model,
-                                 'Subject': subject,
-                                 'Phase': phase,
-                                 'Epoch': e,
-                                 'Acc': train_acc,
-                                 'Train/Test': 'train',
-                                 'Item': item
-                                 })
-                    data.append({'Model': model,
-                                 'Subject': subject,
-                                 'Phase': phase,
-                                 'Epoch': e,
-                                 'Acc': test_acc,
-                                 'Train/Test': 'test',
-                                 'Item': item
-                                 })
-        df2 = pd.DataFrame(data)
+            if adapt_str in phase_dictionary:
+                phase = adapt_str
+                item_dict = phase_dictionary[phase]
+                for item, checkpoint_evaluations in item_dict.items():
+                    e = 0
+                    for value_pair in checkpoint_evaluations:
+                        e += 1
+                        train_acc, test_acc = value_pair
+                        data.append({'Model': model,
+                                     'Subject': subject,
+                                     'Phase': phase,
+                                     'Epoch': e,
+                                     'Acc': train_acc,
+                                     'Train/Test': 'train',
+                                     'Item': item
+                                     })
+                        data.append({'Model': model,
+                                     'Subject': subject,
+                                     'Phase': phase,
+                                     'Epoch': e,
+                                     'Acc': test_acc,
+                                     'Train/Test': 'test',
+                                     'Item': item
+                                     })
+            df2 = pd.DataFrame(data)
 
         if not df2.empty:
             # average over adaption runs of one model and subject
@@ -739,8 +741,6 @@ class LC_Evaluator(Evaluator):
             df = df1
 
         sns.set(style='whitegrid')
-
-        print(df)
 
         for phase in set(df['Phase']):
             sns.lineplot(x="Epoch", y="Acc", hue='Train/Test',
