@@ -19,7 +19,7 @@
         <table>
             <tr><td>Benchmark</td><td>{{BENCHMARK_NAME}}</td></tr>
             <tr><td>Date</td><td>{{BENCHMARK_DATE}}</td></tr>
-            <tr><td>Results</td><td><button id="downloadResultButton" type="button">Download</button></td></tr>
+            <tr><td>Results</td><td><button id="downloadResultButton" class="button_result" type="button">Download</button></td></tr>
         </table>
 
         <div>
@@ -91,7 +91,7 @@
                 });
             }
 
-            var savebuttons = document.getElementsByClassName("figsave");
+            var savebuttons = document.getElementsByName("figsave");
             for (i = 0; i < savebuttons.length; i++) {
                 var cur = savebuttons[i];
                 cur.onclick = function(e) {

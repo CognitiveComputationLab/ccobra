@@ -5,7 +5,8 @@
 [![GitHub license](https://img.shields.io/github/license/CognitiveComputationLab/ccobra.svg)](https://github.com/CognitiveComputationLab/ccobra/blob/master/LICENSE)
 [![DOI](https://zenodo.org/badge/144011537.svg)](https://zenodo.org/badge/latestdoi/144011537)
 
-[Documentation](http://orca.informatik.uni-freiburg.de/orca_sylwebsite/orca/documentation/index.html)
+[[API Documentation]](http://orca.informatik.uni-freiburg.de/ccobra-doc)
+[[Online Model Evaluation Platform]](http://orca.informatik.uni-freiburg.de/ccobra)
 
 ## Installation
 

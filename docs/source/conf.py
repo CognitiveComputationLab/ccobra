@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'CCOBRA'
-copyright = '2018, Nicolas Riesterer, Daniel Brand'
+copyright = '2018 - 2019, Nicolas Riesterer, Daniel Brand'
 author = 'Nicolas Riesterer, Daniel Brand'
 
 # The short X.Y version
@@ -49,6 +49,7 @@ extensions = [
 ]
 
 autosummary_generate = True
+autoclass_content = 'both'
 
 napoleon_google_docstring = False
 napoleon_use_param = False

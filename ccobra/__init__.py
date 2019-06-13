@@ -5,6 +5,7 @@
 .. autosummary::
    :toctree: _autosummary
 
+   ccobra.benchmark
    ccobra.syllogistic
 
 .. rubric:: Classes
@@ -24,4 +25,4 @@ from . import benchmark
 from .data import CCobraData, Item
 from .model import CCobraModel
 
-__version__ = '0.0.14'
+__version__ = '0.0.15'

@@ -42,6 +42,18 @@ class CCobraModel():
 
         pass
 
+    def end_participant(self, identifier, **kwargs):
+        """ Hook for when participant simulation ends.
+
+        Parameters
+        ----------
+        identifier : str or int
+            Participant identifier.
+
+        """
+
+        pass
+
     def pre_train(self, dataset, **kwargs):
         """ Pre-trains the model based on given training data.
 

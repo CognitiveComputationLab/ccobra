@@ -5,6 +5,88 @@
 from ..data import Item
 from .parsing import encode_response, encode_task, decode_response
 
+
+#: List of valid syllogisms
+VALID_SYLLOGISMS = [
+    'AA1', 'AA2', 'AA4', 'AE1', 'AE2', 'AE3', 'AE4', 'AO3', 'AO4', 'IA1', 'IE1', 'IE2',
+    'IE3', 'IE4', 'EA1', 'EA2', 'EA3', 'EA4', 'EI1', 'EI2', 'EI3', 'EI4', 'OA3', 'OA4'
+]
+
+#: List of invalid syllogisms
+INVALID_SYLLOGISMS = [
+    'AA3', 'AO1', 'AO2', 'IA2', 'IA3', 'II1', 'II2', 'II3', 'II4', 'IO1', 'IO2', 'IO3',
+    'IO4', 'EE1', 'EE2', 'EE3', 'EE4', 'EO1', 'EO2', 'EO3', 'EO4', 'OA1', 'OA2', 'OI1',
+    'OI2', 'OI3', 'OI4', 'OE1', 'OE2', 'OE3', 'OE4', 'OO1', 'OO2', 'OO3', 'OO4'
+]
+
+#: Mapping of syllogisms to logically valid (first-order logics) conclusions
+SYLLOGISTIC_FOL_RESPONSES = {
+    'AA1': ['Aac', 'Iac', 'Ica'],
+    'AA2': ['Aca', 'Iac', 'Ica'],
+    'AA3': ['NVC'],
+    'AA4': ['Iac', 'Ica'],
+    'AI1': ['NVC'],
+    'AI2': ['Iac', 'Ica'],
+    'AI3': ['NVC'],
+    'AI4': ['Iac', 'Ica'],
+    'AE1': ['Eac', 'Eca', 'Oac', 'Oca'],
+    'AE2': ['Oac'],
+    'AE3': ['Eac', 'Eca', 'Oac', 'Oca'],
+    'AE4': ['Oac'],
+    'AO1': ['NVC'],
+    'AO2': ['NVC'],
+    'AO3': ['Oca'],
+    'AO4': ['Oac'],
+    'IA1': ['Iac', 'Ica'],
+    'IA2': ['NVC'],
+    'IA3': ['NVC'],
+    'IA4': ['Iac', 'Ica'],
+    'II1': ['NVC'],
+    'II2': ['NVC'],
+    'II3': ['NVC'],
+    'II4': ['NVC'],
+    'IE1': ['Oac'],
+    'IE2': ['Oac'],
+    'IE3': ['Oac'],
+    'IE4': ['Oac'],
+    'IO1': ['NVC'],
+    'IO2': ['NVC'],
+    'IO3': ['NVC'],
+    'IO4': ['NVC'],
+    'EA1': ['Oca'],
+    'EA2': ['Eac', 'Eca', 'Oac', 'Oca'],
+    'EA3': ['Eac', 'Eca', 'Oac', 'Oca'],
+    'EA4': ['Oca'],
+    'EI1': ['Oca'],
+    'EI2': ['Oca'],
+    'EI3': ['Oca'],
+    'EI4': ['Oca'],
+    'EE1': ['NVC'],
+    'EE2': ['NVC'],
+    'EE3': ['NVC'],
+    'EE4': ['NVC'],
+    'EO1': ['NVC'],
+    'EO2': ['NVC'],
+    'EO3': ['NVC'],
+    'EO4': ['NVC'],
+    'OA1': ['NVC'],
+    'OA2': ['NVC'],
+    'OA3': ['Oac'],
+    'OA4': ['Oca'],
+    'OI1': ['NVC'],
+    'OI2': ['NVC'],
+    'OI3': ['NVC'],
+    'OI4': ['NVC'],
+    'OE1': ['NVC'],
+    'OE2': ['NVC'],
+    'OE3': ['NVC'],
+    'OE4': ['NVC'],
+    'OO1': ['NVC'],
+    'OO2': ['NVC'],
+    'OO3': ['NVC'],
+    'OO4': ['NVC']
+}
+
 class Syllogism():
     """ Syllogistic helper class. Facilitates the extraction of premise
     information as well as encoding and decoding of responses.
@@ -99,6 +181,31 @@ class Syllogism():
         """
 
         return decode_response(encoded_response, self.item.task)
+
+    def is_valid_syllogism(self):
+        """ Returns true if syllogism is valid, i.e., has a logically valid conclusion.
+
+        Returns
+        -------
+        bool
+            True, if syllogism is valid, i.e., has a logically valid conclusion. False otherwise.
+
+        """
+
+        return self.encoded_task in VALID_SYLLOGISMS
+
+    def logically_valid_conclusions(self):
+        """ Returns the list of logically valid (according to first-order logics) conclusions for
+        the syllogism.
+
+        Returns
+        -------
+        list(str)
+            List of logically valid conclusions.
+
+        """
+
+        return SYLLOGISTIC_FOL_RESPONSES[self.encoded_task]
 
     def __str__(self):
         """ Constructs a string representation for the Syllogism object.
