@@ -170,7 +170,7 @@ def main(args):
         html = htmlcrtr.to_html(res_df, args['benchmark'], embedded=False)
         # redirect to file
         if args['html_file']:
-            with open(args['html_file'], 'r') as f:
+            with open(args['html_file'], 'w') as f:
                 f.write(html)
         else:
             print(html)
