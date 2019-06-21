@@ -51,6 +51,9 @@ def parse_arguments():
                         'person_train). Enter as list without seperator.',
                         default=['main_train', 'pre_train', 'adapt',
                                  'start_participant', 'person_train'])
+    parser.add_argument('--html_file', type=str,
+                        help='File in which to store the html content.'
+                             ' To seperate from model logs for debugging.')
 
     args = vars(parser.parse_args())
 
@@ -120,7 +123,7 @@ def main(args):
             eval_comparator = comparator.NVCComparator()
 
     # Run the model evaluation
-    is_silent = (args['output'] in ['html', 'server'])
+    is_silent = (args['output'] in ['server'])
     if args['learning_curves_folder']:
         eva = evaluator.LC_Evaluator(
                 modellist,
@@ -165,7 +168,12 @@ def main(args):
         sys.stdout.buffer.write(html.encode('utf-8'))
     elif args['output'] == 'html':
         html = htmlcrtr.to_html(res_df, args['benchmark'], embedded=False)
-        print(html)
+        # redirect to file
+        if args['html_file']:
+            with open(args['html_file'], 'r') as f:
+                f.write(html)
+        else:
+            print(html)
 
 def entry_point():
     """ Entry point for the CCOBRA executables.
