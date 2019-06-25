@@ -12,5 +12,8 @@
         "models/2012-Khemlani/PHM/phm.py",
         "models/2012-Khemlani/PSYCOP/psycop.py",
         "models/2012-Khemlani/VerbalModels/verbalmodels.py"
-    ]
+    ],
+    "domain_encoders": {
+        "syllogistic": "%ccobra%/syllogistic/encoder_syl.py"
+    }
 }
