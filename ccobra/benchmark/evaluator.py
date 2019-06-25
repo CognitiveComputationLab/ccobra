@@ -368,7 +368,7 @@ class Evaluator():
                         item = ccobra.data.Item(
                             subj_id, domain, task, response_type, choices, sequence)
 
-                        prediction = model.predict(item, **optionals)
+                        prediction = model.predict(copy.deepcopy(item), **optionals)
                         hit = int(self.comparator.compare(prediction, truth))
 
                         # Adapt to true response

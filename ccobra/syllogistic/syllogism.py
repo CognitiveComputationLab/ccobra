@@ -8,15 +8,16 @@ from .parsing import encode_response, encode_task, decode_response
 
 #: List of valid syllogisms
 VALID_SYLLOGISMS = [
-    'AA1', 'AA2', 'AA4', 'AE1', 'AE2', 'AE3', 'AE4', 'AO3', 'AO4', 'IA1', 'IE1', 'IE2',
-    'IE3', 'IE4', 'EA1', 'EA2', 'EA3', 'EA4', 'EI1', 'EI2', 'EI3', 'EI4', 'OA3', 'OA4'
+    'AA1', 'AA2', 'AA4', 'AE1', 'AE2', 'AE3', 'AE4', 'AI2', 'AI4', 'AO3', 'AO4', 'EA1', 'EA2',
+    'EA3', 'EA4', 'EI1', 'EI2', 'EI3', 'EI4', 'IA1', 'IA4', 'IE1', 'IE2', 'IE3', 'IE4', 'OA3',
+    'OA4'
 ]
 
 #: List of invalid syllogisms
 INVALID_SYLLOGISMS = [
-    'AA3', 'AO1', 'AO2', 'IA2', 'IA3', 'II1', 'II2', 'II3', 'II4', 'IO1', 'IO2', 'IO3',
-    'IO4', 'EE1', 'EE2', 'EE3', 'EE4', 'EO1', 'EO2', 'EO3', 'EO4', 'OA1', 'OA2', 'OI1',
-    'OI2', 'OI3', 'OI4', 'OE1', 'OE2', 'OE3', 'OE4', 'OO1', 'OO2', 'OO3', 'OO4'
+    'AA3', 'AI1', 'AI3', 'AO1', 'AO2', 'EE1', 'EE2', 'EE3', 'EE4', 'EO1', 'EO2', 'EO3', 'EO4',
+    'IA2', 'IA3', 'II1', 'II2', 'II3', 'II4', 'IO1', 'IO2', 'IO3', 'IO4', 'OA1', 'OA2', 'OE1',
+    'OE2', 'OE3', 'OE4', 'OI1', 'OI2', 'OI3', 'OI4', 'OO1', 'OO2', 'OO3', 'OO4'
 ]
 
 #: Mapping of syllogisms to logically valid (first-order logics) conclusions

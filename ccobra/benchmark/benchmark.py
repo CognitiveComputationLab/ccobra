@@ -80,7 +80,7 @@ def load_benchmark(benchmark_file):
     base_path = os.path.dirname(os.path.abspath(benchmark_file))
 
     benchmark['data.train'] = fix_rel_path(benchmark.get('data.train'), base_path)
-    benchmark['data.train_person'] = fix_rel_path(benchmark.get('data.train_person', ''), base_path)
+    benchmark['data.person_train'] = fix_rel_path(benchmark.get('data.person_train', ''), base_path)
     benchmark['data.test'] = fix_rel_path(benchmark.get('data.test', ''), base_path)
     benchmark['models'] = [ModelInfo(x, base_path) for x in benchmark['models']]
 
