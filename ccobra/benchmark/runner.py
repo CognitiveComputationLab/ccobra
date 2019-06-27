@@ -116,7 +116,7 @@ def main(args):
         eval_comparator,
         benchmark['data.test'],
         train_datafile=benchmark['data.train'],
-        train_data_person=benchmark['data.person_train'],
+        train_data_person=benchmark['data.train_person'],
         silent=is_silent,
         corresponding_data=corresponding_data)
 
