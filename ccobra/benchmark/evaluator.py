@@ -53,7 +53,8 @@ class Evaluator():
     """
 
     def __init__(self, modellist, eval_comparator, test_datafile, train_datafile=None,
-                 train_data_person=None, silent=False, corresponding_data=False):
+                 train_data_person=None, silent=False, corresponding_data=False,
+                 no_adapt=False):
         """
 
         Parameters
@@ -81,6 +82,8 @@ class Evaluator():
             user ids.
 
         """
+
+        self.adapt = not no_adapt
 
         self.modellist = modellist
         self.silent = silent
@@ -383,7 +386,8 @@ class Evaluator():
                         adapt_item = ccobra.data.Item(
                             subj_id, domain, task, response_type, choices,
                             sequence)
-                        model.adapt(adapt_item, truth, **optionals)
+                        if self.adapt:
+                            model.adapt(adapt_item, truth, **optionals)
 
                         # Collect the evaluation result data
                         result_data.append({
@@ -583,9 +587,10 @@ class LC_Evaluator(Evaluator):
                         adapt_item = ccobra.data.Item(
                             subj_id, domain, task, response_type, choices,
                             sequence)
-                        model.adapt(adapt_item, truth,
-                                    checkpoints=model_checkpoints,
-                                    **optionals)
+                        if self.adapt:
+                            model.adapt(adapt_item, truth,
+                                        checkpoints=model_checkpoints,
+                                        **optionals)
 
                         if adapt_str in self.learning_curves_for:
                             model_evaluations[subj_id][adapt_str][
@@ -768,7 +773,7 @@ class Split_Evaluator(Evaluator):
 
     def __init__(self, modellist, eval_comparator, datafile=None,
                  train_data_person=None, silent=False,
-                 split_ratio=0.5, no_pretrain=False):
+                 split_ratio=0.5, no_pretrain=False, no_adapt=False):
         """
 
         Parameters
@@ -796,6 +801,8 @@ class Split_Evaluator(Evaluator):
             user ids.
 
         """
+
+        self.adapt = not no_adapt
 
         self.modellist = modellist
         self.silent = silent

@@ -62,6 +62,9 @@ def parse_arguments():
     parser.add_argument('--no_pretrain', help='Flag to deactivate pretraining '
                         'when using the split evaluator.',
                         action='store_true')
+    parser.add_argument('--no_adapt', help='Flag to deactivate model-adapt.'
+                        'Redundant for split evaluator.',
+                        action='store_true')
 
     args = vars(parser.parse_args())
 
@@ -141,7 +144,6 @@ def main(args):
                 train_data_person=benchmark['data.train_person'],
                 silent=is_silent,
                 split_ratio=args['split_ratio'],
-                no_pretrain=args['no_pretrain']
             )
     elif args['learning_curves_folder']:
         eva = evaluator.LC_Evaluator(
@@ -153,7 +155,8 @@ def main(args):
                 silent=is_silent,
                 corresponding_data=corresponding_data,
                 learning_curves_folder=args['learning_curves_folder'],
-                learning_curves_for=args['learning_curves_for']
+                learning_curves_for=args['learning_curves_for'],
+                no_adapt=args['no_adapt']
                 )
     else:
         eva = evaluator.Evaluator(
@@ -164,6 +167,7 @@ def main(args):
                 train_data_person=benchmark['data.train_person'],
                 silent=is_silent,
                 corresponding_data=corresponding_data,
+                no_adapt=args['no_adapt']
             )
 
     with silence_stdout(is_silent):
