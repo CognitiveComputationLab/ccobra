@@ -905,11 +905,8 @@ class Split_Evaluator(Evaluator):
                     # split the individuals data in train and test set
                     perm = np.random.permutation(np.arange(len(subj_df)))
                     split_id = int(self.split_ratio * len(subj_df))
-                    train_ids, test_ids = subj_df[:split_id], subj_df[split_id:]
-
-                    print(train_ids, test_ids)
-                    print(self.split_ratio)
-                    exit()
+                    train_ids, test_ids = perm[:split_id], perm[split_id:]
+                    train_set, test_set = subj_df.iloc[train_ids], subj_df.iloc[test_ids]
 
                     # Iterate over individual tasks
                     for _, row in subj_df.sort_values('sequence').iterrows():
