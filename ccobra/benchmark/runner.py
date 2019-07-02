@@ -54,6 +54,11 @@ def parse_arguments():
     parser.add_argument('--html_file', type=str,
                         help='File in which to store the html content.'
                              ' To seperate from model logs for debugging.')
+    parser.add_argument('--split_evaluator', help='Flag to use the split eval'
+                        'uator. Use with just train datafile! No LC gen!',
+                        action='store_true')
+    parser.add_argument('--split_ratio', type=float, default=0.6,
+                        help='Split ratio for the split evaluator.')
 
     args = vars(parser.parse_args())
 
@@ -124,7 +129,17 @@ def main(args):
 
     # Run the model evaluation
     is_silent = (args['output'] in ['server'])
-    if args['learning_curves_folder']:
+
+    if args['split_evaluator']:
+        eva = evaluator.Split_Evaluator(
+                modellist,
+                eval_comparator,
+                datafile=benchmark['data.test'],
+                train_data_person=benchmark['data.train_person'],
+                silent=is_silent,
+                split_ratio=args['split_ratio']
+            )
+    elif args['learning_curves_folder']:
         eva = evaluator.LC_Evaluator(
                 modellist,
                 eval_comparator,
