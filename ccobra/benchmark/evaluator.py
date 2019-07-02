@@ -815,6 +815,26 @@ class Split_Evaluator(Evaluator):
             self.train_data_person = ccobra.CCobraData(
                 pd.read_csv(train_data_person))
 
+    def extract_optionals(self, data):
+        """ Extracts optional model information from a given dataset by obtaining all non-essential
+        columns (i.e., the non-required fields of CCOBRA datasets).
+
+        Parameters
+        ----------
+        data : pd.Series
+            Pandas series (i.e. row of the data) to extract optional information from.
+
+        Returns
+        -------
+        dict(str, object)
+            Dictionary containing optional information stored in the data (e.g., age, gender).
+
+        """
+
+        essential = self.data.required_fields
+        optionals = set(data.keys()) - set(essential)
+        return {key: data[key] for key in optionals}
+
     def evaluate(self):
         """ CCobra evaluation loop. Iterates over the models and performs training and evaluation.
         Returns
@@ -908,8 +928,48 @@ class Split_Evaluator(Evaluator):
                     train_ids, test_ids = perm[:split_id], perm[split_id:]
                     train_set, test_set = subj_df.iloc[train_ids], subj_df.iloc[test_ids]
 
-                    # Iterate over individual tasks
-                    for _, row in subj_df.sort_values('sequence').iterrows():
+                    # adapt to train set
+                    adapt_items_list = []
+                    truths_list = []
+                    optionals_list = []
+                    # prepare all tasks from train set
+                    for _, row in train_set.iterrows():
+                        optionals = self.extract_optionals(row)
+
+                        # Evaluation
+                        sequence = row['sequence']
+                        task = row['task']
+                        choices = row['choices']
+                        truth = row['response']
+                        response_type = row['response_type']
+                        domain = row['domain']
+
+                        if isinstance(truth, str):
+                            if response_type == 'multiple-choice':
+                                truth = [y.split(';') for y in [
+                                    x.split('/') for x in truth.split('|')]]
+                            else:
+                                truth = [x.split(';') for x in truth.split('/')]
+
+                        item = ccobra.data.Item(
+                            subj_id, domain, task, response_type, choices, sequence)
+
+                        # Adapt to true response
+                        adapt_item = ccobra.data.Item(
+                            subj_id, domain, task, response_type, choices,
+                            sequence)
+
+                        adapt_items_list.append(adapt_item)
+                        truths_list.append(truth)
+                        optionals_list.append(optionals)
+                    # give all items to models at once for data driven training
+                    try:
+                        model.batch_adapt(adapt_items_list, truths_list, optionals_list)
+                    except AttributeError:  # regular adapt if other not implemented
+                        for items, truth, optionals in zip(adapt_items_list, truths_list, optionals_list):
+                            model.adapt(item, truth, **optionals)
+
+                    for _, row in test_set.iterrows():
                         optionals = self.extract_optionals(row)
 
                         # Evaluation
@@ -932,13 +992,6 @@ class Split_Evaluator(Evaluator):
 
                         prediction = model.predict(item, **optionals)
                         hit = int(self.comparator.compare(prediction, truth))
-
-                        # Adapt to true response
-                        adapt_item = ccobra.data.Item(
-                            subj_id, domain, task, response_type, choices,
-                            sequence)
-                        model.adapt(adapt_item, truth, **optionals)
-
                         # Collect the evaluation result data
                         result_data.append({
                             'model': model_name,
