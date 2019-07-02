@@ -59,6 +59,9 @@ def parse_arguments():
                         action='store_true')
     parser.add_argument('--split_ratio', type=float, default=0.6,
                         help='Split ratio for the split evaluator.')
+    parser.add_argument('--no_pretrain', help='Flag to deactivate pretraining '
+                        'when using the split evaluator.',
+                        action='store_true')
 
     args = vars(parser.parse_args())
 
@@ -137,7 +140,8 @@ def main(args):
                 datafile=benchmark['data.test'],
                 train_data_person=benchmark['data.train_person'],
                 silent=is_silent,
-                split_ratio=args['split_ratio']
+                split_ratio=args['split_ratio'],
+                no_pretrain=args['no_pretrain']
             )
     elif args['learning_curves_folder']:
         eva = evaluator.LC_Evaluator(

@@ -768,7 +768,7 @@ class Split_Evaluator(Evaluator):
 
     def __init__(self, modellist, eval_comparator, datafile=None,
                  train_data_person=None, silent=False,
-                 split_ratio=0.5):
+                 split_ratio=0.5, no_pretrain=False):
         """
 
         Parameters
@@ -808,6 +808,8 @@ class Split_Evaluator(Evaluator):
         # Load the data set
         self.data = ccobra.CCobraData(pd.read_csv(datafile))
         self.split_ratio = split_ratio
+
+        self.pretrain = not no_pretrain
 
         # Load the personal training data
         self.train_data_person = None
@@ -903,7 +905,8 @@ class Split_Evaluator(Evaluator):
                         value for key, value in train_data_dict.items() if key != subj_id]
 
                     # Train on incomplete training data
-                    model.pre_train(cur_train_data_dict)
+                    if self.pretrain:
+                        model.pre_train(cur_train_data_dict)
 
                     # Perform the personalized pre-training
                     if self.train_data_person is not None:
