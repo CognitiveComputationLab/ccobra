@@ -557,7 +557,7 @@ class LC_Evaluator(Evaluator):
                     if adapt_str in self.learning_curves_for:
                         model_evaluations[subj_id][adapt_str] = {}
 
-                    for _, row in subj_df.sort_values('sequence').iterrows():
+                    for r, (_, row) in enumerate(subj_df.sort_values('sequence').iterrows()):
                         optionals = self.extract_optionals(row)
 
                         # Evaluation
@@ -598,7 +598,8 @@ class LC_Evaluator(Evaluator):
                                 sequence] = self.evaluate_checkpoints(
                                 model_checkpoints, subj_id)
 
-                        if main_train_str in self.learning_curves_for:
+                        if (main_train_str in self.learning_curves_for
+                                and r % self.evaluation_frequency == 0):
                             model_evaluations[subj_id][
                                 main_train_str].append(
                                     self.evaluate_checkpoints(
