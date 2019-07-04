@@ -51,6 +51,9 @@ def parse_arguments():
                         'person_train). Enter as list without seperator.',
                         default=['main_train', 'pre_train', 'adapt',
                                  'start_participant', 'person_train'])
+    parser.add_argument('--evaluation_frequency', type=int,
+                        help='How frequently to evaluate the model for the '
+                        'learning curve generation.', default=1)
     parser.add_argument('--html_file', type=str,
                         help='File in which to store the html content.'
                              ' To seperate from model logs for debugging.')
@@ -156,7 +159,8 @@ def main(args):
                 corresponding_data=corresponding_data,
                 learning_curves_folder=args['learning_curves_folder'],
                 learning_curves_for=args['learning_curves_for'],
-                no_adapt=args['no_adapt']
+                no_adapt=args['no_adapt'],
+                evaluation_frequency=args['evaluation_frequency']
                 )
     else:
         eva = evaluator.Evaluator(

@@ -414,7 +414,7 @@ class Evaluator():
 
 class LC_Evaluator(Evaluator):
     def __init__(self, *args, learning_curves_folder=None,
-                 learning_curves_for=None, **kwargs):
+                 learning_curves_for=None, evaluation_frequency=1, **kwargs):
         super().__init__(*args, **kwargs)
         if learning_curves_folder:
             learning_curves_folder = learning_curves_folder.rstrip('/')
@@ -422,6 +422,7 @@ class LC_Evaluator(Evaluator):
         learning_curves_folder = os.path.abspath(learning_curves_folder)
         self.learning_curves_folder = learning_curves_folder
         self.learning_curves_for = learning_curves_for
+        self.evaluation_frequency = evaluation_frequency
 
     def evaluate(self):
         """ CCobra evaluation loop. Iterates over the models and performs training and evaluation.
@@ -674,8 +675,9 @@ class LC_Evaluator(Evaluator):
 
     def evaluate_checkpoints(self, checkpoint_list, subj_id):
         res = []
-        for checkpoint in checkpoint_list:
-            res.append(self.rollout(checkpoint, subj_id))
+        for c, checkpoint in enumerate(checkpoint_list):
+            if c % self.evaluation_frequency == 0:
+                res.append(self.rollout(checkpoint, subj_id))
         return res
 
     def generate_learning_curves(self, model, model_evaluations):
@@ -686,21 +688,19 @@ class LC_Evaluator(Evaluator):
                 if phase == adapt_str:
                     continue  # handled seperately below
                 else:
-                    e = 0
-                    for value_pair in checkpoint_evaluations:
-                        e += 1
+                    for e, value_pair in enumerate(checkpoint_evaluations):
                         train_acc, test_acc = value_pair
                         data.append({'Model': model,
                                      'Subject': subject,
                                      'Phase': phase,
-                                     'Epoch': e,
+                                     'Epoch': e * self.evaluation_frequency,
                                      'Acc': train_acc,
                                      'Train/Test': 'train'
                                      })
                         data.append({'Model': model,
                                      'Subject': subject,
                                      'Phase': phase,
-                                     'Epoch': e,
+                                     'Epoch': e * self.evaluation_frequency,
                                      'Acc': test_acc,
                                      'Train/Test': 'test'
                                      })
@@ -714,14 +714,12 @@ class LC_Evaluator(Evaluator):
                 phase = adapt_str
                 item_dict = phase_dictionary[phase]
                 for item, checkpoint_evaluations in item_dict.items():
-                    e = 0
-                    for value_pair in checkpoint_evaluations:
-                        e += 1
+                    for e, value_pair in enumerate(checkpoint_evaluations):
                         train_acc, test_acc = value_pair
                         data.append({'Model': model,
                                      'Subject': subject,
                                      'Phase': phase,
-                                     'Epoch': e,
+                                     'Epoch': e * self.evaluation_frequency,
                                      'Acc': train_acc,
                                      'Train/Test': 'train',
                                      'Item': item
@@ -729,7 +727,7 @@ class LC_Evaluator(Evaluator):
                         data.append({'Model': model,
                                      'Subject': subject,
                                      'Phase': phase,
-                                     'Epoch': e,
+                                     'Epoch': e * self.evaluation_frequency,
                                      'Acc': test_acc,
                                      'Train/Test': 'test',
                                      'Item': item
