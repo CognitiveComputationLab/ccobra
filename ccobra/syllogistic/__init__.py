@@ -13,4 +13,5 @@
 
 """
 
-from .syllogism import decode_response, encode_response, encode_task, SYLLOGISMS, RESPONSES, Syllogism, VALID_SYLLOGISMS, INVALID_SYLLOGISMS, SYLLOGISTIC_FOL_RESPONSES
+from .syllogism import decode_response, encode_response, encode_task, SYLLOGISMS, RESPONSES, \
+    Syllogism, VALID_SYLLOGISMS, INVALID_SYLLOGISMS, SYLLOGISTIC_FOL_RESPONSES

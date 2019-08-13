@@ -103,9 +103,40 @@ SYLLOGISTIC_FOL_RESPONSES = {
 }
 
 def encode_task(task):
+    """ Encodes a syllogistic task.
+
+    Parameters
+    ----------
+    task : list(list(str))
+        List representation of the syllogism (e.g., [['All', 'A', 'B'], ['Some', 'B', 'C']]).
+
+    Returns
+    -------
+    str
+        Syllogistic task encoding (e.g., 'AI1').
+
+    """
+
     return SyllogisticEncoder.encode_task(task)
 
 def encode_response(response, task):
+    """ Encodes a response to its syllogistic encoding.
+
+    Parameters
+    ----------
+    response : list(str)
+        Syllogistc response in list representation (e.g., ['All', 'A', 'C'])
+
+    task : list(list(str))
+        Syllogistic task in list representation (e.g., [['All', 'A', 'B'], ['Some', 'B', 'C']]).
+
+    Returns
+    -------
+    str
+        Syllogistic response encoding (e.g., 'Aac').
+
+    """
+
     return SyllogisticEncoder.encode_response(response, task)
 
 

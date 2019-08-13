@@ -2,8 +2,6 @@
 
 """
 
-import os
-import sys
 import copy
 import warnings
 
@@ -128,7 +126,8 @@ class Evaluator():
         optionals = set(data.keys()) - set(essential)
         return {key: data[key] for key in optionals}
 
-    def extract_demographics(self, data_df):
+    @staticmethod
+    def extract_demographics(data_df):
         """ Extracts demographic information (age, gender, education, affinity, experience) from
         a given dataset if the corresponding columns are available.
 
@@ -186,7 +185,8 @@ class Evaluator():
                 'found in the test dataset.'.format(
                     pre_model.name, missing_response_types))
 
-    def get_train_data_dict(self, ccobra_data):
+    @staticmethod
+    def get_train_data_dict(ccobra_data):
         """ Extracts the training data dict mapping from subject identifiers to their corresponding
         list of tasks and responses.
 
@@ -373,10 +373,17 @@ class Evaluator():
 
                         # If domain encoders are specified, attach encodings to the result
                         if self.domain_encoders:
+                            task_enc = self.domain_encoders[domain].encode_task(
+                                item.task) if domain in self.domain_encoders else np.nan
+                            truth_enc = self.domain_encoders[domain].encode_response(
+                                truth, item.task) if domain in self.domain_encoders else np.nan
+                            pred_enc = self.domain_encoders[domain].encode_response(
+                                prediction, item.task) if domain in self.domain_encoders else np.nan
+
                             prediction_data.update({
-                                'task_enc': self.domain_encoders[domain].encode_task(item.task) if domain in self.domain_encoders else np.nan,
-                                'truth_enc': self.domain_encoders[domain].encode_response(truth, item.task) if domain in self.domain_encoders else np.nan,
-                                'prediction_enc': self.domain_encoders[domain].encode_response(prediction, item.task) if domain in self.domain_encoders else np.nan
+                                'task_enc': task_enc,
+                                'truth_enc': truth_enc,
+                                'prediction_enc': pred_enc
                             })
 
                         result_data.append(prediction_data)

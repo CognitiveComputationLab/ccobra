@@ -97,12 +97,29 @@ def load_benchmark(benchmark_file):
     return benchmark
 
 def prepare_domain_encoders(domain_encoder_paths):
+    """ Processes the domain encoder information from the benchmark specification. Handles
+    relative paths or path placeholders (e.g., '%ccobra%' mapping to the module directory of
+    the local CCOBRA installation).
+
+    Parameters
+    ----------
+    domain_encoder_paths : dict(str, str)
+        Dictionary mapping from domains to encoders.
+
+    Returns
+    -------
+    dict(str, str)
+        Dictionary mapping from domains to encoders with absolute paths.
+
+    """
+
     domain_encoders = {}
     for domain, domain_encoder_path in domain_encoder_paths.items():
         # Replace internal ccobra path
         if '%ccobra%' in domain_encoder_path:
             package_path = os.path.split(os.path.split(__file__)[0])[0]
-            domain_encoder_path = os.path.normpath(domain_encoder_path.replace('%ccobra%', package_path))
+            domain_encoder_path = os.path.normpath(
+                domain_encoder_path.replace('%ccobra%', package_path))
 
         # To instantiate the encoder we need to change to its context (i.e., set the PATH variable
         # accordingly).

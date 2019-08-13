@@ -1,3 +1,7 @@
+""" Model import context manager to temporarily switch working directories.
+
+"""
+
 import sys
 import os
 from contextlib import contextmanager

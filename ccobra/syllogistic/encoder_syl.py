@@ -1,8 +1,35 @@
+""" Syllogistic encoder functions.
+
+"""
+
 import ccobra
 
 class SyllogisticEncoder(ccobra.CCobraDomainEncoder):
+    """ Syllogistic encoder. Provides functions for abbreviating syllogistic tasks and responses.
+
+    """
+
     @staticmethod
     def encode_task(task):
+        """ Encodes a task to its syllogistic encoding.
+
+        Parameters
+        ----------
+        task : list(list(str))
+            List representation of the syllogism (e.g., [['All', 'A', 'B'], ['Some', 'B', 'C']]).
+
+        Returns
+        -------
+        str
+            Syllogistic task encoding (e.g., 'AI1').
+
+        Raises
+        ------
+        ValueError
+            If figure of syllogism cannot be determined.
+
+        """
+
         prem_1, prem_2 = task
 
         quant1 = prem_1[0].replace('All', 'A').replace(
@@ -26,6 +53,23 @@ class SyllogisticEncoder(ccobra.CCobraDomainEncoder):
 
     @staticmethod
     def encode_response(response, task):
+        """ Encodes a response to its syllogistic encoding.
+
+        Parameters
+        ----------
+        response : list(str)
+            Syllogistc response in list representation (e.g., ['All', 'A', 'C'])
+
+        task : list(list(str))
+            Syllogistic task in list representation (e.g., [['All', 'A', 'B'], ['Some', 'B', 'C']]).
+
+        Returns
+        -------
+        str
+            Syllogistic response encoding (e.g., 'Aac').
+
+        """
+
         if not isinstance(response[0], list):
             response = [response]
 
