@@ -39,13 +39,13 @@ class HTMLCreator():
             'template': 'template_page.html',
             'plotly': 'plotly-latest.min.js',
             'html2canvas': 'html2canvas.min.js',
-            'cssness': 'html_style.css'
+            'cssness': 'template_page.css'
         }
 
         for key, path in ext_content_paths.items():
             path = os.path.dirname(__file__) + os.sep + path
             with codecs.open(path, "r", "utf-8") as file_handle:
-                self.external_contents[key] = file_handle.read()
+                self.external_contents[key] = file_handle.read() + '\n'
 
     def to_html(self, result_df, benchmark_name, embedded=False):
         """ Generates the html output string.
@@ -61,7 +61,13 @@ class HTMLCreator():
         benchmark_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 
         content = []
+        css_dependencies = []
         for metric in self.metrics:
+            # Add dependencies
+            if metric.template_CSS:
+                css_dependencies.append(metric.template_CSS)
+
+            # Add HTML content
             metric_html = metric.to_html(result_df)
             content.append(metric_html)
             content.append('<hr>')
@@ -77,8 +83,15 @@ class HTMLCreator():
                 "           });"
             ]))
 
+        # Construct CSS from visualizer dependencies
+        css_content = self.external_contents['cssness']
+        for fname in css_dependencies:
+            path = os.path.dirname(__file__) + os.sep + fname
+            with codecs.open(path, "r", "utf-8") as file_handle:
+                css_content += file_handle.read() + '\n'
+
         content_dict = {
-            'CSSNESS': self.external_contents['cssness'],
+            'CSSNESS': css_content,
             'PLOTLY_LIB': self.external_contents['plotly'],
             'HTML2CANVAS_LIB': self.external_contents['html2canvas'],
             'RESULT_DATA': result_data,

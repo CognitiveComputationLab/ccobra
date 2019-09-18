@@ -4,6 +4,7 @@
 
 import os
 import json
+import collections
 
 import numpy as np
 
@@ -41,7 +42,7 @@ class PlotVisualizer():
 
     """
 
-    def __init__(self, template_file):
+    def __init__(self, template_file, template_CSS=None):
         """ Initializes the Plot visualizer based on a template HTML filepath.
 
         Parameters
@@ -52,6 +53,9 @@ class PlotVisualizer():
         """
 
         super(PlotVisualizer, self).__init__()
+
+        # Member variables
+        self.template_CSS = template_CSS
 
         # Load the HTML template
         self.template = ''
@@ -217,4 +221,29 @@ class BoxplotVisualizer(PlotVisualizer):
         return {
             'PLOT_DATA': json.dumps(data),
             'ORDERING': json.dumps(ordering)
+        }
+
+class TableVisualizer(PlotVisualizer):
+    def __init__(self):
+        super(TableVisualizer, self).__init__('template_mfa.html', 'template_mfa.css')
+
+    def get_content_dict(self, result_df):
+        # Construct the MFA dictionary
+        mfa_dict = {}
+        for syllog, syllog_df in result_df.groupby('task_enc'):
+            mfa_dict[syllog] = {}
+            for model, model_df in syllog_df.groupby('model'):
+                pred_counts = collections.Counter(model_df['prediction_enc'])
+                pred_max_count = max([x[1] for x in pred_counts.items()])
+                mfa = '<br>'.join(sorted([x[0] for x in pred_counts.items() if x[1] == pred_max_count]))
+                mfa_dict[syllog][model] = mfa
+
+            # Add data MFA
+            truth_counts = collections.Counter(syllog_df['truth_enc'])
+            truth_max_count = max([x[1] for x in truth_counts.items()])
+            mfa = '<br>'.join(sorted([x[0] for x in truth_counts.items() if x[1] == truth_max_count]))
+            mfa_dict[syllog]['DATA'] = mfa
+
+        return {
+            'MFA_DATA': json.dumps(mfa_dict)
         }

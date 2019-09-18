@@ -131,7 +131,8 @@ def main(args):
     # Run the metric visualizer
     htmlcrtr = html_creator.HTMLCreator([
         viz_plot.AccuracyVisualizer(),
-        viz_plot.BoxplotVisualizer()
+        viz_plot.BoxplotVisualizer(),
+        viz_plot.TableVisualizer()
     ])
 
     if args['output'] == 'browser':

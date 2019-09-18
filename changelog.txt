@@ -1,0 +1,5 @@
+## uncommitted
+
+- Add automatic inclusion of default domain encoders
+- Allow dynamic CSS dependencies for Visualizers
+- Add MFA table visualizer

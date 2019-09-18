@@ -1,0 +1,22 @@
+.mfa table {
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+}
+
+.mfa td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+.mfa tr:nth-child(even) {
+    background-color: #dddddd;
+}
+
+.mfa td[corrpred] {
+    background-color: rgba(84, 209, 0, 0.231);
+}
+
+.mfa td[inclpred] {
+    background-color: #eeff003b;
+}

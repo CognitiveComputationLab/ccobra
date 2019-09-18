@@ -8,6 +8,7 @@ import os
 from . import modelimporter
 from ..domainhandler import CCobraDomainEncoder
 from . import contextmanager
+from ..syllogistic.encoder_syl import SyllogisticEncoder
 
 class ModelInfo():
     """ Model information container. Contains the properties required to initialize and identify
@@ -92,7 +93,12 @@ def load_benchmark(benchmark_file):
         encoders = prepare_domain_encoders(benchmark['domain_encoders'])
         benchmark['domain_encoders'] = encoders
     else:
-        benchmark['domain_encoders'] = None
+        benchmark['domain_encoders'] = {}
+
+    # Include default encoders if not overridden
+    if 'syllogistic' not in benchmark['domain_encoders']:
+        print('Adding default encoder...')
+        benchmark['domain_encoders']['syllogistic'] = SyllogisticEncoder()
 
     return benchmark
 
