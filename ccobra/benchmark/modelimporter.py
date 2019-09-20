@@ -12,6 +12,7 @@ import importlib
 import inspect
 import os
 import sys
+import copy
 
 class ModelImporter():
     """ Model importer class. Supports dynamical importing of modules,
@@ -55,8 +56,8 @@ class ModelImporter():
         for python_file in python_files:
             module_name = os.path.splitext(os.path.basename(python_file))[0]
 
-            importlib.machinery.SourceFileLoader(module_name, python_file)
-            module = importlib.import_module(module_name)
+            sfl = importlib.machinery.SourceFileLoader(module_name, python_file)
+            module = sfl.load_module()
             member_class_modules = inspect.getmembers(module, inspect.isclass)
 
             candidate_module = None
@@ -164,6 +165,8 @@ class ModelImporter():
         self.old_modules = set(sys.modules)
         self.class_attribute = self.get_class(model_path)
 
+        self.old_path = copy.deepcopy(sys.path)
+
     def unimport(self):
         """ Cuts off all dependencies loaded together with the module from
         the module graph.
@@ -178,6 +181,8 @@ class ModelImporter():
             if module_name.startswith('torch'):
                 continue
             del sys.modules[module_name]
+
+        sys.path = self.old_path
 
     def instantiate(self, model_kwargs=None):
         """ Creates an instance of the imported model by calling the empy

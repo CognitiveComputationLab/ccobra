@@ -7,3 +7,4 @@
 - Add coverage evaluation
 - Add more information to HTML output benchmark information
 - Add person_train to MFA model
+- Fix module import problems in modelimporter
