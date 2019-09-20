@@ -17,8 +17,15 @@
         <h1>CCOBRA Evaluation Results</h1>
 
         <table>
-            <tr><td>Benchmark</td><td>{{BENCHMARK_NAME}}</td></tr>
-            <tr><td>Date</td><td>{{BENCHMARK_DATE}}</td></tr>
+            <tr><td>Benchmark</td><td id="bench_name"></td></tr>
+            <tr><td>Date</td><td id="bench_date"></td></tr>
+            <tr><td>Evaluation Type</td><td id="bench_type"></td></tr>
+            <tr><td>Domains</td><td id="bench_domain"></td></tr>
+            <tr><td>Response Type(s)</td><td id="bench_resptype"></td></tr>
+            <tr><td>Test Data</td><td id="bench_test"></td></tr>
+            <tr><td>Training Data</td><td id="bench_train"></td></tr>
+            <tr><td>Person Training Data</td><td id="bench_train_person"></td></tr>
+            <tr><td>Corresponding Data</td><td id="bench_corresponding"></td></tr>
             <tr><td>Results</td><td><button id="downloadResultButton" class="button_result" type="button">Download</button></td></tr>
         </table>
 
@@ -27,6 +34,20 @@
         </div>
 
         <script>
+            // Variable definitions
+            var benchmark = {{BENCHMARK}};
+
+            // Populate content with benchmark information
+            document.getElementById("bench_name").innerHTML = benchmark["name"];
+            document.getElementById("bench_date").innerHTML = benchmark["date"];
+            document.getElementById("bench_type").innerHTML = benchmark["type"];
+            document.getElementById("bench_domain").innerHTML = benchmark["domains"];
+            document.getElementById("bench_resptype").innerHTML = benchmark["response_types"];
+            document.getElementById("bench_test").innerHTML = benchmark["data.test"];
+            document.getElementById("bench_train").innerHTML = benchmark["data.train"];
+            document.getElementById("bench_train_person").innerHTML = benchmark["data.train_person"];
+            document.getElementById("bench_corresponding").innerHTML = benchmark["corresponding_data"];
+
             /**
                 Saves the plot by creating a screenshot
             **/

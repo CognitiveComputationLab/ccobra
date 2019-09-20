@@ -47,7 +47,7 @@ class HTMLCreator():
             with codecs.open(path, "r", "utf-8") as file_handle:
                 self.external_contents[key] = file_handle.read() + '\n'
 
-    def to_html(self, result_df, benchmark_name, embedded=False):
+    def to_html(self, result_df, benchmark, embedded=False):
         """ Generates the html output string.
 
         Returns
@@ -58,7 +58,7 @@ class HTMLCreator():
         """
 
         result_data = json.dumps(result_df.to_csv(index=False).split('\n'))
-        benchmark_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        benchmark['date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 
         content = []
         css_dependencies = []
@@ -95,8 +95,7 @@ class HTMLCreator():
             'PLOTLY_LIB': self.external_contents['plotly'],
             'HTML2CANVAS_LIB': self.external_contents['html2canvas'],
             'RESULT_DATA': result_data,
-            'BENCHMARK_NAME': benchmark_name,
-            'BENCHMARK_DATE': benchmark_date,
+            'BENCHMARK': json.dumps(benchmark),
             'CONTENT': '\n\n'.join(content),
             'SCRIPTS': '\n\n'.join(scripts)
         }

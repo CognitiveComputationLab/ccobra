@@ -82,6 +82,10 @@ def load_benchmark(benchmark_file):
     with open(benchmark_file) as json_file:
         benchmark = json.load(json_file)
 
+    # Set default type
+    if 'type' not in benchmark:
+        benchmark['type'] = 'adaption'
+
     # Fix relative path information
     base_path = os.path.dirname(os.path.abspath(benchmark_file))
 

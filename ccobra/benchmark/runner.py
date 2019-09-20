@@ -111,15 +111,36 @@ def main(args):
 
     # Run the model evaluation
     is_silent = (args['output'] in ['html', 'server'])
-    eva = evaluator.Evaluator(
-        modellist,
-        eval_comparator,
-        benchmark['data.test'],
-        train_datafile=benchmark['data.train'],
-        train_data_person=benchmark['data.train_person'],
-        silent=is_silent,
-        corresponding_data=corresponding_data,
-        domain_encoders=benchmark['domain_encoders'])
+
+    eva = None
+    if benchmark['type'] == 'adaption':
+        eva = evaluator.AdaptionEvaluator(
+            modellist,
+            eval_comparator,
+            benchmark['data.test'],
+            train_datafile=benchmark['data.train'],
+            train_data_person=benchmark['data.train_person'],
+            silent=is_silent,
+            corresponding_data=corresponding_data,
+            domain_encoders=benchmark['domain_encoders']
+        )
+    elif benchmark['type'] == 'coverage':
+        # Check for benchmark validity
+        if benchmark['data.train'] or benchmark['data.train_person']:
+            print('WARNING: Ignoring specified training and train_person data for coverage evaluation...')
+
+        eva = evaluator.CoverageEvaluator(
+            modellist,
+            eval_comparator,
+            benchmark['data.test'],
+            train_datafile=benchmark['data.train'],
+            train_data_person=benchmark['data.train_person'],
+            silent=is_silent,
+            corresponding_data=corresponding_data,
+            domain_encoders=benchmark['domain_encoders']
+        )
+    else:
+        raise ValueError('Unknown benchmark type: {}'.format(benchmark['type']))
 
     with silence_stdout(is_silent):
         res_df = eva.evaluate()
@@ -135,14 +156,26 @@ def main(args):
         viz_plot.TableVisualizer()
     ])
 
+    # Prepare the benchmark output information and visualize the evaluation results
+    benchmark_info = {
+        'name': os.path.basename(args['benchmark']),
+        'data.train': os.path.basename(benchmark['data.train']),
+        'data.train_person': os.path.basename(benchmark['data.train_person']),
+        'data.test': os.path.basename(benchmark['data.test']),
+        'type': benchmark['type'],
+        'corresponding_data': benchmark['corresponding_data'],
+        'domains': benchmark['domains'],
+        'response_types': benchmark['response_types'],
+    }
+
     if args['output'] == 'browser':
-        html = htmlcrtr.to_html(res_df, args['benchmark'], embedded=False)
+        html = htmlcrtr.to_html(res_df, benchmark_info, embedded=False)
         server.load_in_default_browser(html.encode('utf8'))
     elif args['output'] == 'server':
-        html = htmlcrtr.to_html(res_df, args['benchmark'], embedded=True)
+        html = htmlcrtr.to_html(res_df, benchmark_info, embedded=True)
         sys.stdout.buffer.write(html.encode('utf-8'))
     elif args['output'] == 'html':
-        html = htmlcrtr.to_html(res_df, args['benchmark'], embedded=False)
+        html = htmlcrtr.to_html(res_df, benchmark_info, embedded=False)
         print(html)
 
 def entry_point():

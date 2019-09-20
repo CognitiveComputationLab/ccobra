@@ -4,3 +4,6 @@
 - Add dynamic CSS dependency handling for result visualizers
 - Add MFA table visualizer
 - Add propositional domain encoder
+- Add coverage evaluation
+- Add more information to HTML output benchmark information
+- Add person_train to MFA model
