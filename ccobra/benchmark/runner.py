@@ -164,8 +164,8 @@ def main(args):
         'data.test': os.path.basename(benchmark['data.test']),
         'type': benchmark['type'],
         'corresponding_data': benchmark['corresponding_data'],
-        'domains': benchmark['domains'],
-        'response_types': benchmark['response_types'],
+        'domains': list(res_df['domain'].unique()),
+        'response_types': list(res_df['response_type'].unique()),
     }
 
     if args['output'] == 'browser':
