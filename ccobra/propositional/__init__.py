@@ -1,0 +1,1 @@
+from .encoder_prop import PropositionalEncoder

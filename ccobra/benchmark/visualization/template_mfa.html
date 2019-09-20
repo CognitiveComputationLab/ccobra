@@ -3,8 +3,7 @@
         Most-Frequent Answer (MFA) Table
     </h2>
     <p>
-        The following table summarizes the most-frequent predictions from the models to each
-        syllogism.
+        {{TEXT}}
     </p>
     <div id="mfa_container">
     </div>
@@ -29,14 +28,12 @@
                 }
 
                 model_order.splice(0, 0, 'DATA');
-
-                console.log(model_order);
             }
 
             // Put in header
             if (header_flag) {
                 table_html += '<tr><th>';
-                table_html += "Syllog</th><th>" + model_order.join("</th><th>");
+                table_html += "Task</th><th>" + model_order.join("</th><th>");
                 table_html += "</th></tr>";
                 header_flag = false;
             }

@@ -9,6 +9,7 @@ from . import modelimporter
 from ..domainhandler import CCobraDomainEncoder
 from . import contextmanager
 from ..syllogistic.encoder_syl import SyllogisticEncoder
+from ..propositional.encoder_prop import PropositionalEncoder
 
 class ModelInfo():
     """ Model information container. Contains the properties required to initialize and identify
@@ -97,8 +98,9 @@ def load_benchmark(benchmark_file):
 
     # Include default encoders if not overridden
     if 'syllogistic' not in benchmark['domain_encoders']:
-        print('Adding default encoder...')
         benchmark['domain_encoders']['syllogistic'] = SyllogisticEncoder()
+    if 'propositional' not in benchmark['domain_encoders']:
+        benchmark['domain_encoders']['propositional'] = PropositionalEncoder()
 
     return benchmark
 

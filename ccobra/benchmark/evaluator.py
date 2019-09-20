@@ -372,7 +372,10 @@ class Evaluator():
                         }
 
                         # If domain encoders are specified, attach encodings to the result
-                        if self.domain_encoders:
+                        task_enc = None
+                        truth_enc = None
+                        pred_enc = None
+                        if domain in self.domain_encoders:
                             task_enc = self.domain_encoders[domain].encode_task(
                                 item.task) if domain in self.domain_encoders else np.nan
                             truth_enc = self.domain_encoders[domain].encode_response(
@@ -380,11 +383,11 @@ class Evaluator():
                             pred_enc = self.domain_encoders[domain].encode_response(
                                 prediction, item.task) if domain in self.domain_encoders else np.nan
 
-                            prediction_data.update({
-                                'task_enc': task_enc,
-                                'truth_enc': truth_enc,
-                                'prediction_enc': pred_enc
-                            })
+                        prediction_data.update({
+                            'task_enc': task_enc,
+                            'truth_enc': truth_enc,
+                            'prediction_enc': pred_enc
+                        })
 
                         result_data.append(prediction_data)
 

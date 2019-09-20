@@ -1,5 +1,6 @@
 ## uncommitted
 
 - Add automatic inclusion of default domain encoders
-- Allow dynamic CSS dependencies for Visualizers
+- Add dynamic CSS dependency handling for result visualizers
 - Add MFA table visualizer
+- Add propositional domain encoder

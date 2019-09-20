@@ -228,6 +228,15 @@ class TableVisualizer(PlotVisualizer):
         super(TableVisualizer, self).__init__('template_mfa.html', 'template_mfa.css')
 
     def get_content_dict(self, result_df):
+        is_broken = result_df[['task_enc', 'prediction_enc', 'truth_enc']].apply(
+            lambda x: 0 < ((x[0] == None) + (x[1] == None) + (x[2] == None)) < 3, axis=1)
+
+        if np.any(is_broken):
+            return {
+                'MFA_DATA': 'null',
+                'TEXT': 'Invalid encoder specification. Table cannot be produced.'
+            }
+
         # Construct the MFA dictionary
         mfa_dict = {}
         for syllog, syllog_df in result_df.groupby('task_enc'):
@@ -244,6 +253,13 @@ class TableVisualizer(PlotVisualizer):
             mfa = '<br>'.join(sorted([x[0] for x in truth_counts.items() if x[1] == truth_max_count]))
             mfa_dict[syllog]['DATA'] = mfa
 
+        if not mfa_dict:
+            return {
+                'MFA_DATA': 'null',
+                'TEXT': 'No data encodings available.'
+            }
+
         return {
-            'MFA_DATA': json.dumps(mfa_dict)
+            'MFA_DATA': json.dumps(mfa_dict),
+            'TEXT': 'The following table summarizes the most-frequent predictions from the models to each syllogism.'
         }
