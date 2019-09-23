@@ -30,9 +30,7 @@
             <tr><td>Results</td><td><button id="downloadResultButton" class="button_result" type="button">Download</button></td></tr>
         </table>
 
-        <div>
-            {{CONTENT}}
-        </div>
+        {{CONTENT}}
 
         <script>
             // Variable definitions
@@ -48,6 +46,17 @@
             document.getElementById("bench_train").innerHTML = benchmark["data.train"];
             document.getElementById("bench_train_person").innerHTML = benchmark["data.train_person"];
             document.getElementById("bench_corresponding").innerHTML = benchmark["corresponding_data"];
+
+            /**
+                Tab switching
+            **/
+            function toggle(tabName) {
+                var tabContent = document.getElementById(tabName);
+                tabContent.hidden = !tabContent.hidden;
+
+                console.debug("Setting expanded:" + tabContent.hidden);
+                document.getElementById(tabName + "-bar").setAttribute("expanded", tabContent.hidden);
+            }
 
             /**
                 Saves the plot by creating a screenshot

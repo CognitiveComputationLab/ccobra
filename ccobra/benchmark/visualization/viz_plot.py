@@ -105,6 +105,9 @@ class PlotVisualizer():
             template = template.replace('{{{{{}}}}}'.format(key), value)
         return template
 
+    def shorttitle(self):
+        raise NotImplementedError('Shorttitle not defined.')
+
 class AccuracyVisualizer(PlotVisualizer):
     """ Accuracy visualizer depicting average numbers of hits for the set of
     models.
@@ -157,6 +160,9 @@ class AccuracyVisualizer(PlotVisualizer):
             'PLOT_DATA': json.dumps(data),
             'ORDERING': json.dumps(ordering)
         }
+
+    def shorttitle(self):
+        return 'Accuracy'
 
 class BoxplotVisualizer(PlotVisualizer):
     """ Subject-Based boxplot visualizer for the CCOBRA evaluation results.
@@ -223,6 +229,9 @@ class BoxplotVisualizer(PlotVisualizer):
             'ORDERING': json.dumps(ordering)
         }
 
+    def shorttitle(self):
+        return 'Box'
+
 class TableVisualizer(PlotVisualizer):
     def __init__(self):
         super(TableVisualizer, self).__init__('template_mfa.html', 'template_mfa.css')
@@ -263,3 +272,6 @@ class TableVisualizer(PlotVisualizer):
             'MFA_DATA': json.dumps(mfa_dict),
             'TEXT': 'The following table summarizes the most-frequent predictions from the models to each syllogism.'
         }
+
+    def shorttitle(self):
+        return 'MFA-Table'

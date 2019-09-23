@@ -60,6 +60,7 @@ class HTMLCreator():
         result_data = json.dumps(result_df.to_csv(index=False).split('\n'))
         benchmark['date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 
+        # Construct the content for the website
         content = []
         css_dependencies = []
         for metric in self.metrics:
@@ -67,10 +68,14 @@ class HTMLCreator():
             if metric.template_CSS:
                 css_dependencies.append(metric.template_CSS)
 
-            # Add HTML content
+            # Add HTML content div
             metric_html = metric.to_html(result_df)
-            content.append(metric_html)
-            content.append('<hr>')
+            metric_tab_data = (metric.shorttitle().lower(), metric.shorttitle())
+
+            metric_content = '<div id="{}-bar" class="bar" onclick="toggle(\'{}\')">{}</div>'.format(metric_tab_data[0], metric_tab_data[0], metric_tab_data[1])
+            metric_content += '<div id="{}" class="bar-content">{}</div>'.format(metric_tab_data[0], metric_html)
+
+            content.append(metric_content)
 
         # Generate auxiliary scripts
         scripts = []

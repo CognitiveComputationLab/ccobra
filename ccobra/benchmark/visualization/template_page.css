@@ -1,3 +1,7 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
 .caption {
     width: 80%;
     padding-left: 10%;
@@ -21,4 +25,44 @@ td[benchdata] {
 
 tr:nth-child(even) {
     background-color: #ddddddcc;
+}
+
+.bar {
+    margin-top: 10pt;
+    background-color: #cecece;
+    padding: 8pt;
+    border: 1px solid #dddddd;
+}
+
+.bar:before {
+    content: "\25B6";
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    display: inline-block;
+    margin-right: 5pt;
+    -ms-transform: rotate(90deg);
+    -webkit-transform: rotate(90deg);
+    transform: rotate(90deg);
+}
+
+.bar[expanded=true]:before {
+    -ms-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+}
+
+.bar:hover {
+    background-color: #dfdfdf;
+}
+
+.bar-content {
+    border: 1px solid #dddddd;
+    padding: 5pt;
+}
+
+h1 {
+    text-align: center;
 }
