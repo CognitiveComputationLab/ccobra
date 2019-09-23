@@ -159,8 +159,8 @@ def main(args):
     # Prepare the benchmark output information and visualize the evaluation results
     benchmark_info = {
         'name': os.path.basename(args['benchmark']),
-        'data.train': os.path.basename(benchmark['data.train']),
-        'data.train_person': os.path.basename(benchmark['data.train_person']),
+        'data.train': os.path.basename(benchmark['data.train']) if benchmark['data.train'] else '',
+        'data.train_person': os.path.basename(benchmark['data.train_person']) if benchmark['data.train_person'] else '',
         'data.test': os.path.basename(benchmark['data.test']),
         'type': benchmark['type'],
         'corresponding_data': benchmark['corresponding_data'],
