@@ -17,15 +17,16 @@
         <h1>CCOBRA Evaluation Results</h1>
 
         <table>
+            <tr><th colspan="2">Benchmark Information</th></tr>
             <tr><td>Benchmark</td><td id="bench_name"></td></tr>
             <tr><td>Date</td><td id="bench_date"></td></tr>
-            <tr><td>Evaluation Type</td><td id="bench_type"></td></tr>
-            <tr><td>Domains</td><td id="bench_domain"></td></tr>
-            <tr><td>Response Type(s)</td><td id="bench_resptype"></td></tr>
-            <tr><td>Test Data</td><td id="bench_test"></td></tr>
-            <tr><td>Training Data</td><td id="bench_train"></td></tr>
-            <tr><td>Person Training Data</td><td id="bench_train_person"></td></tr>
-            <tr><td>Corresponding Data</td><td id="bench_corresponding"></td></tr>
+            <tr><td benchdata>type</td><td id="bench_type"></td></tr>
+            <tr><td benchdata>domains</td><td id="bench_domain"></td></tr>
+            <tr><td benchdata>response_types</td><td id="bench_resptype"></td></tr>
+            <tr><td benchdata>data.test</td><td id="bench_test"></td></tr>
+            <tr><td benchdata>data.train</td><td id="bench_train"></td></tr>
+            <tr><td benchdata>data.train_person</td><td id="bench_train_person"></td></tr>
+            <tr><td benchdata>corresponding_data</td><td id="bench_corresponding"></td></tr>
             <tr><td>Results</td><td><button id="downloadResultButton" class="button_result" type="button">Download</button></td></tr>
         </table>
 

@@ -5,22 +5,20 @@
     text-align: center;
 }
 
-hr {
-    display: block;
-    position: relative;
-    padding: 0;
-    margin: 8px auto;
-    height: 0;
-    width: 100%;
-    max-height: 0;
-    font-size: 1px;
-    line-height: 0;
-    clear: both;
-    border: none;
-    border-top: 1px solid #aaaaaa;
-    border-bottom: 1px solid #ffffff;
+table {
+    border-collapse: collapse;
+    font-size: medium;
 }
 
-hr:last-child {
-    display: none;
+td, th {
+    border: 1px solid #dddddd;
+    padding: 0.5rem;
+}
+
+td[benchdata] {
+    font-family: 'Courier New', Courier, monospace;
+}
+
+tr:nth-child(even) {
+    background-color: #ddddddcc;
 }
