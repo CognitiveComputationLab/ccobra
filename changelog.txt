@@ -9,3 +9,5 @@
 - Add person_train to MFA model
 - Fix module import problems in modelimporter
 - Add tab-based visualization
+- Enhance cache integration
+- Rework standard benchmarks

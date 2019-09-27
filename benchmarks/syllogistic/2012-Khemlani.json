@@ -1,7 +1,8 @@
 {
-    "corresponding_data": false,
-    "data.train": "",
+    "type": "adaption",
+    "data.train": "data/Ragni2016.csv",
     "data.test": "data/Ragni2016.csv",
+    "corresponding_data": true,
     "domains": ["syllogistic"],
     "response_types": ["single-choice"],
     "models": [
@@ -11,7 +12,9 @@
         "models/2012-Khemlani/MentalModels/mmt.py",
         "models/2012-Khemlani/PHM/phm.py",
         "models/2012-Khemlani/PSYCOP/psycop.py",
-        "models/2012-Khemlani/VerbalModels/verbalmodels.py"
+        "models/2012-Khemlani/VerbalModels/verbalmodels.py",
+        "models/Baseline/MFA-Model",
+        "models/Baseline/Uniform-Model"
     ],
     "domain_encoders": {
         "syllogistic": "%ccobra%/syllogistic/encoder_syl.py"
