@@ -97,7 +97,7 @@ def main(args):
         corresponding_data = benchmark['corresponding_data']
 
     # Only extend if not cached
-    cache_df = pd.DataFrame()
+    cache_df = None
     if not args['cache']:
         modellist.extend(benchmark['models'])
     else:
@@ -122,7 +122,8 @@ def main(args):
             train_data_person=benchmark['data.train_person'],
             silent=is_silent,
             corresponding_data=corresponding_data,
-            domain_encoders=benchmark['domain_encoders']
+            domain_encoders=benchmark['domain_encoders'],
+            cache_df=cache_df
         )
     elif benchmark['type'] == 'coverage':
         # Check for benchmark validity
@@ -137,14 +138,14 @@ def main(args):
             train_data_person=benchmark['data.train_person'],
             silent=is_silent,
             corresponding_data=corresponding_data,
-            domain_encoders=benchmark['domain_encoders']
+            domain_encoders=benchmark['domain_encoders'],
+            cache_df=cache_df
         )
     else:
         raise ValueError('Unknown benchmark type: {}'.format(benchmark['type']))
 
     with silence_stdout(is_silent):
         res_df = eva.evaluate()
-        res_df = pd.concat([res_df, cache_df])
 
     if 'save' in args:
         res_df.to_csv(args['save'], index=False)

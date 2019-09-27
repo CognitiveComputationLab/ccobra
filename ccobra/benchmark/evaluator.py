@@ -18,7 +18,7 @@ from . import contextmanager
 class CCobraEvaluator():
     def __init__(self, modellist, eval_comparator, test_datafile, train_datafile=None,
                  train_data_person=None, silent=False, corresponding_data=False,
-                 domain_encoders=None):
+                 domain_encoders=None, cache_df=None):
         """
 
         Parameters
@@ -48,10 +48,14 @@ class CCobraEvaluator():
         domain_encoders : dict(str, ccobra.CCobraDomainEncoder)
             Mapping from domain to encoder object.
 
+        cache_df : pd.DataFrame
+            DataFrame containing cached results.
+
         """
 
         self.modellist = modellist
         self.silent = silent
+        self.cache_df = cache_df
 
         self.domains = set()
         self.response_types = set()
@@ -232,14 +236,14 @@ class CCobraEvaluator():
 class CoverageEvaluator(CCobraEvaluator):
     def __init__(self, modellist, eval_comparator, test_datafile, train_datafile=None,
                  train_data_person=None, silent=False, corresponding_data=False,
-                 domain_encoders=None):
+                 domain_encoders=None, cache_df=None):
         super(CoverageEvaluator, self).__init__(
             modellist, eval_comparator, test_datafile, train_datafile, train_data_person, silent,
-            corresponding_data,domain_encoders)
+            corresponding_data,domain_encoders, cache_df)
 
     def evaluate(self):
         result_data = []
-        model_name_cache = set()
+        model_name_cache = set() if self.cache_df is None else set(self.cache_df['model'].unique())
 
         # Activate model context
         for idx, modelinfo in enumerate(self.modellist):
@@ -365,7 +369,15 @@ class CoverageEvaluator(CCobraEvaluator):
                 # cause garbage collection issues.
                 importer.unimport()
 
-        return pd.DataFrame(result_data)
+        res_df = pd.DataFrame(result_data)
+        if self.cache_df is None:
+            return res_df
+
+        if not result_data:
+            return self.cache_df
+
+        assert sorted(list(res_df)) == sorted(list(self.cache_df)), 'Incompatible cache'
+        return pd.concat([res_df, self.cache_df])
 
 class AdaptionEvaluator(CCobraEvaluator):
     """ Main CCOBRA evaluation class. Hosts training data loading and model evaluation loop.
@@ -373,10 +385,10 @@ class AdaptionEvaluator(CCobraEvaluator):
     """
     def __init__(self, modellist, eval_comparator, test_datafile, train_datafile=None,
                  train_data_person=None, silent=False, corresponding_data=False,
-                 domain_encoders=None):
+                 domain_encoders=None, cache_df=None):
         super(AdaptionEvaluator, self).__init__(
             modellist, eval_comparator, test_datafile, train_datafile, train_data_person, silent,
-            corresponding_data,domain_encoders)
+            corresponding_data,domain_encoders, cache_df)
 
     def evaluate(self):
         """ CCobra evaluation loop. Iterates over the models and performs training and evaluation.
@@ -389,7 +401,7 @@ class AdaptionEvaluator(CCobraEvaluator):
         """
 
         result_data = []
-        model_name_cache = set()
+        model_name_cache = set() if self.cache_df is None else set(self.cache_df['model'].unique())
 
         # Pre-compute the training data dictionaries
         train_data_dict = None
@@ -545,4 +557,12 @@ class AdaptionEvaluator(CCobraEvaluator):
                 # cause garbage collection issues.
                 importer.unimport()
 
-        return pd.DataFrame(result_data)
+        res_df = pd.DataFrame(result_data)
+        if self.cache_df is None:
+            return res_df
+
+        if not result_data:
+            return self.cache_df
+
+        assert sorted(list(res_df)) == sorted(list(self.cache_df)), 'Incompatible cache'
+        return pd.concat([res_df, self.cache_df])
