@@ -72,7 +72,7 @@ class HTMLCreator():
             metric_html = metric.to_html(result_df)
             metric_tab_data = (metric.shorttitle().lower(), metric.shorttitle())
 
-            metric_content = '<div id="{}-bar" class="bar" onclick="toggle(\'{}\')">{}</div>'.format(metric_tab_data[0], metric_tab_data[0], metric_tab_data[1])
+            metric_content = '<div id="{}-bar" class="bar">{}</div>'.format(metric_tab_data[0], metric_tab_data[0], metric_tab_data[1])
             metric_content += '<div id="{}" class="bar-content">{}</div>'.format(metric_tab_data[0], metric_html)
 
             content.append(metric_content)

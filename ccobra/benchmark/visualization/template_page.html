@@ -51,11 +51,23 @@
                 Tab switching
             **/
             function toggle(tabName) {
+                console.log("toggle:" + tabName);
                 var tabContent = document.getElementById(tabName);
                 tabContent.hidden = !tabContent.hidden;
 
                 console.debug("Setting expanded:" + tabContent.hidden);
                 document.getElementById(tabName + "-bar").setAttribute("expanded", tabContent.hidden);
+            }
+
+            var bars = document.getElementsByClassName("bar");
+            for (var i = 0; i < bars.length; i++) {
+                var curBar = bars[i];
+
+                curBar.onclick = function(e) {
+                    var barId = e.target.id;
+                    var tabName = barId.substr(0, barId.length - 4);
+                    toggle(tabName);
+                };
             }
 
             /**
