@@ -1,7 +1,6 @@
 {
-    "data.train": "data/3ps.csv",
-    "data.test": "data/3ps.csv",
-    "corresponding_data": true,
+    "type": "coverage",
+    "data.test": "data/4ps.csv",
     "domains": ["spatial-relational"],
     "response_types": ["verify"],
     "models": [

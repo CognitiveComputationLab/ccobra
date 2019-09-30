@@ -1,4 +1,5 @@
 {
+    "type": "adaption",
     "data.train": "data/Ragni2018_smalllarge.csv",
     "data.test": "data/Ragni2018_smalllarge.csv",
     "corresponding_data": true,

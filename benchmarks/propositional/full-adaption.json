@@ -1,7 +1,8 @@
 {
-    "corresponding_data": false,
-    "data.train": "",
+    "type": "adaption",
+    "data.train": "data/data.csv",
     "data.test": "data/data.csv",
+    "corresponding_data": true,
     "domains": ["propositional"],
     "response_types": ["single-choice"],
     "models": [

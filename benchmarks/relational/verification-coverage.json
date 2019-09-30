@@ -1,9 +1,8 @@
 {
-    "data.train": "data/Ragni2018_carddir.csv",
-    "data.test": "data/Ragni2018_carddir.csv",
-    "corresponding_data": true,
+    "type": "coverage",
+    "data.test": "data/Ragni2018_smalllarge.csv",
     "domains": ["spatial-relational"],
-    "response_types": ["single-choice"],
+    "response_types": ["verify"],
     "models": [
         "models/Baseline/Random-Model/random_model.py",
         "models/Baseline/Transitive-Closure/transitive_closure.py"

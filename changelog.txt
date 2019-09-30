@@ -1,3 +1,9 @@
+## Changes
+
+- Remove training data from coverage benchmarks
+- Make propositional benchmark use crossvalidation
+- Add coverage benchmarks to relational and propositional
+
 ## Version 0.16.0
 
 - Add automatic inclusion of default domain encoders

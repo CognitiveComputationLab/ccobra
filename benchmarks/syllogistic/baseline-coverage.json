@@ -1,8 +1,6 @@
 {
     "type": "coverage",
-    "data.train": "data/Ragni2016.csv",
     "data.test": "data/Ragni2016.csv",
-    "corresponding_data": true,
     "domains": ["syllogistic"],
     "response_types": ["single-choice"],
     "models": [

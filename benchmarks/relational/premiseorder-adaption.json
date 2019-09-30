@@ -1,4 +1,5 @@
 {
+    "type": "adaption",
     "data.train": "data/4ps.csv",
     "data.test": "data/4ps.csv",
     "corresponding_data": true,
