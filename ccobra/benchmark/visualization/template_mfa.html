@@ -1,0 +1,58 @@
+<p style="text-align: center">{{TEXT}}</p>
+
+<div id="mfa_container"></div>
+
+<script>
+    // Container Data
+    var mfa_data = {{MFA_DATA}};
+
+    // Start generating the table
+    var table_html = '<table class="mfa" align="center">';
+
+    var header_flag = true;
+    var model_order = null;
+    for (var syllog in mfa_data) {
+        // Specify model order
+        if (model_order == null) {
+            model_order = Object.keys(mfa_data[syllog]);
+
+            data_idx = model_order.indexOf('DATA');
+            if (data_idx >= 0) {
+                model_order.splice(data_idx, 1);
+            }
+
+            model_order.splice(0, 0, 'DATA');
+        }
+
+        // Put in header
+        if (header_flag) {
+            table_html += '<tr><th>';
+            table_html += "Task</th><th>" + model_order.join("</th><th>");
+            table_html += "</th></tr>";
+            header_flag = false;
+        }
+
+        table_html += "<tr>";
+        table_html += "<td>" + syllog + "</td>";
+        for (var model of model_order) {
+            // Extract responses
+            var pred = mfa_data[syllog][model];
+            var mfa = mfa_data[syllog]['DATA'];
+
+            // Check if it hits the MFA
+            if (model != 'DATA' && pred == mfa) {
+                table_html += '<td corrpred>';
+            } else if (model != 'DATA' && mfa.split('<br>').filter(val => pred.split('<br>').includes(val)).length > 0) {
+                table_html += '<td inclpred>';
+            } else {
+                table_html += '<td>';
+            }
+
+            table_html += pred + "</td>";
+        }
+        table_html += "</tr>";
+    }
+    table_html += "</table>";
+
+    document.getElementById("mfa_container").innerHTML = table_html;
+</script>

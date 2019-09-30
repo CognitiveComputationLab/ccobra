@@ -1,7 +1,8 @@
 {
-    "corresponding_data": false,
-    "data.train": "data/Veser2018.csv",
+    "type": "coverage",
+    "data.train": "data/Ragni2016.csv",
     "data.test": "data/Ragni2016.csv",
+    "corresponding_data": true,
     "domains": ["syllogistic"],
     "response_types": ["single-choice"],
     "models": [
@@ -12,8 +13,10 @@
         "models/2012-Khemlani/PHM/phm.py",
         "models/2012-Khemlani/PSYCOP/psycop.py",
         "models/2012-Khemlani/VerbalModels/verbalmodels.py",
-        "models/Baseline/NVC-Model/nvc_model.py",
-        "models/Baseline/Uniform-Model/uniform_model.py",
-        "models/Baseline/MFA-Model/mfa_model.py"
-    ]
+        "models/Baseline/MFA-Model",
+        "models/Baseline/Uniform-Model"
+    ],
+    "domain_encoders": {
+        "syllogistic": "%ccobra%/syllogistic/encoder_syl.py"
+    }
 }

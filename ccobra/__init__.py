@@ -19,10 +19,12 @@
 
 """
 
-from . import syllogistic
-from . import benchmark
 
 from .data import CCobraData, Item
 from .model import CCobraModel
+from .domainhandler import CCobraDomainEncoder
 
-__version__ = '0.0.15.2'
+from . import syllogistic
+from . import benchmark
+
+__version__ = '0.16.0'

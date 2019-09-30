@@ -5,6 +5,12 @@
 import json
 import os
 
+from . import modelimporter
+from ..domainhandler import CCobraDomainEncoder
+from . import contextmanager
+from ..syllogistic.encoder_syl import SyllogisticEncoder
+from ..propositional.encoder_prop import PropositionalEncoder
+
 class ModelInfo():
     """ Model information container. Contains the properties required to initialize and identify
     CCOBRA model instances.
@@ -76,6 +82,10 @@ def load_benchmark(benchmark_file):
     with open(benchmark_file) as json_file:
         benchmark = json.load(json_file)
 
+    # Set default type
+    if 'type' not in benchmark:
+        benchmark['type'] = 'adaption'
+
     # Fix relative path information
     base_path = os.path.dirname(os.path.abspath(benchmark_file))
 
@@ -84,7 +94,57 @@ def load_benchmark(benchmark_file):
     benchmark['data.test'] = fix_rel_path(benchmark.get('data.test', ''), base_path)
     benchmark['models'] = [ModelInfo(x, base_path) for x in benchmark['models']]
 
+    if 'domain_encoders' in benchmark:
+        encoders = prepare_domain_encoders(benchmark['domain_encoders'])
+        benchmark['domain_encoders'] = encoders
+    else:
+        benchmark['domain_encoders'] = {}
+
+    # Include default encoders if not overridden
+    if 'syllogistic' not in benchmark['domain_encoders']:
+        benchmark['domain_encoders']['syllogistic'] = SyllogisticEncoder()
+    if 'propositional' not in benchmark['domain_encoders']:
+        benchmark['domain_encoders']['propositional'] = PropositionalEncoder()
+
     return benchmark
+
+def prepare_domain_encoders(domain_encoder_paths):
+    """ Processes the domain encoder information from the benchmark specification. Handles
+    relative paths or path placeholders (e.g., '%ccobra%' mapping to the module directory of
+    the local CCOBRA installation).
+
+    Parameters
+    ----------
+    domain_encoder_paths : dict(str, str)
+        Dictionary mapping from domains to encoders.
+
+    Returns
+    -------
+    dict(str, str)
+        Dictionary mapping from domains to encoders with absolute paths.
+
+    """
+
+    domain_encoders = {}
+    for domain, domain_encoder_path in domain_encoder_paths.items():
+        # Replace internal ccobra path
+        if '%ccobra%' in domain_encoder_path:
+            package_path = os.path.split(os.path.split(__file__)[0])[0]
+            domain_encoder_path = os.path.normpath(
+                domain_encoder_path.replace('%ccobra%', package_path))
+
+        # To instantiate the encoder we need to change to its context (i.e., set the PATH variable
+        # accordingly).
+        enc = None
+        with contextmanager.dir_context(domain_encoder_path):
+            imp = modelimporter.ModelImporter(domain_encoder_path, superclass=CCobraDomainEncoder)
+            enc = imp.instantiate()
+
+        if not enc:
+            raise ValueError('Failed to instantiate encoder class.')
+        domain_encoders[domain] = enc
+
+    return domain_encoders
 
 def fix_rel_path(path, base_path):
     """ Fixes relative paths by prepending the benchmark filepath.

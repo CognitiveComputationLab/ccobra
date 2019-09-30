@@ -1,0 +1,14 @@
+## Version 0.16.0
+
+- Add automatic inclusion of default domain encoders
+- Add dynamic CSS dependency handling for result visualizers
+- Add MFA table visualizer
+- Add propositional domain encoder
+- Add coverage evaluation
+- Add more information to HTML output benchmark information
+- Add person_train to MFA model
+- Fix module import problems in modelimporter
+- Add tab-based visualization
+- Enhance cache integration
+- Rework standard benchmarks
+- Update relational benchmarks to use crossvalidation instead of train-test split

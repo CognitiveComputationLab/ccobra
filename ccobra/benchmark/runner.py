@@ -97,7 +97,7 @@ def main(args):
         corresponding_data = benchmark['corresponding_data']
 
     # Only extend if not cached
-    cache_df = pd.DataFrame()
+    cache_df = None
     if not args['cache']:
         modellist.extend(benchmark['models'])
     else:
@@ -111,18 +111,41 @@ def main(args):
 
     # Run the model evaluation
     is_silent = (args['output'] in ['html', 'server'])
-    eva = evaluator.Evaluator(
-        modellist,
-        eval_comparator,
-        benchmark['data.test'],
-        train_datafile=benchmark['data.train'],
-        train_data_person=benchmark['data.train_person'],
-        silent=is_silent,
-        corresponding_data=corresponding_data)
+    eva = None
+    if benchmark['type'] == 'adaption':
+        eva = evaluator.AdaptionEvaluator(
+            modellist,
+            eval_comparator,
+            benchmark['data.test'],
+            train_datafile=benchmark['data.train'],
+            train_data_person=benchmark['data.train_person'],
+            silent=is_silent,
+            corresponding_data=corresponding_data,
+            domain_encoders=benchmark['domain_encoders'],
+            cache_df=cache_df
+        )
+    elif benchmark['type'] == 'coverage':
+        # Check for benchmark validity
+        if benchmark['data.train'] or benchmark['data.train_person']:
+            print('WARNING: Ignoring specified training and train_person data ' \
+                  + 'for coverage evaluation...')
+
+        eva = evaluator.CoverageEvaluator(
+            modellist,
+            eval_comparator,
+            benchmark['data.test'],
+            train_datafile=benchmark['data.train'],
+            train_data_person=benchmark['data.train_person'],
+            silent=is_silent,
+            corresponding_data=corresponding_data,
+            domain_encoders=benchmark['domain_encoders'],
+            cache_df=cache_df
+        )
+    else:
+        raise ValueError('Unknown benchmark type: {}'.format(benchmark['type']))
 
     with silence_stdout(is_silent):
         res_df = eva.evaluate()
-        res_df = pd.concat([res_df, cache_df])
 
     if 'save' in args:
         res_df.to_csv(args['save'], index=False)
@@ -130,17 +153,32 @@ def main(args):
     # Run the metric visualizer
     htmlcrtr = html_creator.HTMLCreator([
         viz_plot.AccuracyVisualizer(),
-        viz_plot.BoxplotVisualizer()
+        viz_plot.BoxplotVisualizer(),
+        viz_plot.TableVisualizer()
     ])
 
+    # Prepare the benchmark output information and visualize the evaluation results
+    benchmark_info = {
+        'name': os.path.basename(args['benchmark']),
+        'data.train': os.path.basename(
+            benchmark['data.train']) if benchmark['data.train'] else '',
+        'data.train_person': os.path.basename(
+            benchmark['data.train_person']) if benchmark['data.train_person'] else '',
+        'data.test': os.path.basename(benchmark['data.test']),
+        'type': benchmark['type'],
+        'corresponding_data': benchmark['corresponding_data'],
+        'domains': list(res_df['domain'].unique()),
+        'response_types': list(res_df['response_type'].unique()),
+    }
+
     if args['output'] == 'browser':
-        html = htmlcrtr.to_html(res_df, args['benchmark'], embedded=False)
+        html = htmlcrtr.to_html(res_df, benchmark_info, embedded=False)
         server.load_in_default_browser(html.encode('utf8'))
     elif args['output'] == 'server':
-        html = htmlcrtr.to_html(res_df, args['benchmark'], embedded=True)
+        html = htmlcrtr.to_html(res_df, benchmark_info, embedded=True)
         sys.stdout.buffer.write(html.encode('utf-8'))
     elif args['output'] == 'html':
-        html = htmlcrtr.to_html(res_df, args['benchmark'], embedded=False)
+        html = htmlcrtr.to_html(res_df, benchmark_info, embedded=False)
         print(html)
 
 def entry_point():

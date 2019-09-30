@@ -84,7 +84,8 @@ class EqualityComparator():
 
     """
 
-    def compare(self, obj_a, obj_b):
+    @staticmethod
+    def compare(obj_a, obj_b):
         """ Compares two response objects based on equality.
 
         Parameters
@@ -109,7 +110,8 @@ class NVCComparator():
 
     """
 
-    def compare(self, obj_a, obj_b):
+    @staticmethod
+    def compare(obj_a, obj_b):
         """ Compares two response objects based on their NVCness. Only returns true if both
         responses are in agreement with either responding NVC or not NVC.
 

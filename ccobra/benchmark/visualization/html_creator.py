@@ -39,16 +39,28 @@ class HTMLCreator():
             'template': 'template_page.html',
             'plotly': 'plotly-latest.min.js',
             'html2canvas': 'html2canvas.min.js',
-            'cssness': 'html_style.css'
+            'cssness': 'template_page.css'
         }
 
         for key, path in ext_content_paths.items():
             path = os.path.dirname(__file__) + os.sep + path
             with codecs.open(path, "r", "utf-8") as file_handle:
-                self.external_contents[key] = file_handle.read()
+                self.external_contents[key] = file_handle.read() + '\n'
 
-    def to_html(self, result_df, benchmark_name, embedded=False):
+    def to_html(self, result_df, benchmark, embedded=False):
         """ Generates the html output string.
+
+        Parameters
+        ----------
+        result_df : pd.DataFrame
+            DataFrame containing the CCOBRA evaluation results.
+
+        benchmark : dict(str, object)
+            Benchmark properties.
+
+        embedded : bool
+            Flag indicating embedded usage. Removes CSS and window handling scripts from the
+            resulting website.
 
         Returns
         -------
@@ -58,13 +70,26 @@ class HTMLCreator():
         """
 
         result_data = json.dumps(result_df.to_csv(index=False).split('\n'))
-        benchmark_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        benchmark['date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 
+        # Construct the content for the website
         content = []
+        css_dependencies = []
         for metric in self.metrics:
+            # Add dependencies
+            if metric.template_CSS:
+                css_dependencies.append(metric.template_CSS)
+
+            # Add HTML content div
             metric_html = metric.to_html(result_df)
-            content.append(metric_html)
-            content.append('<hr>')
+            metric_tab_data = (metric.shorttitle().lower().replace(' ', '-'), metric.shorttitle())
+
+            metric_content = '<div id="{}-expand-bar" class="expand-bar">{}</div>'.format(
+                metric_tab_data[0], metric_tab_data[1])
+            metric_content += '<div id="{}" class="expand-bar-content">{}</div>'.format(
+                metric_tab_data[0], metric_html)
+
+            content.append(metric_content)
 
         # Generate auxiliary scripts
         scripts = []
@@ -77,13 +102,21 @@ class HTMLCreator():
                 "           });"
             ]))
 
+        # Construct CSS from visualizer dependencies
+        css_content = ''
+        if not embedded:
+            css_content = self.external_contents['cssness']
+            for fname in css_dependencies:
+                path = os.path.dirname(__file__) + os.sep + fname
+                with codecs.open(path, "r", "utf-8") as file_handle:
+                    css_content += file_handle.read() + '\n'
+
         content_dict = {
-            'CSSNESS': self.external_contents['cssness'],
+            'CSSNESS': css_content,
             'PLOTLY_LIB': self.external_contents['plotly'],
             'HTML2CANVAS_LIB': self.external_contents['html2canvas'],
             'RESULT_DATA': result_data,
-            'BENCHMARK_NAME': benchmark_name,
-            'BENCHMARK_DATE': benchmark_date,
+            'BENCHMARK': json.dumps(benchmark),
             'CONTENT': '\n\n'.join(content),
             'SCRIPTS': '\n\n'.join(scripts)
         }

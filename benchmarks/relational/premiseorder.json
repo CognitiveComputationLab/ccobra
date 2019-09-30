@@ -1,7 +1,7 @@
 {
-    "corresponding_data": false,
-    "data.train": "data/4ps_train.csv",
-    "data.test": "data/4ps_test.csv",
+    "data.train": "data/4ps.csv",
+    "data.test": "data/4ps.csv",
+    "corresponding_data": true,
     "domains": ["spatial-relational"],
     "response_types": ["verify"],
     "models": [

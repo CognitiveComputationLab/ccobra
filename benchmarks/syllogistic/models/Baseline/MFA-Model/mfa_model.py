@@ -24,6 +24,9 @@ class MFAModel(ccobra.CCobraModel):
             for seq_train_data in subj_train_data:
                 self.adapt(seq_train_data['item'], seq_train_data['response'])
 
+    def person_train(self, dataset):
+        self.pre_train([dataset])
+
     def predict(self, item, **kwargs):
         enc_task = ccobra.syllogistic.encode_task(item.task)
         resp_counts = self.predictions[enc_task]

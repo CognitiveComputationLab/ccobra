@@ -1,43 +1,41 @@
-<div id="accuracy_div">
-    <div id="accuracy_plot"></div>
+<div id="accuracy_plot"></div>
 
-    <div class='caption'>
-        <p>
-            Predictive accuracies of the benchmark models, i.e., the percentages of
-            correct predictions.
-        </p>
+<div class='caption'>
+    <p>
+        Predictive accuracies of the benchmark models, i.e., the percentages of
+        correct predictions.
+    </p>
 
-        <button name="figsave" type="button" class="button_result" plot_type="accuracy_plot">Save Plot</button>
-    </div>
-
-    <script>
-        evaluationContents['accuracy_plot'] = {
-            data: [{{PLOT_DATA}}],
-            layout: {
-                title: {text: 'Accuracy of Model Predictions'},
-                yaxis: {title: {text: 'Predictive Accuracy'}, rangemode: 'nonnegative'},
-                xaxis: {categoryarray: {{ORDERING}}}
-            },
-            config: {
-                modeBarButtonsToRemove: ['toImage',
-                                        'sendDataToCloud',
-                                        'select2d',
-                                        'toggleSpikelines',
-                                        'hoverCompareCartesian',
-                                        'hoverClosestCartesian',
-                                        'lasso2d',
-                                        'zoom2d',
-                                        'pan2d',
-                                        'autoScale2d'],
-                displaylogo: false
-            }
-        }
-
-        // Plot the data
-        Plotly.newPlot("accuracy_plot",
-                        evaluationContents['accuracy_plot'].data,
-                        evaluationContents['accuracy_plot'].layout,
-                        evaluationContents['accuracy_plot'].config);
-
-    </script>
+    <button name="figsave" type="button" class="button_result" plot_type="accuracy_plot">Save Plot</button>
 </div>
+
+<script>
+    evaluationContents['accuracy_plot'] = {
+        data: [{{PLOT_DATA}}],
+        layout: {
+            title: {text: 'Accuracy of Model Predictions'},
+            yaxis: {title: {text: 'Predictive Accuracy'}, rangemode: 'nonnegative'},
+            xaxis: {categoryarray: {{ORDERING}}}
+        },
+        config: {
+            modeBarButtonsToRemove: ['toImage',
+                                    'sendDataToCloud',
+                                    'select2d',
+                                    'toggleSpikelines',
+                                    'hoverCompareCartesian',
+                                    'hoverClosestCartesian',
+                                    'lasso2d',
+                                    'zoom2d',
+                                    'pan2d',
+                                    'autoScale2d'],
+            displaylogo: false
+        }
+    }
+
+    // Plot the data
+    Plotly.newPlot("accuracy_plot",
+                    evaluationContents['accuracy_plot'].data,
+                    evaluationContents['accuracy_plot'].layout,
+                    evaluationContents['accuracy_plot'].config);
+
+</script>

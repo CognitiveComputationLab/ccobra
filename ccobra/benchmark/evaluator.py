@@ -2,9 +2,6 @@
 
 """
 
-from contextlib import contextmanager
-import os
-import sys
 import copy
 import warnings
 
@@ -15,35 +12,17 @@ import ccobra
 
 from . import modelimporter
 from . import comparator
+from . import contextmanager
 
-@contextmanager
-def dir_context(path):
-    """ Context manager for the working directory. Stores the current working directory before
-    switching it. Finally, resets to the old wd.
 
-    Parameters
-    ----------
-    path : str
-        String to set the working directory to.
-
-    """
-
-    old_dir = os.getcwd()
-    os.chdir(path)
-    sys.path.append(path)
-    try:
-        yield
-    finally:
-        os.chdir(old_dir)
-        sys.path.remove(path)
-
-class Evaluator():
-    """ Main CCOBRA evaluation class. Hosts training data loading and model evaluation loop.
+class CCobraEvaluator():
+    """ CCOBRA evaluation base class.
 
     """
 
     def __init__(self, modellist, eval_comparator, test_datafile, train_datafile=None,
-                 train_data_person=None, silent=False, corresponding_data=False):
+                 train_data_person=None, silent=False, corresponding_data=False,
+                 domain_encoders=None, cache_df=None):
         """
 
         Parameters
@@ -70,16 +49,24 @@ class Evaluator():
             Indicates whether test and training data should contain the same
             user ids.
 
+        domain_encoders : dict(str, ccobra.CCobraDomainEncoder)
+            Mapping from domain to encoder object.
+
+        cache_df : pd.DataFrame
+            DataFrame containing cached results.
+
         """
 
         self.modellist = modellist
         self.silent = silent
+        self.cache_df = cache_df
 
         self.domains = set()
         self.response_types = set()
 
         self.comparator = eval_comparator
         self.corresponding_data = corresponding_data
+        self.domain_encoders = domain_encoders
 
         # Load the test data
         self.test_data = ccobra.CCobraData(pd.read_csv(test_datafile))
@@ -143,65 +130,8 @@ class Evaluator():
         optionals = set(data.keys()) - set(essential)
         return {key: data[key] for key in optionals}
 
-    def extract_demographics(self, data_df):
-        """ Extracts demographic information (age, gender, education, affinity, experience) from
-        a given dataset if the corresponding columns are available.
-
-        Parameters
-        ----------
-        data_df : pd.DataFrame
-            Dataframe to extract demographic information from.
-
-        Returns
-        -------
-        dict(str, object)
-            Dictionary containing demographic information.
-
-        """
-
-        demographics = {}
-        demo_data = ['age', 'gender', 'education', 'affinity', 'experience']
-        for data in demo_data:
-            if data in data_df.columns:
-                demographics[data] = data_df[data].unique().tolist()
-
-                if len(demographics[data]) == 1:
-                    demographics[data] = demographics[data][0]
-
-        return demographics
-
-    def check_model_applicability(self, pre_model):
-        """ Verifies the applicability of a model by checking its supported domains and response
-        types and comparing them with the evaluation dataset.
-
-        Parameters
-        ----------
-        pre_model : CCobraModel
-            Model to check applicability for.
-
-        Raises
-        ------
-        ValueError
-            Exception thrown when model is not applicable to some domains or response types
-            in the test data.
-
-        """
-
-        missing_domains = self.domains - set(pre_model.supported_domains)
-        if missing_domains:
-            raise ValueError(
-                'Model {} is not applicable to domains {} found in ' \
-                'the test dataset.'.format(
-                    pre_model.name, missing_domains))
-
-        missing_response_types = self.response_types - set(pre_model.supported_response_types)
-        if missing_response_types:
-            raise ValueError(
-                'Model {} is not applicable to response_types {} ' \
-                'found in the test dataset.'.format(
-                    pre_model.name, missing_response_types))
-
-    def get_train_data_dict(self, ccobra_data):
+    @staticmethod
+    def get_train_data_dict(ccobra_data):
         """ Extracts the training data dict mapping from subject identifiers to their corresponding
         list of tasks and responses.
 
@@ -248,6 +178,222 @@ class Evaluator():
             train_data_dict[id_info] = subj_data
         return train_data_dict
 
+    def check_model_applicability(self, pre_model):
+        """ Verifies the applicability of a model by checking its supported domains and response
+        types and comparing them with the evaluation dataset.
+
+        Parameters
+        ----------
+        pre_model : CCobraModel
+            Model to check applicability for.
+
+        Raises
+        ------
+        ValueError
+            Exception thrown when model is not applicable to some domains or response types
+            in the test data.
+
+        """
+
+        missing_domains = self.domains - set(pre_model.supported_domains)
+        if missing_domains:
+            raise ValueError(
+                'Model {} is not applicable to domains {} found in ' \
+                'the test dataset.'.format(
+                    pre_model.name, missing_domains))
+
+        missing_response_types = self.response_types - set(pre_model.supported_response_types)
+        if missing_response_types:
+            raise ValueError(
+                'Model {} is not applicable to response_types {} ' \
+                'found in the test dataset.'.format(
+                    pre_model.name, missing_response_types))
+
+    @staticmethod
+    def extract_demographics(data_df):
+        """ Extracts demographic information (age, gender, education, affinity, experience) from
+        a given dataset if the corresponding columns are available.
+
+        Parameters
+        ----------
+        data_df : pd.DataFrame
+            Dataframe to extract demographic information from.
+
+        Returns
+        -------
+        dict(str, object)
+            Dictionary containing demographic information.
+
+        """
+
+        demographics = {}
+        demo_data = ['age', 'gender', 'education', 'affinity', 'experience']
+        for data in demo_data:
+            if data in data_df.columns:
+                demographics[data] = data_df[data].unique().tolist()
+
+                if len(demographics[data]) == 1:
+                    demographics[data] = demographics[data][0]
+
+        return demographics
+
+class CoverageEvaluator(CCobraEvaluator):
+    """ Coverage-based model evaluation.
+
+    """
+
+    def evaluate(self):
+        """ Perform the coverage-based evaluation.
+
+        Returns
+        -------
+        pd.DataFrame
+            Dataframe containing the evaluation results.
+
+        """
+
+        result_data = []
+        model_name_cache = set() if self.cache_df is None else set(self.cache_df['model'].unique())
+
+        # Activate model context
+        for idx, modelinfo in enumerate(self.modellist):
+            # Print the progress
+            if not self.silent:
+                print("Evaluating '{}' ({}/{})...".format(
+                    modelinfo.path, idx + 1, len(self.modellist)))
+
+            # Setup the model context
+            with contextmanager.dir_context(modelinfo.path):
+                # Dynamically import the CCOBRA model
+                importer = modelimporter.ModelImporter(
+                    modelinfo.path, ccobra.CCobraModel,
+                    load_specific_class=modelinfo.load_specific_class)
+
+                # Instantiate and prepare the model for predictions
+                pre_model = importer.instantiate(modelinfo.args)
+
+                # Check if model is applicable to domains/response types
+                self.check_model_applicability(pre_model)
+
+                # Only use the model's name if no override is specified
+                model_name = modelinfo.override_name
+                if not model_name:
+                    model_name = pre_model.name
+
+                # Ensure that names are unique and show a warning if duplicates are detected
+                original_model_name = model_name
+                changed = False
+                while model_name in model_name_cache:
+                    model_name = model_name + '\''
+                    changed = True
+                model_name_cache.add(model_name)
+
+                if changed:
+                    warnings.warn('Duplicate model name detected ("{}"). Changed to "{}".'.format(
+                        original_model_name, model_name))
+
+                # Iterate subject
+                for subj_id, subj_df in self.test_data.get().groupby('id'):
+                    model = copy.deepcopy(pre_model)
+
+                    # Perform the personalized pre-training
+                    # Pick out the person training data for the current
+                    # individual
+                    subj_pre_train_data_person = self.test_data.get().loc[
+                        self.test_data.get()['id'] == subj_id]
+
+                    person_train_data = self.get_train_data_dict(
+                        ccobra.CCobraData(subj_pre_train_data_person))
+                    model.person_train(person_train_data[subj_id])
+
+                    # Extract the subject demographics
+                    demographics = self.extract_demographics(subj_df)
+
+                    # Set the models to new participant
+                    model.start_participant(id=subj_id, **demographics)
+
+                    # Iterate over individual tasks
+                    for _, row in subj_df.sort_values('sequence').iterrows():
+                        optionals = self.extract_optionals(row)
+
+                        # Evaluation
+                        sequence = row['sequence']
+                        task = row['task']
+                        choices = row['choices']
+                        truth = row['response']
+                        response_type = row['response_type']
+                        domain = row['domain']
+
+                        if isinstance(truth, str):
+                            if response_type == 'multiple-choice':
+                                truth = [y.split(';') for y in [
+                                    x.split('/') for x in truth.split('|')]]
+                            else:
+                                truth = [x.split(';') for x in truth.split('/')]
+
+                        item = ccobra.data.Item(
+                            subj_id, domain, task, response_type, choices, sequence)
+
+                        prediction = model.predict(copy.deepcopy(item), **optionals)
+                        hit = int(self.comparator.compare(prediction, truth))
+
+                        # Collect the evaluation result data
+                        prediction_data = {
+                            'model': model_name,
+                            'id': subj_id,
+                            'domain': domain,
+                            'response_type': response_type,
+                            'sequence': sequence,
+                            'task': task,
+                            'choices': choices,
+                            'truth': row['response'],
+                            'prediction': comparator.tuple_to_string(prediction),
+                            'hit': hit,
+                            'type': 'coverage'
+                        }
+
+                        # If domain encoders are specified, attach encodings to the result
+                        task_enc = None
+                        truth_enc = None
+                        pred_enc = None
+                        if domain in self.domain_encoders:
+                            task_enc = self.domain_encoders[domain].encode_task(
+                                item.task) if domain in self.domain_encoders else np.nan
+                            truth_enc = self.domain_encoders[domain].encode_response(
+                                truth, item.task) if domain in self.domain_encoders else np.nan
+                            pred_enc = self.domain_encoders[domain].encode_response(
+                                prediction, item.task) if domain in self.domain_encoders else np.nan
+
+                        prediction_data.update({
+                            'task_enc': task_enc,
+                            'truth_enc': truth_enc,
+                            'prediction_enc': pred_enc
+                        })
+
+                        result_data.append(prediction_data)
+
+                    # Call the end participant hook
+                    model.end_participant(subj_id, **optionals)
+
+                # De-load the imported model and its dependencies. Might
+                # cause garbage collection issues.
+                importer.unimport()
+
+        res_df = pd.DataFrame(result_data)
+        if self.cache_df is None:
+            return res_df
+
+        if not result_data:
+            return self.cache_df
+
+        assert sorted(list(res_df)) == sorted(list(self.cache_df)), 'Incompatible cache'
+        return pd.concat([res_df, self.cache_df])
+
+class AdaptionEvaluator(CCobraEvaluator):
+    """ Main CCOBRA evaluation class. Hosts training data loading and model evaluation loop.
+
+    """
+
     def evaluate(self):
         """ CCobra evaluation loop. Iterates over the models and performs training and evaluation.
 
@@ -259,7 +405,7 @@ class Evaluator():
         """
 
         result_data = []
-        model_name_cache = set()
+        model_name_cache = set() if self.cache_df is None else set(self.cache_df['model'].unique())
 
         # Pre-compute the training data dictionaries
         train_data_dict = None
@@ -274,11 +420,7 @@ class Evaluator():
                     modelinfo.path, idx + 1, len(self.modellist)))
 
             # Setup the model context
-            context = os.path.abspath(modelinfo.path)
-            if os.path.isfile(context):
-                context = os.path.dirname(context)
-
-            with dir_context(context):
+            with contextmanager.dir_context(modelinfo.path):
                 # Dynamically import the CCOBRA model
                 importer = modelimporter.ModelImporter(
                     modelinfo.path, ccobra.CCobraModel,
@@ -378,17 +520,39 @@ class Evaluator():
                         model.adapt(adapt_item, truth, **optionals)
 
                         # Collect the evaluation result data
-                        result_data.append({
+                        prediction_data = {
                             'model': model_name,
                             'id': subj_id,
                             'domain': domain,
+                            'response_type': response_type,
                             'sequence': sequence,
                             'task': task,
                             'choices': choices,
                             'truth': row['response'],
                             'prediction': comparator.tuple_to_string(prediction),
-                            'hit': hit
+                            'hit': hit,
+                            'type': 'adaption'
+                        }
+
+                        # If domain encoders are specified, attach encodings to the result
+                        task_enc = None
+                        truth_enc = None
+                        pred_enc = None
+                        if domain in self.domain_encoders:
+                            task_enc = self.domain_encoders[domain].encode_task(
+                                item.task) if domain in self.domain_encoders else np.nan
+                            truth_enc = self.domain_encoders[domain].encode_response(
+                                truth, item.task) if domain in self.domain_encoders else np.nan
+                            pred_enc = self.domain_encoders[domain].encode_response(
+                                prediction, item.task) if domain in self.domain_encoders else np.nan
+
+                        prediction_data.update({
+                            'task_enc': task_enc,
+                            'truth_enc': truth_enc,
+                            'prediction_enc': pred_enc
                         })
+
+                        result_data.append(prediction_data)
 
                     # Call the end participant hook
                     model.end_participant(subj_id, **optionals)
@@ -397,4 +561,12 @@ class Evaluator():
                 # cause garbage collection issues.
                 importer.unimport()
 
-        return pd.DataFrame(result_data)
+        res_df = pd.DataFrame(result_data)
+        if self.cache_df is None:
+            return res_df
+
+        if not result_data:
+            return self.cache_df
+
+        assert sorted(list(res_df)) == sorted(list(self.cache_df)), 'Incompatible cache'
+        return pd.concat([res_df, self.cache_df])

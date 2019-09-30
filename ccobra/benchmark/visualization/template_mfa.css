@@ -1,0 +1,7 @@
+.mfa td[corrpred] {
+    background-color: rgba(84, 209, 0, 0.231);
+}
+
+.mfa td[inclpred] {
+    background-color: #eeff003b;
+}

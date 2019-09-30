@@ -1,0 +1,71 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.caption {
+    width: 80%;
+    padding-left: 10%;
+    padding-right: 10%;
+    text-align: center;
+}
+
+table {
+    border-collapse: collapse;
+    font-size: medium;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    padding: 0.5rem;
+}
+
+td[benchdata] {
+    font-family: 'Courier New', Courier, monospace;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd80;
+}
+
+.expand-bar {
+    margin-top: 15pt;
+    background-color: #cecece;
+    padding: 8pt;
+    border: 1px solid #dddddd;
+    text-align: left;
+
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.expand-bar:before {
+    content: "\25B6";
+    cursor: pointer;
+    display: inline-block;
+    margin-right: 5pt;
+    -ms-transform: rotate(90deg);
+    -webkit-transform: rotate(90deg);
+    transform: rotate(90deg);
+    text-align: left;
+}
+
+.expand-bar[expanded=true]:before {
+    -ms-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+}
+
+.expand-bar:hover {
+    background-color: #dfdfdf;
+}
+
+.expand-bar-content {
+    border: 1px solid #dddddd;
+    padding: 5pt;
+}
+
+h1 {
+    text-align: center;
+}
