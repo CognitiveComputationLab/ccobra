@@ -5,3 +5,8 @@
 .mfa td[inclpred] {
     background-color: #eeff003b;
 }
+
+#mfa_container {
+    width: 100%;
+    overflow-x: auto;
+}

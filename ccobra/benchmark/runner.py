@@ -166,11 +166,16 @@ def main(args):
             benchmark['data.train_person']) if benchmark['data.train_person'] else '',
         'data.test': os.path.basename(benchmark['data.test']),
         'type': benchmark['type'],
-        'corresponding_data': benchmark['corresponding_data'],
         'domains': list(res_df['domain'].unique()),
         'response_types': list(res_df['response_type'].unique()),
     }
 
+    if 'corresponding_data' in benchmark:
+        benchmark_info['corresponding_data'] = benchmark['corresponding_data']
+    else:
+        benchmark_info['corresponding_data'] = ''
+
+    # Generate the HTML output
     if args['output'] == 'browser':
         html = htmlcrtr.to_html(res_df, benchmark_info, embedded=False)
         server.load_in_default_browser(html.encode('utf8'))
