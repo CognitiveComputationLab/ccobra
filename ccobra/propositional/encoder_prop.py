@@ -1,3 +1,7 @@
+""" Propositional domain encoders.
+
+"""
+
 import ccobra
 
 OPERATORS = [
@@ -16,6 +20,16 @@ class PropositionalEncoder(ccobra.CCobraDomainEncoder):
     @staticmethod
     def encode_clause(clause):
         """ Encodes a single clause by parsing the Polish normal form.
+
+        Parameters
+        ----------
+        clause : list(str)
+            Propositional clause in list representation (e.g., ['If', 'not', 'A', 'B']).
+
+        Returns
+        -------
+        str
+            String representation of the input clause (e.g., "~A -> B").
 
         """
 
@@ -44,6 +58,16 @@ class PropositionalEncoder(ccobra.CCobraDomainEncoder):
     def encode_task(task):
         """ Encodes a task to its propositional encoding.
 
+        Parameters
+        ----------
+        task : list(list(str))
+            Propositional task as a list of clauses (e.g., [["If", "A", "B"], ["A"]]).
+
+        Returns
+        -------
+        str
+            String representation of the propositional task.
+
         """
 
         return ', '.join([PropositionalEncoder.encode_clause(x) for x in task])
@@ -51,6 +75,19 @@ class PropositionalEncoder(ccobra.CCobraDomainEncoder):
     @staticmethod
     def encode_response(response, task):
         """ Encodes a response to its propositional encoding.
+
+        Parameters
+        ----------
+        response : list(str)
+            Propositional response in list representation (e.g., ["not", "A"]).
+
+        task : list(list(str))
+            Propositional task as a list of clauses (e.g., [["If", "A", "B"], ["A"]]).
+
+        Returns
+        -------
+        str
+            String representation of the propositional response.
 
         """
 

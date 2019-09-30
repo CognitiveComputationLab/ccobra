@@ -128,7 +128,8 @@ def main(args):
     elif benchmark['type'] == 'coverage':
         # Check for benchmark validity
         if benchmark['data.train'] or benchmark['data.train_person']:
-            print('WARNING: Ignoring specified training and train_person data for coverage evaluation...')
+            print('WARNING: Ignoring specified training and train_person data ' \
+                  + 'for coverage evaluation...')
 
         eva = evaluator.CoverageEvaluator(
             modellist,
@@ -160,8 +161,10 @@ def main(args):
     # Prepare the benchmark output information and visualize the evaluation results
     benchmark_info = {
         'name': os.path.basename(args['benchmark']),
-        'data.train': os.path.basename(benchmark['data.train']) if benchmark['data.train'] else '',
-        'data.train_person': os.path.basename(benchmark['data.train_person']) if benchmark['data.train_person'] else '',
+        'data.train': os.path.basename(
+            benchmark['data.train']) if benchmark['data.train'] else '',
+        'data.train_person': os.path.basename(
+            benchmark['data.train_person']) if benchmark['data.train_person'] else '',
         'data.test': os.path.basename(benchmark['data.test']),
         'type': benchmark['type'],
         'corresponding_data': benchmark['corresponding_data'],
@@ -173,7 +176,7 @@ def main(args):
         html = htmlcrtr.to_html(res_df, benchmark_info, embedded=False)
         server.load_in_default_browser(html.encode('utf8'))
     elif args['output'] == 'server':
-        html = htmlcrtr.to_html(res_df, benchmark_info, embedded=True, server=True)
+        html = htmlcrtr.to_html(res_df, benchmark_info, embedded=True)
         sys.stdout.buffer.write(html.encode('utf-8'))
     elif args['output'] == 'html':
         html = htmlcrtr.to_html(res_df, benchmark_info, embedded=False)

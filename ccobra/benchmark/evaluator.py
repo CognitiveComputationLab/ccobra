@@ -16,6 +16,10 @@ from . import contextmanager
 
 
 class CCobraEvaluator():
+    """ CCOBRA evaluation base class.
+
+    """
+
     def __init__(self, modellist, eval_comparator, test_datafile, train_datafile=None,
                  train_data_person=None, silent=False, corresponding_data=False,
                  domain_encoders=None, cache_df=None):
@@ -234,14 +238,20 @@ class CCobraEvaluator():
         return demographics
 
 class CoverageEvaluator(CCobraEvaluator):
-    def __init__(self, modellist, eval_comparator, test_datafile, train_datafile=None,
-                 train_data_person=None, silent=False, corresponding_data=False,
-                 domain_encoders=None, cache_df=None):
-        super(CoverageEvaluator, self).__init__(
-            modellist, eval_comparator, test_datafile, train_datafile, train_data_person, silent,
-            corresponding_data,domain_encoders, cache_df)
+    """ Coverage-based model evaluation.
+
+    """
 
     def evaluate(self):
+        """ Perform the coverage-based evaluation.
+
+        Returns
+        -------
+        pd.DataFrame
+            Dataframe containing the evaluation results.
+
+        """
+
         result_data = []
         model_name_cache = set() if self.cache_df is None else set(self.cache_df['model'].unique())
 
@@ -383,12 +393,6 @@ class AdaptionEvaluator(CCobraEvaluator):
     """ Main CCOBRA evaluation class. Hosts training data loading and model evaluation loop.
 
     """
-    def __init__(self, modellist, eval_comparator, test_datafile, train_datafile=None,
-                 train_data_person=None, silent=False, corresponding_data=False,
-                 domain_encoders=None, cache_df=None):
-        super(AdaptionEvaluator, self).__init__(
-            modellist, eval_comparator, test_datafile, train_datafile, train_data_person, silent,
-            corresponding_data,domain_encoders, cache_df)
 
     def evaluate(self):
         """ CCobra evaluation loop. Iterates over the models and performs training and evaluation.

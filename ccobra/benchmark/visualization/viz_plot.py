@@ -50,6 +50,9 @@ class PlotVisualizer():
         template_file : str
             Path to the template file underlying this visualizer.
 
+        template_CSS : str
+            Path to the template CSS file.
+
         """
 
         super(PlotVisualizer, self).__init__()
@@ -106,6 +109,15 @@ class PlotVisualizer():
         return template
 
     def shorttitle(self):
+        """ Shorttitle for the visualizer.
+
+        Returns
+        -------
+        str
+            Shorttitle for the visualizer.
+
+        """
+
         raise NotImplementedError('Shorttitle not defined.')
 
 class AccuracyVisualizer(PlotVisualizer):
@@ -162,6 +174,15 @@ class AccuracyVisualizer(PlotVisualizer):
         }
 
     def shorttitle(self):
+        """ Shorttitle for the visualizer.
+
+        Returns
+        -------
+        str
+            Shorttitle for the visualizer.
+
+        """
+
         return 'Prediction Accuracy'
 
 class BoxplotVisualizer(PlotVisualizer):
@@ -230,15 +251,42 @@ class BoxplotVisualizer(PlotVisualizer):
         }
 
     def shorttitle(self):
+        """ Shorttitle for the visualizer.
+
+        Returns
+        -------
+        str
+            Shorttitle for the visualizer.
+
+        """
+
         return 'Subject-Based Boxplots'
 
 class TableVisualizer(PlotVisualizer):
+    """ MFA table visualizer.
+
+    """
+
     def __init__(self):
         super(TableVisualizer, self).__init__('template_mfa.html', 'template_mfa.css')
 
     def get_content_dict(self, result_df):
+        """ Constructs the template-html mapping dictionary.
+
+        Parameters
+        ----------
+        result_df : pd.DataFrame
+            CCOBRA result dataframe.
+
+        Returns
+        -------
+        dict(str, str)
+            Returns the content dictionary mapping from template placeholders to html snippets.
+
+        """
+
         is_broken = result_df[['task_enc', 'prediction_enc', 'truth_enc']].apply(
-            lambda x: 0 < ((x[0] == None) + (x[1] == None) + (x[2] == None)) < 3, axis=1)
+            lambda x: 0 < ((x[0] is None) + (x[1] is None) + (x[2] is None)) < 3, axis=1)
 
         if np.any(is_broken):
             return {
@@ -253,13 +301,15 @@ class TableVisualizer(PlotVisualizer):
             for model, model_df in syllog_df.groupby('model'):
                 pred_counts = collections.Counter(model_df['prediction_enc'])
                 pred_max_count = max([x[1] for x in pred_counts.items()])
-                mfa = '<br>'.join(sorted([x[0] for x in pred_counts.items() if x[1] == pred_max_count]))
+                mfa = '<br>'.join(
+                    sorted([x[0] for x in pred_counts.items() if x[1] == pred_max_count]))
                 mfa_dict[syllog][model] = mfa
 
             # Add data MFA
             truth_counts = collections.Counter(syllog_df['truth_enc'])
             truth_max_count = max([x[1] for x in truth_counts.items()])
-            mfa = '<br>'.join(sorted([x[0] for x in truth_counts.items() if x[1] == truth_max_count]))
+            mfa = '<br>'.join(
+                sorted([x[0] for x in truth_counts.items() if x[1] == truth_max_count]))
             mfa_dict[syllog]['DATA'] = mfa
 
         if not mfa_dict:
@@ -270,8 +320,18 @@ class TableVisualizer(PlotVisualizer):
 
         return {
             'MFA_DATA': json.dumps(mfa_dict),
-            'TEXT': 'The following table summarizes the most-frequent predictions from the models to each syllogism.'
+            'TEXT': 'The following table summarizes the most-frequent ' \
+                + 'predictions from the models to each syllogism.'
         }
 
     def shorttitle(self):
+        """ Shorttitle for the visualizer.
+
+        Returns
+        -------
+        str
+            Shorttitle for the visualizer.
+
+        """
+
         return 'Most-Frequent Answer Comparison'

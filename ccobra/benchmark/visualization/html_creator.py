@@ -47,13 +47,20 @@ class HTMLCreator():
             with codecs.open(path, "r", "utf-8") as file_handle:
                 self.external_contents[key] = file_handle.read() + '\n'
 
-    def to_html(self, result_df, benchmark, embedded=False, server=False):
+    def to_html(self, result_df, benchmark, embedded=False):
         """ Generates the html output string.
 
         Parameters
         ----------
-        server : bool
-            Flag indicating server usage. Removes CSS from the resulting website.
+        result_df : pd.DataFrame
+            DataFrame containing the CCOBRA evaluation results.
+
+        benchmark : dict(str, object)
+            Benchmark properties.
+
+        embedded : bool
+            Flag indicating embedded usage. Removes CSS and window handling scripts from the
+            resulting website.
 
         Returns
         -------
@@ -77,8 +84,10 @@ class HTMLCreator():
             metric_html = metric.to_html(result_df)
             metric_tab_data = (metric.shorttitle().lower().replace(' ', '-'), metric.shorttitle())
 
-            metric_content = '<div id="{}-expand-bar" class="expand-bar">{}</div>'.format(metric_tab_data[0], metric_tab_data[1])
-            metric_content += '<div id="{}" class="expand-bar-content">{}</div>'.format(metric_tab_data[0], metric_html)
+            metric_content = '<div id="{}-expand-bar" class="expand-bar">{}</div>'.format(
+                metric_tab_data[0], metric_tab_data[1])
+            metric_content += '<div id="{}" class="expand-bar-content">{}</div>'.format(
+                metric_tab_data[0], metric_html)
 
             content.append(metric_content)
 
@@ -95,7 +104,7 @@ class HTMLCreator():
 
         # Construct CSS from visualizer dependencies
         css_content = ''
-        if not server:
+        if not embedded:
             css_content = self.external_contents['cssness']
             for fname in css_dependencies:
                 path = os.path.dirname(__file__) + os.sep + fname
