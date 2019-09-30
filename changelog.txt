@@ -11,3 +11,4 @@
 - Add tab-based visualization
 - Enhance cache integration
 - Rework standard benchmarks
+- Update relational benchmarks to use crossvalidation instead of train-test split

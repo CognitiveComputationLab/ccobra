@@ -1,7 +1,7 @@
 {
-    "corresponding_data": false,
-    "data.train": "data/Ragni2018_carddir_test.csv",
-    "data.test": "data/Ragni2018_carddir_test.csv",
+    "data.train": "data/Ragni2018_carddir.csv",
+    "data.test": "data/Ragni2018_carddir.csv",
+    "corresponding_data": true,
     "domains": ["spatial-relational"],
     "response_types": ["single-choice"],
     "models": [
