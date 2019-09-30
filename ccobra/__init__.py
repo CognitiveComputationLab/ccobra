@@ -27,4 +27,4 @@ from .domainhandler import CCobraDomainEncoder
 from . import syllogistic
 from . import benchmark
 
-__version__ = '0.0.15.1'
+__version__ = '0.16.0'

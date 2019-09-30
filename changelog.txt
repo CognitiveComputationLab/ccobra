@@ -1,4 +1,4 @@
-## uncommitted
+## Version 0.16.0
 
 - Add automatic inclusion of default domain encoders
 - Add dynamic CSS dependency handling for result visualizers
