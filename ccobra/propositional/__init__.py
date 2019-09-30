@@ -1,4 +1,9 @@
-""" Propositional domain specification.
+""" Propositional submodule.
+
+.. rubric:: Classes
+
+.. autoclass:: PropositionalEncoder
+    :members:
 
 """
 

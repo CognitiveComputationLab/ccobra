@@ -6,11 +6,14 @@
    :toctree: _autosummary
 
    ccobra.benchmark
+   ccobra.propositional
    ccobra.syllogistic
 
 .. rubric:: Classes
 
 .. autoclass:: CCobraData
+    :members:
+.. autoclass:: CCobraDomainEncoder
     :members:
 .. autoclass:: CCobraModel
     :members:

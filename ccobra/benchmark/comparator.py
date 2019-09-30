@@ -5,7 +5,7 @@
 import copy
 
 def tuple_to_string(tuptup):
-    """ Converts a tuple to its string representation. Uses different separators (;, /, |) for
+    """ Converts a tuple to its string representation. Uses different separators (';', '/', '|') for
     different depths of the representation.
 
     Parameters
