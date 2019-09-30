@@ -47,8 +47,13 @@ class HTMLCreator():
             with codecs.open(path, "r", "utf-8") as file_handle:
                 self.external_contents[key] = file_handle.read() + '\n'
 
-    def to_html(self, result_df, benchmark, embedded=False):
+    def to_html(self, result_df, benchmark, embedded=False, server=False):
         """ Generates the html output string.
+
+        Parameters
+        ----------
+        server : bool
+            Flag indicating server usage. Removes CSS from the resulting website.
 
         Returns
         -------
@@ -70,10 +75,10 @@ class HTMLCreator():
 
             # Add HTML content div
             metric_html = metric.to_html(result_df)
-            metric_tab_data = (metric.shorttitle().lower(), metric.shorttitle())
+            metric_tab_data = (metric.shorttitle().lower().replace(' ', '-'), metric.shorttitle())
 
-            metric_content = '<div id="{}-bar" class="bar">{}</div>'.format(metric_tab_data[0], metric_tab_data[0], metric_tab_data[1])
-            metric_content += '<div id="{}" class="bar-content">{}</div>'.format(metric_tab_data[0], metric_html)
+            metric_content = '<div id="{}-expand-bar" class="expand-bar">{}</div>'.format(metric_tab_data[0], metric_tab_data[1])
+            metric_content += '<div id="{}" class="expand-bar-content">{}</div>'.format(metric_tab_data[0], metric_html)
 
             content.append(metric_content)
 
@@ -89,11 +94,13 @@ class HTMLCreator():
             ]))
 
         # Construct CSS from visualizer dependencies
-        css_content = self.external_contents['cssness']
-        for fname in css_dependencies:
-            path = os.path.dirname(__file__) + os.sep + fname
-            with codecs.open(path, "r", "utf-8") as file_handle:
-                css_content += file_handle.read() + '\n'
+        css_content = ''
+        if not server:
+            css_content = self.external_contents['cssness']
+            for fname in css_dependencies:
+                path = os.path.dirname(__file__) + os.sep + fname
+                with codecs.open(path, "r", "utf-8") as file_handle:
+                    css_content += file_handle.read() + '\n'
 
         content_dict = {
             'CSSNESS': css_content,

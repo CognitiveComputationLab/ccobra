@@ -162,7 +162,7 @@ class AccuracyVisualizer(PlotVisualizer):
         }
 
     def shorttitle(self):
-        return 'Accuracy'
+        return 'Prediction Accuracy'
 
 class BoxplotVisualizer(PlotVisualizer):
     """ Subject-Based boxplot visualizer for the CCOBRA evaluation results.
@@ -230,7 +230,7 @@ class BoxplotVisualizer(PlotVisualizer):
         }
 
     def shorttitle(self):
-        return 'Box'
+        return 'Subject-Based Boxplots'
 
 class TableVisualizer(PlotVisualizer):
     def __init__(self):
@@ -274,4 +274,4 @@ class TableVisualizer(PlotVisualizer):
         }
 
     def shorttitle(self):
-        return 'MFA-Table'
+        return 'Most-Frequent Answer Comparison'

@@ -24,41 +24,44 @@ td[benchdata] {
 }
 
 tr:nth-child(even) {
-    background-color: #ddddddcc;
+    background-color: #dddddd80;
 }
 
-.bar {
-    margin-top: 10pt;
+.expand-bar {
+    margin-top: 15pt;
     background-color: #cecece;
     padding: 8pt;
     border: 1px solid #dddddd;
-}
+    text-align: left;
 
-.bar:before {
-    content: "\25B6";
-    cursor: pointer;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+}
+
+.expand-bar:before {
+    content: "\25B6";
+    cursor: pointer;
     display: inline-block;
     margin-right: 5pt;
     -ms-transform: rotate(90deg);
     -webkit-transform: rotate(90deg);
     transform: rotate(90deg);
+    text-align: left;
 }
 
-.bar[expanded=true]:before {
+.expand-bar[expanded=true]:before {
     -ms-transform: rotate(0deg);
     -webkit-transform: rotate(0deg);
     transform: rotate(0deg);
 }
 
-.bar:hover {
+.expand-bar:hover {
     background-color: #dfdfdf;
 }
 
-.bar-content {
+.expand-bar-content {
     border: 1px solid #dddddd;
     padding: 5pt;
 }

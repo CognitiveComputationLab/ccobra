@@ -56,16 +56,16 @@
                 tabContent.hidden = !tabContent.hidden;
 
                 console.debug("Setting expanded:" + tabContent.hidden);
-                document.getElementById(tabName + "-bar").setAttribute("expanded", tabContent.hidden);
+                document.getElementById(tabName + "-expand-bar").setAttribute("expanded", tabContent.hidden);
             }
 
-            var bars = document.getElementsByClassName("bar");
+            var bars = document.getElementsByClassName("expand-bar");
             for (var i = 0; i < bars.length; i++) {
                 var curBar = bars[i];
 
                 curBar.onclick = function(e) {
                     var barId = e.target.id;
-                    var tabName = barId.substr(0, barId.length - 4);
+                    var tabName = barId.substr(0, barId.length - 11);
                     toggle(tabName);
                 };
             }

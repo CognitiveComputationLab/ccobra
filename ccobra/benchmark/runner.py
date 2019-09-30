@@ -173,7 +173,7 @@ def main(args):
         html = htmlcrtr.to_html(res_df, benchmark_info, embedded=False)
         server.load_in_default_browser(html.encode('utf8'))
     elif args['output'] == 'server':
-        html = htmlcrtr.to_html(res_df, benchmark_info, embedded=True)
+        html = htmlcrtr.to_html(res_df, benchmark_info, embedded=True, server=True)
         sys.stdout.buffer.write(html.encode('utf-8'))
     elif args['output'] == 'html':
         html = htmlcrtr.to_html(res_df, benchmark_info, embedded=False)
