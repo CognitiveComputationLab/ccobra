@@ -3,6 +3,8 @@
 - Remove training data from coverage benchmarks
 - Make propositional benchmark use crossvalidation
 - Add coverage benchmarks to relational and propositional
+- Add syllogistic network models (2019-Riesterer)
+- Improve package documentation
 
 ## Version 0.16.0
 
