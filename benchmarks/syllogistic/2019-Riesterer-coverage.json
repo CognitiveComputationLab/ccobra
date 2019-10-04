@@ -1,0 +1,16 @@
+{
+    "type": "coverage",
+    "data.test": "data/Ragni2016.csv",
+    "domains": ["syllogistic"],
+    "response_types": ["single-choice"],
+    "models": [
+        "models/2019-Riesterer/autoencoder",
+        "models/2019-Riesterer/mlp",
+        "models/2019-Riesterer/rnn",
+        "models/Baseline/MFA-Model",
+        "models/Baseline/Uniform-Model"
+    ],
+    "domain_encoders": {
+        "syllogistic": "%ccobra%/syllogistic/encoder_syl.py"
+    }
+}
