@@ -125,11 +125,6 @@ def main(args):
             cache_df=cache_df
         )
     elif benchmark['type'] == 'coverage':
-        # Check for benchmark validity
-        if benchmark['data.train'] or benchmark['data.train_person']:
-            print('WARNING: Ignoring specified training and train_person data ' \
-                  + 'for coverage evaluation...')
-
         eva = evaluator.CoverageEvaluator(
             modellist,
             eval_comparator,

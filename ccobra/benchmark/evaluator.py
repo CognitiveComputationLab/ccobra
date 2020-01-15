@@ -255,6 +255,11 @@ class CoverageEvaluator(CCobraEvaluator):
         result_data = []
         model_name_cache = set() if self.cache_df is None else set(self.cache_df['model'].unique())
 
+        # Pre-compute the training data dictionaries
+        train_data_dict = None
+        if self.train_data is not None:
+            train_data_dict = self.get_train_data_dict(self.train_data)
+
         # Activate model context
         for idx, modelinfo in enumerate(self.modellist):
             # Print the progress
@@ -292,9 +297,32 @@ class CoverageEvaluator(CCobraEvaluator):
                     warnings.warn('Duplicate model name detected ("{}"). Changed to "{}".'.format(
                         original_model_name, model_name))
 
+                # Only perform general pre-training if training data is
+                # supplied and corresponding data is false. Otherwise, the
+                # model has to be re-trained for each subject.
+                if self.train_data is not None and not self.corresponding_data:
+                    # Prepare training data
+                    pre_model.pre_train(list(train_data_dict.values()))
+
                 # Iterate subject
                 for subj_id, subj_df in self.test_data.get().groupby('id'):
                     model = copy.deepcopy(pre_model)
+
+                    # Extract the subject demographics
+                    demographics = self.extract_demographics(subj_df)
+
+                    # Set the models to new participant
+                    model.start_participant(id=subj_id, **demographics)
+
+                    # Perform pre-training for individual subjects only if
+                    # corresponding data is set to true.
+                    if self.train_data is not None and self.corresponding_data:
+                        # Remove one participant
+                        cur_train_data_dict = [
+                            value for key, value in train_data_dict.items() if key != subj_id]
+
+                        # Train on incomplete training data
+                        model.pre_train(cur_train_data_dict)
 
                     # Perform the personalized pre-training
                     # Pick out the person training data for the current
@@ -305,12 +333,6 @@ class CoverageEvaluator(CCobraEvaluator):
                     person_train_data = self.get_train_data_dict(
                         ccobra.CCobraData(subj_pre_train_data_person))
                     model.person_train(person_train_data[subj_id])
-
-                    # Extract the subject demographics
-                    demographics = self.extract_demographics(subj_df)
-
-                    # Set the models to new participant
-                    model.start_participant(id=subj_id, **demographics)
 
                     # Iterate over individual tasks
                     for _, row in subj_df.sort_values('sequence').iterrows():
@@ -456,10 +478,12 @@ class AdaptionEvaluator(CCobraEvaluator):
                     # Prepare training data
                     pre_model.pre_train(list(train_data_dict.values()))
 
-
                 # Iterate subject
                 for subj_id, subj_df in self.test_data.get().groupby('id'):
                     model = copy.deepcopy(pre_model)
+
+                    # Set the models to new participant
+                    model.start_participant(id=subj_id, **demographics)
 
                     # Perform pre-training for individual subjects only if
                     # corresponding data is set to true.
@@ -484,9 +508,6 @@ class AdaptionEvaluator(CCobraEvaluator):
 
                     # Extract the subject demographics
                     demographics = self.extract_demographics(subj_df)
-
-                    # Set the models to new participant
-                    model.start_participant(id=subj_id, **demographics)
 
                     # Iterate over individual tasks
                     for _, row in subj_df.sort_values('sequence').iterrows():
