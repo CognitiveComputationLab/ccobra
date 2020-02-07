@@ -494,6 +494,9 @@ class AdaptionEvaluator(CCobraEvaluator):
                 for subj_id, subj_df in self.test_data.get().groupby('id'):
                     model = copy.deepcopy(pre_model)
 
+                    # Extract the subject demographics
+                    demographics = self.extract_demographics(subj_df)
+
                     # Set the models to new participant
                     model.start_participant(id=subj_id, **demographics)
 
@@ -517,9 +520,6 @@ class AdaptionEvaluator(CCobraEvaluator):
                         person_train_data = self.get_train_data_dict(
                             ccobra.CCobraData(subj_pre_train_data_person))
                         model.person_train(person_train_data[subj_id])
-
-                    # Extract the subject demographics
-                    demographics = self.extract_demographics(subj_df)
 
                     # Iterate over individual tasks
                     for _, row in subj_df.sort_values('sequence').iterrows():
