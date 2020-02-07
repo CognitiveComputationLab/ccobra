@@ -32,11 +32,30 @@ class CCobraModel():
         self.supported_domains = supported_domains
         self.supported_response_types = supported_response_types
 
-    def start_participant(self, **kwargs):
-        """ Model initialization method. Used to setup the initial state of its
-        datastructures, memory, etc.
+    def setup_environment(self, evaluation_type, pre_train_domains, person_train_domains, prediction_domains):
+        """ Setup environment of the model using information about the prediction setting and the
+        information provided during training.
 
-        **Attention**: Should reset the internal state of the model.
+        Parameters
+        ----------
+        evaluation_type : str
+            Type of the CCOBRA evaluation (adaption, coverage).
+
+        pre_train_domains : list(str)
+            List of pre training task domains. None if not existent.
+
+        person_train_domains : list(str)
+            List of person training task domains. None if not existent.
+
+        prediction_domains : list(str)
+            List of prediction task domains.
+
+        """
+
+        pass
+
+    def start_participant(self, **kwargs):
+        """ Callback to indicate participant start.
 
         """
 

@@ -276,6 +276,12 @@ class CoverageEvaluator(CCobraEvaluator):
 
                 # Instantiate and prepare the model for predictions
                 pre_model = importer.instantiate(modelinfo.args)
+                pre_model.setup_environment(
+                    evaluation_type='coverage',
+                    pre_train_domains=self.train_data.get()['domain'].unique() if self.train_data else None,
+                    person_train_domains=self.test_data.get()['domain'].unique(),
+                    prediction_domains=self.test_data.get()['domain'].unique()
+                )
 
                 # Check if model is applicable to domains/response types
                 self.check_model_applicability(pre_model)
@@ -450,6 +456,12 @@ class AdaptionEvaluator(CCobraEvaluator):
 
                 # Instantiate and prepare the model for predictions
                 pre_model = importer.instantiate(modelinfo.args)
+                pre_model.setup_environment(
+                    evaluation_type='adaption',
+                    pre_train_domains=self.train_data.get()['domain'].unique() if train_data_dict else None,
+                    person_train_domains=self.train_data_person.get()['domain'].unique() if self.train_data_person else None,
+                    prediction_domains=self.test_data.get()['domain'].unique()
+                )
 
                 # Check if model is applicable to domains/response types
                 self.check_model_applicability(pre_model)
