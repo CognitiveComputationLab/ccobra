@@ -2,6 +2,8 @@
 
 """
 
+import numpy as np
+
 from ..data import Item
 from .encoder_syl import SyllogisticEncoder
 
@@ -176,6 +178,48 @@ def decode_response(enc_response, task):
         return [[quant, list(obj_a)[0], list(obj_c)[0]]]
 
     return [[quant, list(obj_c)[0], list(obj_a)[0]]]
+
+def dataset_to_matrix(dataset):
+    """ Convert a training dataset (e.g., pre_train) into a corresponding matrix representation of
+    shape (576 x n_subj).
+
+    Parameters
+    ----------
+    dataset : list(list(...))
+        Training dataset (e.g., pre_train) represented as a list of subjects represented as lists
+        of tasks and corresponding responses.
+
+    Returns
+    -------
+    mat : np.ndarray
+        Dataset matrix of shape (576 x n_subj). The first dimension reflects the different response
+        option to syllogistic problems (64 tasks x 9 responses = 576 options). The resulting
+        matrix is normalized so that each block of 9 options (i.e., tasks) is normalized to sum
+        up to 1. Each column therefore sums up to 64.
+
+    """
+
+    # Check for valid arguments
+    if not isinstance(dataset, list):
+        raise ValueError('Invalid dataset. Must be of type list')
+
+    mat = np.zeros((576, len(dataset)))
+    for subj_idx, subj_data in enumerate(dataset):
+        subj_mat = np.zeros((64, 9))
+
+        for task_data in subj_data:
+            syllog = Syllogism(task_data['item'])
+            enc_resp = syllog.encode_response(task_data['response'])
+
+            syl_idx = SYLLOGISMS.index(syllog.encoded_task)
+            rsp_idx = RESPONSES.index(enc_resp)
+            subj_mat[syl_idx, rsp_idx] += 1
+
+        # Normalize subject response data and add to overall result matrix
+        subj_mat = subj_mat / subj_mat.sum(axis=1, keepdims=True)
+        mat[:, subj_idx] = subj_mat.reshape(-1)
+
+    return mat
 
 
 class Syllogism():

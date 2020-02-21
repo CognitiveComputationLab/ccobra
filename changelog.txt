@@ -20,3 +20,5 @@
 - Enhance cache integration
 - Rework standard benchmarks
 - Update relational benchmarks to use crossvalidation instead of train-test split
+- Fix start_participant hook
+- Add dataset_to_matrix syllogistic helper function
