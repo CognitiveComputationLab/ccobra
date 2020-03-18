@@ -9,7 +9,9 @@ Welcome to CCOBRA's documentation!
 .. toctree::
    :caption: Contents
 
+   usage/firststeps.rst
    usage/installation.rst
+   usage/fundamentals.rst
    usage/tutorial.rst
    usage/learning.rst
 
