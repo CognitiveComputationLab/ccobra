@@ -35,7 +35,7 @@
 
 """
 
-from .benchmark import ModelInfo, load_benchmark, prepare_domain_encoders, fix_rel_path, fix_model_path
+from .benchmark import Benchmark, ModelInfo
 from .comparator import tuple_to_string, Comparator, EqualityComparator, NVCComparator
 from .contextmanager import dir_context
 from .evaluator import CCobraEvaluator, AdaptionEvaluator, CoverageEvaluator

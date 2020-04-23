@@ -11,13 +11,13 @@ Daniel Brand <daniel.brand@cognition.uni-freiburg.de>
 import argparse
 import os
 import sys
+import logging
 from contextlib import contextmanager
 
 import pandas as pd
 
 from . import evaluator
 from . import server
-from . import comparator
 from . import benchmark as bmark
 from .visualization import html_creator, viz_plot
 
@@ -41,13 +41,26 @@ def parse_arguments():
     parser.add_argument(
         '-cn', '--classname', type=str,
         help='Load a specific class from a folder containing multiple classes.')
+    parser.add_argument(
+        '-ll', '--logginglevel', type=str, default='NONE',
+        help='Set logging level [NONE, DEBUG, INFO, WARNING].'
+    )
 
     args = vars(parser.parse_args())
 
+    # Check for validity of command line arguments
     if not args['model'] and not args['benchmark']:
         print('ERROR: Must specify either model or benchmark.')
         parser.print_help()
         sys.exit(99)
+
+    # Setup logging
+    if args['logginglevel'].lower() == 'debug':
+        logging.basicConfig(level=logging.DEBUG)
+    elif args['logginglevel'].lower() == 'info':
+        logging.basicConfig(level=logging.INFO)
+    elif args['logginglevel'].lower() == 'warning':
+        logging.basicConfig(level=logging.WARNING)
 
     return args
 
@@ -84,56 +97,40 @@ def main(args):
 
     """
 
-    # Compose the model list
-    modellist = []
-    if args['model']:
-        modellist.append(bmark.ModelInfo(args['model'], os.getcwd(), args['classname']))
-
-    # Load the benchmark settings
-    benchmark = None
-    benchmark = bmark.load_benchmark(args['benchmark'])
-    corresponding_data = False
-    if 'corresponding_data' in benchmark:
-        corresponding_data = benchmark['corresponding_data']
-
-    # Only extend if not cached
+    # Load cache information
     cache_df = None
-    if not args['cache']:
-        modellist.extend(benchmark['models'])
-    else:
+    if args['cache']:
         cache_df = pd.read_csv(args['cache'])
 
-    # Extract comparator settings from benchmark description
-    eval_comparator = comparator.EqualityComparator()
-    if 'comparator' in benchmark:
-        if benchmark['comparator'] == 'nvc':
-            eval_comparator = comparator.NVCComparator()
+    # Load the benchmark settings
+    cached = args.get('cache', False)
+    benchmark = bmark.Benchmark(args['benchmark'], argmodel=args['model'], cached=(cache_df != None))
 
     # Run the model evaluation
     is_silent = (args['output'] in ['html', 'server'])
     eva = None
-    if benchmark['type'] == 'adaption':
+    if benchmark.type == 'adaption':
         eva = evaluator.AdaptionEvaluator(
-            modellist,
-            eval_comparator,
-            benchmark['data.test'],
-            train_datafile=benchmark['data.train'],
-            train_data_person=benchmark['data.train_person'],
+            benchmark.models,
+            benchmark.eval_comparator,
+            benchmark.path_data_test,
+            train_datafile=benchmark.path_data_train,
+            train_data_person=benchmark.path_data_train_person,
             silent=is_silent,
-            corresponding_data=corresponding_data,
-            domain_encoders=benchmark['domain_encoders'],
+            corresponding_data=benchmark.corresponding_data,
+            domain_encoders=benchmark.encoders,
             cache_df=cache_df
         )
-    elif benchmark['type'] == 'coverage':
+    elif benchmark.type == 'coverage':
         eva = evaluator.CoverageEvaluator(
-            modellist,
-            eval_comparator,
-            benchmark['data.test'],
-            train_datafile=benchmark['data.train'],
-            train_data_person=benchmark['data.train_person'],
+            benchmark.models,
+            benchmark.eval_comparator,
+            benchmark.path_data_test,
+            train_datafile=benchmark.path_data_train,
+            train_data_person=benchmark.path_data_train_person,
             silent=is_silent,
-            corresponding_data=corresponding_data,
-            domain_encoders=benchmark['domain_encoders'],
+            corresponding_data=benchmark.corresponding_data,
+            domain_encoders=benchmark.encoders,
             cache_df=cache_df
         )
     else:
@@ -156,19 +153,16 @@ def main(args):
     benchmark_info = {
         'name': os.path.basename(args['benchmark']),
         'data.train': os.path.basename(
-            benchmark['data.train']) if benchmark['data.train'] else '',
+            benchmark.path_data_train) if benchmark.path_data_train else '',
         'data.train_person': os.path.basename(
-            benchmark['data.train_person']) if benchmark['data.train_person'] else '',
-        'data.test': os.path.basename(benchmark['data.test']),
-        'type': benchmark['type'],
+            benchmark.path_data_train_person) if benchmark.path_data_train_person else '',
+        'data.test': os.path.basename(benchmark.path_data_test),
+        'type': benchmark.type,
         'domains': list(res_df['domain'].unique()),
         'response_types': list(res_df['response_type'].unique()),
     }
 
-    if 'corresponding_data' in benchmark:
-        benchmark_info['corresponding_data'] = benchmark['corresponding_data']
-    else:
-        benchmark_info['corresponding_data'] = ''
+    benchmark_info['corresponding_data'] = benchmark.corresponding_data
 
     # Generate the HTML output
     if args['output'] == 'browser':
