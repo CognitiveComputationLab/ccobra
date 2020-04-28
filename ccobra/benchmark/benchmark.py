@@ -257,9 +257,9 @@ class Benchmark():
             self.encoders = prepare_domain_encoders(self.json_content['domain_encoders'])
 
         # Include default encoders if not overridden
-        if 'syllogistic' not in self.json_content['domain_encoders']:
+        if 'syllogistic' not in self.encoders:
             self.encoders['syllogistic'] = SyllogisticEncoder()
-        if 'propositional' not in self.json_content['domain_encoders']:
+        if 'propositional' not in self.encoders:
             self.encoders['propositional'] = PropositionalEncoder()
 
         logger.debug('Encoders:\n%s', self.encoders)
