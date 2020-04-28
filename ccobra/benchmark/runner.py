@@ -108,34 +108,7 @@ def main(args):
 
     # Run the model evaluation
     is_silent = (args['output'] in ['html', 'server'])
-    eva = None
-    if benchmark.type == 'adaption':
-        eva = evaluator.AdaptionEvaluator(
-            benchmark.models,
-            benchmark.eval_comparator,
-            benchmark.path_data_test,
-            train_datafile=benchmark.path_data_train,
-            train_data_person=benchmark.path_data_train_person,
-            silent=is_silent,
-            corresponding_data=benchmark.corresponding_data,
-            domain_encoders=benchmark.encoders,
-            cache_df=cache_df
-        )
-    elif benchmark.type == 'coverage':
-        eva = evaluator.CoverageEvaluator(
-            benchmark.models,
-            benchmark.eval_comparator,
-            benchmark.path_data_test,
-            train_datafile=benchmark.path_data_train,
-            train_data_person=benchmark.path_data_train_person,
-            silent=is_silent,
-            corresponding_data=benchmark.corresponding_data,
-            domain_encoders=benchmark.encoders,
-            cache_df=cache_df
-        )
-    else:
-        raise ValueError('Unknown benchmark type: {}'.format(benchmark['type']))
-
+    eva = evaluator.Evaluator(benchmark, is_silent=is_silent, cache_df=cache_df)
     with silence_stdout(is_silent):
         res_df = eva.evaluate()
 
@@ -153,10 +126,10 @@ def main(args):
     benchmark_info = {
         'name': os.path.basename(args['benchmark']),
         'data.train': os.path.basename(
-            benchmark.path_data_train) if benchmark.path_data_train else '',
+            benchmark.data_train_path) if benchmark.data_train_path else '',
         'data.train_person': os.path.basename(
-            benchmark.path_data_train_person) if benchmark.path_data_train_person else '',
-        'data.test': os.path.basename(benchmark.path_data_test),
+            benchmark.data_train_person_path) if benchmark.data_train_person_path else '',
+        'data.test': os.path.basename(benchmark.data_test_path),
         'type': benchmark.type,
         'domains': list(res_df['domain'].unique()),
         'response_types': list(res_df['response_type'].unique()),

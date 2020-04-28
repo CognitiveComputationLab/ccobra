@@ -2,12 +2,15 @@ import logging
 import os
 import json
 
+import pandas as pd
+
 from . import contextmanager
 from . import modelimporter
 from . import comparator
 from ..domainhandler import CCobraDomainEncoder
 from ..syllogistic.encoder_syl import SyllogisticEncoder
 from ..propositional.encoder_prop import PropositionalEncoder
+from ..data import CCobraData
 
 # Initialize logging
 logger = logging.getLogger(__name__)
@@ -232,18 +235,40 @@ class Benchmark():
             raise ValueError('Invalid comparator type specified: {}'.format(comparator_type))
         logger.debug('eval_comparator: %s', self.eval_comparator)
 
+    def parse_data_path(self, path):
+        if not path:
+            return None, None
+
+        # Resolve relative paths
+        full_path = fix_rel_path(path, self.base_path)
+
+        # Load the data and create CCOBRA container
+        df = pd.read_csv(full_path)
+        dat = CCobraData(df)
+
+        return full_path, dat
+
     def parse_data(self):
         # Parse data paths
-        self.path_data_train = fix_rel_path(self.json_content.get('data.train'), self.base_path)
-        logger.debug('path_data_train: %s', self.path_data_train)
-        self.path_data_train_person = fix_rel_path(self.json_content.get('data.train_person', ''), self.base_path)
-        logger.debug('path_data_train_person: %s', self.path_data_train_person)
-        self.path_data_test = fix_rel_path(self.json_content.get('data.test', ''), self.base_path)
-        logger.debug('path_data_test: %s', self.path_data_test)
+        self.data_train_path, self.data_train = self.parse_data_path(self.json_content.get('data.train', ''))
+        logger.debug('data_train_path: %s', self.data_train_path)
+        self.data_train_person_path, self.data_train_person = self.parse_data_path(self.json_content.get('data.train_person', ''))
+        logger.debug('data_train_person_path: %s', self.data_train_person_path)
+        self.data_test_path, self.data_test = self.parse_data_path(self.json_content.get('data.test', ''))
+        logger.debug('data_test_path: %s', self.data_test_path)
+
+        if self.data_test is None:
+            raise ValueError('Test dataset must be supplied.')
 
         # Set corresponding data
         self.corresponding_data = self.json_content.get('corresponding_data', False)
         logger.debug('corresponding_data: %s', self.corresponding_data)
+
+        # In case of non-corresponding datasets, make sure that identifiers do not overlap by
+        # offsetting the training data (ensures that test identifiers remain identifiable)
+        if self.data_train != None and not self.corresponding_data:
+            logger.debug('adjusting identifier offsets')
+            self.data_train.offset_identifiers(self.data_test.n_subjects)
 
     def parse_models(self):
         # Prepare the models for loading

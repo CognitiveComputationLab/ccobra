@@ -38,7 +38,7 @@
 from .benchmark import Benchmark, ModelInfo
 from .comparator import tuple_to_string, Comparator, EqualityComparator, NVCComparator
 from .contextmanager import dir_context
-from .evaluator import CCobraEvaluator, AdaptionEvaluator, CoverageEvaluator
+from .evaluator import Evaluator
 from .modelimporter import ModelImporter
 from .runner import entry_point, parse_arguments, main, silence_stdout
 from .server import load_in_default_browser

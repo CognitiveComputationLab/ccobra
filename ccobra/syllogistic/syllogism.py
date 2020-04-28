@@ -4,7 +4,7 @@
 
 import numpy as np
 
-from ..data import Item
+from ..item import Item
 from .encoder_syl import SyllogisticEncoder
 
 

@@ -23,7 +23,8 @@
 """
 
 
-from .data import CCobraData, Item
+from .data import CCobraData
+from .item import Item
 from .model import CCobraModel
 from .domainhandler import CCobraDomainEncoder
 

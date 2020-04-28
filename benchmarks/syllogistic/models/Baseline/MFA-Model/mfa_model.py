@@ -12,12 +12,7 @@ class MFAModel(ccobra.CCobraModel):
         self.k = k
 
         # Initialize the model's storage
-        syllogisms = ccobra.syllogistic.SYLLOGISMS
-        responses = ccobra.syllogistic.RESPONSES
-        self.predictions = {}
-        for syllogism in syllogisms:
-            self.predictions[syllogism] = dict(
-                zip(responses, [0]*len(responses)))
+        self.database = np.zeros((64, 9))
 
     def pre_train(self, dataset):
         for subj_train_data in dataset:
@@ -29,19 +24,20 @@ class MFAModel(ccobra.CCobraModel):
 
     def predict(self, item, **kwargs):
         enc_task = ccobra.syllogistic.encode_task(item.task)
-        resp_counts = self.predictions[enc_task]
+        task_idx = ccobra.syllogistic.SYLLOGISMS.index(enc_task)
 
-        target_value = sorted(
-            np.unique(list(resp_counts.values())), reverse=True)[self.k - 1]
-        resps = []
-        for resp, cnt in resp_counts.items():
-            if cnt == target_value:
-                resps.append(resp)
+        weights = self.database[task_idx]
+        pred_idxs = np.arange(9)[weights == weights.max()]
+        pred_idx = np.random.choice(pred_idxs)
 
         return ccobra.syllogistic.decode_response(
-            resps[np.random.randint(0, len(resps))], item.task)
+            ccobra.syllogistic.RESPONSES[pred_idx], item.task)
 
     def adapt(self, item, response, **kwargs):
         enc_task = ccobra.syllogistic.encode_task(item.task)
         enc_resp = ccobra.syllogistic.encode_response(response, item.task)
-        self.predictions[enc_task][enc_resp] += 1
+
+        task_idx = ccobra.syllogistic.SYLLOGISMS.index(enc_task)
+        resp_idx = ccobra.syllogistic.RESPONSES.index(enc_resp)
+
+        self.database[task_idx][resp_idx] += 1

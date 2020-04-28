@@ -1,11 +1,13 @@
 {
     "type": "coverage",
     "data.test": "data/Ragni2016.csv",
+    "data.train": "data/Ragni2016.csv",
+    "corresponding_data": true,
     "domains": ["syllogistic"],
     "response_types": ["single-choice"],
     "models": [
-        "models/Baseline/Uniform-Model/uniform_model.py",
-        "models/Baseline/MFA-Model/mfa_model.py"
+        "models/Baseline/MFA-Model/mfa_model.py",
+        "models/Baseline/Uniform-Model/uniform_model.py"
     ],
     "domain_encoders": {
         "syllogistic": "%ccobra%/syllogistic/encoder_syl.py"
