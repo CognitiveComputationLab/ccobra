@@ -5,6 +5,7 @@
 import copy
 import warnings
 import logging
+import sys
 
 import pandas as pd
 import numpy as np
@@ -28,10 +29,17 @@ class Evaluator():
         self.is_silent = is_silent
         self.cache_df = cache_df
 
-        # Extract the information from the datasets
-        self.data_train = self.prepare_dataset(benchmark.data_train)
-        self.data_train_person = self.prepare_dataset(benchmark.data_train_person)
-        self.data_test = self.prepare_dataset(benchmark.data_test)
+        # Extract the dataset information
+        self.data_train = None
+        self.data_train_person = None
+        self.data_test = benchmark.data_test.to_eval_dict()
+
+        if benchmark.data_train != None:
+            logger.debug('Supplied training data for evaluation.')
+            self.data_train = benchmark.data_train.to_eval_dict()
+        if benchmark.data_train_person != None:
+            logger.debug('Supplied person training data for evaluation.')
+            self.data_train_person = benchmark.data_train_person.to_eval_dict()
 
     def evaluate(self):
         logger.info('Starting evaluation routine...')
@@ -42,9 +50,14 @@ class Evaluator():
         # Activate model context
         for idx, modelinfo in enumerate(self.benchmark.models):
             # Print the progress
+            log_str = "Evaluating '{}' ({}/{})...".format(
+                modelinfo.path, idx + 1, len(self.benchmark.models))
+            logger.info(''.join(['='] * 80))
+            logger.info(log_str)
+            logger.info(''.join(['='] * 80))
+
             if not self.is_silent:
-                logger.info("Evaluating '{}' ({}/{})...".format(
-                    modelinfo.path, idx + 1, len(self.benchmark.models)))
+                print(log_str)
 
             # Setup model context
             with contextmanager.dir_context(modelinfo.path):
@@ -91,7 +104,8 @@ class Evaluator():
                     pre_model.pre_train(list(train_data_dict.values()))
 
                 # Iterate subject
-                for subj_id, subj_data in self.data_test.items():
+                for subj_key_identifier, subj_data in self.data_test.items():
+                    subj_id = subj_data[0]['item'].identifier
                     model = copy.deepcopy(pre_model)
 
                     # Set the model to new participant
@@ -217,48 +231,3 @@ class Evaluator():
                 'Model {} is not applicable to response_types {} ' \
                 'found in the test dataset.'.format(
                     pre_model.name, missing_response_types))
-
-    def prepare_dataset(self, ccobra_data):
-        if ccobra_data is None:
-            return None
-
-        # Prepare the dictionary of subjects containing lists of tasks they responded to
-        df = ccobra_data._data
-
-        dataset = {}
-        for subj, subj_df in df.groupby('_key_num_id'):
-            assert subj not in dataset
-
-            subj_df = subj_df.sort_values('sequence')
-
-            subj_data = []
-            for _, task_series in subj_df.iterrows():
-                task_dict = {}
-
-                # Extract the task information
-                item = ccobra.Item(
-                    task_series['id'], task_series['domain'],
-                    task_series['task'], task_series['response_type'],
-                    task_series['choices'], task_series['sequence']
-                )
-                task_dict['item'] = item
-
-                # Parse the responses
-                responses = []
-                for response in task_series['response'].split('|'):
-                    responses.append([x.split(';') for x in response.split('/')])
-                if task_series['response_type'] != 'multiple-choice':
-                    responses = responses[0]
-                task_dict['response'] = responses
-
-                # Add auxiliary elements from the data
-                aux = {}
-                for key, value in task_series.iteritems():
-                    if key not in ccobra_data.required_fields + ['_key_num_id']:
-                        aux[key] = value
-                task_dict['aux'] = aux
-
-                subj_data.append(task_dict)
-            dataset[subj] = subj_data
-
-        return dataset

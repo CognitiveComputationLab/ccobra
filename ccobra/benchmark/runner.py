@@ -123,13 +123,19 @@ def main(args):
     ])
 
     # Prepare the benchmark output information and visualize the evaluation results
+    path_train = ''
+    path_train_person = ''
+    path_test = os.path.basename(benchmark.data_test_path)
+
+    if benchmark.data_train_path:
+        path_train = ';'.join([os.path.basename(x) for x in benchmark.data_train_path.split(';')])
+    if benchmark.data_train_person_path:
+        path_train_person = ';'.join([os.path.basename(x) for x in benchmark.data_train_person_path.split(';')])
+
     benchmark_info = {
         'name': os.path.basename(args['benchmark']),
-        'data.train': os.path.basename(
-            benchmark.data_train_path) if benchmark.data_train_path else '',
-        'data.train_person': os.path.basename(
-            benchmark.data_train_person_path) if benchmark.data_train_person_path else '',
-        'data.test': os.path.basename(benchmark.data_test_path),
+        'data.train': path_train,
+        'data.train_person': path_train_person,
         'type': benchmark.type,
         'domains': list(res_df['domain'].unique()),
         'response_types': list(res_df['response_type'].unique()),

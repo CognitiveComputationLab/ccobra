@@ -239,6 +239,31 @@ class Benchmark():
         if not path:
             return None, None
 
+        if isinstance(path, list):
+            logger.debug('List data path encountered: %s', path)
+            parts = [self.parse_data_path(x) for x in path]
+            paths = ';'.join([x[0] for x in parts])
+
+            # Combine datasets ensuring that numerical key identifiers are unique
+            comb_df = pd.DataFrame()
+            max_id = 0
+            n_subj = 0
+            for data in [x[1] for x in parts]:
+                n_subj += data.n_subjects
+
+                # Update the identifier data and concat the datasets
+                data.offset_identifiers(max_id + 1)
+                df = data._data
+                comb_df = pd.concat((comb_df, df))
+                max_id = df['_key_num_id'].max()
+
+            comb_ccobra_dat = CCobraData(comb_df)
+            assert comb_ccobra_dat.n_subjects == n_subj
+
+            return paths, comb_ccobra_dat
+
+        logger.debug('Regular data path encountered: %s', path)
+
         # Resolve relative paths
         full_path = fix_rel_path(path, self.base_path)
 
