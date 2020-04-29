@@ -53,9 +53,9 @@ class Evaluator():
             # Print the progress
             log_str = "Evaluating '{}' ({}/{})...".format(
                 modelinfo.path, idx + 1, len(self.benchmark.models))
-            logger.info(''.join(['='] * 80))
+            logger.debug(''.join(['='] * 80))
             logger.info(log_str)
-            logger.info(''.join(['='] * 80))
+            logger.debug(''.join(['='] * 80))
 
             if not self.is_silent:
                 print(log_str)
@@ -106,7 +106,7 @@ class Evaluator():
 
                 # Iterate subject
                 for subj_key_identifier, subj_data in self.data_test.items():
-                    subject_start = time.time()
+                    start_subject = time.time()
 
                     subj_id = subj_data[0]['item'].identifier
                     model = copy.deepcopy(pre_model)
@@ -125,7 +125,7 @@ class Evaluator():
                     # Perform personalized pre-training
                     if self.benchmark.type == 'coverage':
                         # In case of coverage, provide test data of the participant
-                        subj_person_train_data = self.data_test[subj_id]
+                        subj_person_train_data = self.data_test[subj_key_identifier]
                         logger.debug('Person training for %s...', model_name)
                         model.person_train(subj_person_train_data)
                     elif self.data_train_person is not None:
@@ -136,6 +136,7 @@ class Evaluator():
                         model.person_train(subj_person_train_data)
 
                     # Iterate over individual tasks
+                    start_eval = time.time()
                     for idx, task in enumerate(subj_data):
                         start_task = time.time()
                         logger.debug('Querying for task %s/%s...', idx + 1, len(subj_data))
@@ -150,7 +151,8 @@ class Evaluator():
                         logger.debug('Prediction to %s is %s', task['item'].task, prediction)
 
                         # Adapt to true response
-                        model.adapt(copy.deepcopy(task['item']), task['response'], **task['aux'])
+                        if self.benchmark.type == 'adapt':
+                            model.adapt(copy.deepcopy(task['item']), task['response'], **task['aux'])
 
                         # Collect the evaluation result data
                         domain = task['item'].domain
@@ -194,8 +196,9 @@ class Evaluator():
                     # Finalize subject evaluation
                     model.end_participant(subj_id)
 
-                    logger.info('Subject {} done. took {:.4}s'.format(
-                        subj_id, time.time() - subject_start))
+                    logger.debug('Subject evaluation took {:.4}s'.format(time.time() - start_eval))
+                    logger.debug('Subject {} done. took {:.4}s'.format(
+                        subj_id, time.time() - start_subject))
 
                 # Unload the imported model and its dependencies. Might cause garbage collection
                 # issues
