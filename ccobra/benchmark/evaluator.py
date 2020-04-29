@@ -6,6 +6,7 @@ import copy
 import warnings
 import logging
 import sys
+import time
 
 import pandas as pd
 import numpy as np
@@ -105,6 +106,8 @@ class Evaluator():
 
                 # Iterate subject
                 for subj_key_identifier, subj_data in self.data_test.items():
+                    subject_start = time.time()
+
                     subj_id = subj_data[0]['item'].identifier
                     model = copy.deepcopy(pre_model)
 
@@ -134,6 +137,7 @@ class Evaluator():
 
                     # Iterate over individual tasks
                     for idx, task in enumerate(subj_data):
+                        start_task = time.time()
                         logger.debug('Querying for task %s/%s...', idx + 1, len(subj_data))
 
                         # Integrity checks
@@ -184,8 +188,14 @@ class Evaluator():
 
                         result_data.append(prediction_data)
 
+                        logger.debug('Task {} took {:4f}s'.format(
+                            idx, time.time() - start_task))
+
                     # Finalize subject evaluation
                     model.end_participant(subj_id)
+
+                    logger.info('Subject {} done. took {:.4}s'.format(
+                        subj_id, time.time() - subject_start))
 
                 # Unload the imported model and its dependencies. Might cause garbage collection
                 # issues
