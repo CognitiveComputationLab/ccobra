@@ -5,6 +5,9 @@
 - Add coverage benchmarks to relational and propositional
 - Add syllogistic network models (2019-Riesterer)
 - Improve package documentation
+- Overhaul benchmark handling
+- Add possibility to supply multiple datasets as list in benchmark JSON
+- Streamline evaluator
 
 ## Version 0.16.0
 
