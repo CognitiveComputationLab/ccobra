@@ -1,6 +1,6 @@
 {
     "type": "adaption",
-    "data.train": "data/Ragni2018_carddir.csv",
+    "data.pre_train": "data/Ragni2018_carddir.csv",
     "data.test": "data/Ragni2018_carddir.csv",
     "corresponding_data": true,
     "domains": ["spatial-relational"],

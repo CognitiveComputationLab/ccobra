@@ -8,6 +8,8 @@
 - Overhaul benchmark handling
 - Add possibility to supply multiple datasets as list in benchmark JSON
 - Streamline evaluator
+- Add "prediction" evaluation type as an evaluation without adaption
+- Change model interface to pre_train, pre_train_person, and pre_train_background
 
 ## Version 0.16.0
 

@@ -1,7 +1,7 @@
 {
     "type": "adaption",
-    "data.train": "data/3ps.csv",
     "data.test": "data/3ps.csv",
+    "data.pre_train": "data/3ps.csv",
     "corresponding_data": true,
     "domains": ["spatial-relational"],
     "response_types": ["verify"],

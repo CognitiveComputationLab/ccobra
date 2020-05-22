@@ -1,7 +1,7 @@
 {
     "type": "adaption",
-    "data.train": "data/data.csv",
     "data.test": "data/data.csv",
+    "data.pre_train": "data/data.csv",
     "corresponding_data": true,
     "domains": ["propositional"],
     "response_types": ["single-choice"],

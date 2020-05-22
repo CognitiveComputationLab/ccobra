@@ -19,7 +19,7 @@ class MFAModel(ccobra.CCobraModel):
             for seq_train_data in subj_train_data:
                 self.adapt(seq_train_data['item'], seq_train_data['response'])
 
-    def person_train(self, dataset):
+    def pre_train_person(self, dataset):
         self.pre_train([dataset])
 
     def predict(self, item, **kwargs):

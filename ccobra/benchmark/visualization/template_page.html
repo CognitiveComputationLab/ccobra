@@ -24,8 +24,9 @@
             <tr><td benchdata>domains</td><td id="bench_domain"></td></tr>
             <tr><td benchdata>response_types</td><td id="bench_resptype"></td></tr>
             <tr><td benchdata>data.test</td><td id="bench_test"></td></tr>
-            <tr><td benchdata>data.train</td><td id="bench_train"></td></tr>
-            <tr><td benchdata>data.train_person</td><td id="bench_train_person"></td></tr>
+            <tr><td benchdata>data.pre_train</td><td id="bench_pre_train"></td></tr>
+            <tr><td benchdata>data.pre_train_person</td><td id="bench_pre_train_person"></td></tr>
+            <tr><td benchdata>data.pre_person_background</td><td id="bench_pre_person_background"></td></tr>
             <tr><td benchdata>corresponding_data</td><td id="bench_corresponding"></td></tr>
             <tr><td>Results</td><td><button id="downloadResultButton" class="button_result" type="button">Download</button></td></tr>
         </table>
@@ -43,8 +44,9 @@
             document.getElementById("bench_domain").innerHTML = benchmark["domains"];
             document.getElementById("bench_resptype").innerHTML = benchmark["response_types"];
             document.getElementById("bench_test").innerHTML = benchmark["data.test"];
-            document.getElementById("bench_train").innerHTML = benchmark["data.train"];
-            document.getElementById("bench_train_person").innerHTML = benchmark["data.train_person"];
+            document.getElementById("bench_pre_train").innerHTML = benchmark["data.pre_train"];
+            document.getElementById("bench_pre_train_person").innerHTML = benchmark["data.pre_train_person"];
+            document.getElementById("bench_pre_person_background").innerHTML = benchmark["data.pre_person_background"];
             document.getElementById("bench_corresponding").innerHTML = benchmark["corresponding_data"];
 
             /**

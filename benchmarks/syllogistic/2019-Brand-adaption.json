@@ -1,7 +1,7 @@
 {
     "type": "adaption",
-    "data.train": "data/Ragni2016.csv",
     "data.test": "data/Ragni2016.csv",
+    "data.pre_train": "data/Ragni2016.csv",
     "corresponding_data": true,
     "domains": ["syllogistic"],
     "response_types": ["single-choice"],

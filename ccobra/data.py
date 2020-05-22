@@ -49,7 +49,7 @@ class CCobraData():
         self.prepare_data()
 
         # Extract meta information
-        self.n_subjects = len(self._data['_key_num_id'].unique())
+        self.n_subjects = len(self._data['_unique_id'].unique())
         self.domains = self._data['domain'].unique().tolist()
         self.response_types = self._data['response_type'].unique().tolist()
 
@@ -78,41 +78,22 @@ class CCobraData():
 
         """
 
-        # Handle already existing key identifiers
-        if '_key_num_id' in self._data:
-            logger.debug('_key_num_id already in supplied data. Could be due to list data.')
-
-            # Check uniqueness of key num id
-            combs = set(zip(self._data['id'], self._data['_key_num_id']))
-            key_num_id = [y for x, y in combs]
-
-            num = sorted(key_num_id)
-            uni = sorted(np.unique(key_num_id))
-
-            if len(key_num_id) != len(np.unique(key_num_id)):
-                raise ValueError('Dataframe provided with pre-existing non-unique _key_num_id')
-
-            # If keys are unique, simply return
-            return
+        assert '_unique_id' not in self._data
 
         # Add unique numerical subject identifier
-        # if pd.api.types.is_numeric_dtype(self._data['id']):
-        #     self._data['_key_num_id'] = self._data['id']
-        # else:
-        ids = self._data['id'].unique().tolist()
-        self._data['_key_num_id'] = self._data['id'].apply(lambda x: ids.index(x))
+        self._data['_unique_id'] = self._data['id']
 
-    def offset_identifiers(self, offset):
-        """ Offsets the subject identifier keys.
+    def prefix_identifiers(self, prefix='_train_'):
+        """ Prefixes the subject identifier keys.
 
         Parameters
         ----------
-        offset : int
-            Offset to apply to key numerical identifiers.
+        prefix : str
+            Prefix to apply to key numerical identifiers.
 
         """
 
-        self._data['_key_num_id'] += offset
+        self._data['_unique_id'] = self._data['_unique_id'].apply(lambda x: prefix + str(x))
 
     def get(self):
         """ Returns the contained data.
@@ -134,7 +115,7 @@ class CCobraData():
         df = self._data
 
         dataset = {}
-        for subj, subj_df in df.groupby('_key_num_id'):
+        for subj, subj_df in df.groupby('_unique_id'):
             assert subj not in dataset
 
             subj_df = subj_df.sort_values('sequence')
@@ -152,17 +133,21 @@ class CCobraData():
                 task_dict['item'] = item
 
                 # Parse the responses
-                responses = []
-                for response in task_series['response'].split('|'):
-                    responses.append([x.split(';') for x in response.split('/')])
-                if task_series['response_type'] != 'multiple-choice':
-                    responses = responses[0]
+                responses = None
+                if isinstance(task_series['response'], str):
+                    responses = []
+                    for response in task_series['response'].split('|'):
+                        responses.append([x.split(';') for x in response.split('/')])
+                    if task_series['response_type'] != 'multiple-choice':
+                        responses = responses[0]
+                else:
+                    responses = task_series['response']
                 task_dict['response'] = responses
 
                 # Add auxiliary elements from the data
                 aux = {}
                 for key, value in task_series.iteritems():
-                    if key not in self.required_fields + ['_key_num_id']:
+                    if key not in self.required_fields + ['_unique_id']:
                         aux[key] = value
                 task_dict['aux'] = aux
 

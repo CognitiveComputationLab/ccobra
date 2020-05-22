@@ -117,10 +117,6 @@ class RNNModel(ccobra.CCobraModel):
 
             self.net.eval()
 
-    def start_participant(self, **kwargs):
-        # Perform training without current participant
-        pass
-
     def predict(self, item, **kwargs):
         syllogism = ccobra.syllogistic.Syllogism(item)
 

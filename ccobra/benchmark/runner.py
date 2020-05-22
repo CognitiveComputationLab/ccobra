@@ -123,19 +123,27 @@ def main(args):
     ])
 
     # Prepare the benchmark output information and visualize the evaluation results
-    path_train = ''
-    path_train_person = ''
+    path_pre_train = ''
+    path_pre_train_person = ''
+    path_pre_person_background = ''
     path_test = os.path.basename(benchmark.data_test_path)
 
-    if benchmark.data_train_path:
-        path_train = ';'.join([os.path.basename(x) for x in benchmark.data_train_path.split(';')])
-    if benchmark.data_train_person_path:
-        path_train_person = ';'.join([os.path.basename(x) for x in benchmark.data_train_person_path.split(';')])
+    if benchmark.data_pre_train_path:
+        path_pre_train = ';'.join([
+            os.path.basename(x) for x in benchmark.data_pre_train_path.split(';')])
+    if benchmark.data_pre_train_person_path:
+        path_pre_train_person = ';'.join([
+            os.path.basename(x) for x in benchmark.data_pre_train_person_path.split(';')])
+    if benchmark.data_pre_person_background_path:
+        path_pre_person_background = ';'.join([
+            os.path.basename(x) for x in benchmark.data_pre_person_background_path.split(';')])
 
     benchmark_info = {
         'name': os.path.basename(args['benchmark']),
-        'data.train': path_train,
-        'data.train_person': path_train_person,
+        'data.test': path_test,
+        'data.pre_train': path_pre_train,
+        'data.pre_train_person': path_pre_train_person,
+        'data.pre_person_background': path_pre_person_background,
         'type': benchmark.type,
         'domains': list(res_df['domain'].unique()),
         'response_types': list(res_df['response_type'].unique()),

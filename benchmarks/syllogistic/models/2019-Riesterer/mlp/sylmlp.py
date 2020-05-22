@@ -94,9 +94,6 @@ class MLPModel(ccobra.CCobraModel):
                 print('Epoch {} ({:.2f}s): {}'.format(
                     epoch + 1, time.time() - start_time, np.mean(losses)))
 
-    def person_train(self, data, **kwargs):
-        pass
-
     def predict(self, item, **kwargs):
         # Encode the task
         syllogism = ccobra.syllogistic.Syllogism(item)

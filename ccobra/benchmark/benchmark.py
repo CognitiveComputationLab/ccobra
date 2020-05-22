@@ -216,10 +216,15 @@ class Benchmark():
         self.parse_models()
         self.parse_domain_encoders()
 
+        # Verify
+        if self.type == 'coverage':
+            if self.data_pre_train_person is not None:
+                raise ValueError('data.pre_train_person is not allowed in coverage evaluation.')
+
     def parse_type(self):
         # Set type and validate
         self.type = self.json_content.get('type', 'adaption')
-        if self.type not in ['adaption', 'coverage']:
+        if self.type not in ['prediction', 'adaption', 'coverage']:
             raise ValueError('Unsupported evaluation type: {}'.format(self.type))
         logger.debug('Evaluation type: %s', self.type)
 
@@ -244,23 +249,9 @@ class Benchmark():
             parts = [self.parse_data_path(x) for x in path]
             paths = ';'.join([x[0] for x in parts])
 
-            # Combine datasets ensuring that numerical key identifiers are unique
-            comb_df = pd.DataFrame()
-            max_id = 0
-            n_subj = 0
-            for data in [x[1] for x in parts]:
-                n_subj += data.n_subjects
-
-                # Update the identifier data and concat the datasets
-                data.offset_identifiers(max_id + 1)
-                df = data._data
-                comb_df = pd.concat((comb_df, df))
-                max_id = df['_key_num_id'].max()
-
-            comb_ccobra_dat = CCobraData(comb_df)
-            assert comb_ccobra_dat.n_subjects == n_subj
-
-            return paths, comb_ccobra_dat
+            # Combine the datasets
+            comb_df = pd.concat([df for _, df in parts])
+            return paths, comb_df
 
         logger.debug('Regular data path encountered: %s', path)
 
@@ -269,31 +260,63 @@ class Benchmark():
 
         # Load the data and create CCOBRA container
         df = pd.read_csv(full_path)
-        dat = CCobraData(df)
-
-        return full_path, dat
+        return full_path, df
 
     def parse_data(self):
-        # Parse data paths
-        self.data_train_path, self.data_train = self.parse_data_path(self.json_content.get('data.train', ''))
-        logger.debug('data_train_path: %s', self.data_train_path)
-        self.data_train_person_path, self.data_train_person = self.parse_data_path(self.json_content.get('data.train_person', ''))
-        logger.debug('data_train_person_path: %s', self.data_train_person_path)
-        self.data_test_path, self.data_test = self.parse_data_path(self.json_content.get('data.test', ''))
+        # Verify information
+        if 'data.test' not in self.json_content:
+            raise ValueError('Test dataset (data.test) must be supplied.')
+
+        # Parse training data fields
+        self.data_pre_train_path, data_pre_train_df = self.parse_data_path(self.json_content.get('data.pre_train', ''))
+        logger.debug('data_pre_train_path: %s', self.data_pre_train_path)
+        self.data_pre_train_person_path, data_pre_train_person_df = self.parse_data_path(self.json_content.get('data.pre_train_person', ''))
+        logger.debug('data_pre_train_person_path: %s', self.data_pre_train_person_path)
+        self.data_pre_person_background_path, data_pre_person_background_df = self.parse_data_path(self.json_content.get('data.pre_person_background', ''))
+        logger.debug('data_pre_person_background_path: %s', self.data_pre_person_background_path)
+
+        # Parse test data field
+        self.data_test_path, data_test_df = self.parse_data_path(self.json_content['data.test'])
         logger.debug('data_test_path: %s', self.data_test_path)
 
-        if self.data_test is None:
-            raise ValueError('Test dataset must be supplied.')
+        # Filter person data so that only test ids are present
+        test_ids = data_test_df['id'].unique()
+        if data_pre_train_person_df is not None:
+            data_pre_train_person_df = data_pre_train_person_df.loc[
+                data_pre_train_person_df['id'].isin(test_ids)]
+        if data_pre_person_background_df is not None:
+            data_pre_person_background_df = data_pre_person_background_df.loc[
+                data_pre_person_background_df['id'].isin(test_ids)]
 
         # Set corresponding data
         self.corresponding_data = self.json_content.get('corresponding_data', False)
         logger.debug('corresponding_data: %s', self.corresponding_data)
 
+        # Construct CCOBRA datasets
+        self.data_test = CCobraData(data_test_df)
+        self.data_pre_train = CCobraData(data_pre_train_df) if data_pre_train_df is not None else None
+        self.data_pre_train_person = CCobraData(data_pre_train_person_df) if data_pre_train_person_df is not None else None
+        self.data_pre_person_background = CCobraData(data_pre_person_background_df) if data_pre_person_background_df is not None else None
+
         # In case of non-corresponding datasets, make sure that identifiers do not overlap by
         # offsetting the training data (ensures that test identifiers remain identifiable)
-        if self.data_train != None and not self.corresponding_data:
-            logger.debug('adjusting identifier offsets')
-            self.data_train.offset_identifiers(self.data_test.n_subjects)
+        if self.data_pre_train is not None and not self.corresponding_data:
+            logger.debug('adjusting identifier offsets...')
+            self.data_pre_train.prefix_identifiers()
+        elif self.data_pre_train is not None and self.corresponding_data:
+            logger.debug('extracting person_background from comparing data_pre_train with data_test...')
+
+            # Identify the columns which are present only
+            merge = data_pre_train_df.merge(data_test_df, how='left', indicator=True)
+            data_train_only_df = merge.loc[merge['_merge'] == 'left_only'].drop(columns=['_merge'])
+
+            # Append to background data
+            comb_df = data_train_only_df
+            if data_pre_person_background_df is not None:
+                comb_df = pd.concat(comb_df, data_pre_person_background_df)
+
+            if not comb_df.empty:
+                self.data_pre_person_background = CCobraData(comb_df.drop(columns='_unique_id'))
 
     def parse_models(self):
         # Prepare the models for loading
@@ -319,9 +342,10 @@ class Benchmark():
         s.append('Benchmark:')
         s.append('   type: {}'.format(self.type))
         s.append('   data paths:')
-        s.append('      train: {}'.format(self.path_data_train))
-        s.append('      train-person: {}'.format(self.path_data_train_person))
-        s.append('      test : {}'.format(self.path_data_test))
+        s.append('      pre_train: {}'.format(self.data_pre_train_path))
+        s.append('      pre_train_person: {}'.format(self.data_pre_train_person_path))
+        s.append('      pre_person_background: {}'.format(self.data_pre_person_background_path))
+        s.append('      test : {}'.format(self.data_test_path))
         s.append('   corresponding_data: {}'.format(self.corresponding_data))
         s.append('   models:')
         for idx, model in enumerate(self.models):

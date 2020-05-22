@@ -3,6 +3,11 @@ implement for being used in the CCOBRA framework.
 
 """
 
+import logging
+
+
+# Initialize module-level logger
+logger = logging.getLogger(__name__)
 
 class CCobraModel():
     """ Base class for CCOBRA models.
@@ -32,7 +37,9 @@ class CCobraModel():
         self.supported_domains = supported_domains
         self.supported_response_types = supported_response_types
 
-    def setup_environment(self, evaluation_type, pre_train_domains, person_train_domains, prediction_domains):
+        self.evaluation_type = None
+
+    def setup_environment(self, evaluation_type):
         """ Setup environment of the model using information about the prediction setting and the
         information provided during training.
 
@@ -41,18 +48,9 @@ class CCobraModel():
         evaluation_type : str
             Type of the CCOBRA evaluation (adaption, coverage).
 
-        pre_train_domains : list(str)
-            List of pre training task domains. None if not existent.
-
-        person_train_domains : list(str)
-            List of person training task domains. None if not existent.
-
-        prediction_domains : list(str)
-            List of prediction task domains.
-
         """
 
-        pass
+        self.evaluation_type = evaluation_type
 
     def start_participant(self, **kwargs):
         """ Callback to indicate participant start.
@@ -74,7 +72,10 @@ class CCobraModel():
         pass
 
     def pre_train(self, dataset):
-        """ Pre-trains the model based on given training data.
+        """ Pre-trains the model based on given group data. This data is not necessarily other
+        participants from the same experiment, but can also refer to an unrelated external dataset.
+        The information supplied here represents the information known about the general population
+        in the domain of interest.
 
         Parameters
         ----------
@@ -88,13 +89,42 @@ class CCobraModel():
 
         pass
 
-    def person_train(self, data):
-        """ Trains the model based on background data of the individual to
-        be tested on.
+    def pre_train_person(self, dataset):
+        """ Excerpt of the prediction data containing responses of the individual. Is supposed to
+        combat the cold-start problem by supplying models with information about the exact
+        individual to be predicted for. Allows to fit models to a specific individual. For
+        example, in coverage settings, the responses given by the individual are supplied here.
+
+        If not overriden by the model implemenation, uses adapt to perform the training.
 
         Parameters
         ----------
-        data : list(dict(str, object))
+        dataset : list(dict(str, object))
+            Training data for the model. List of tasks containing the items
+            and corresponding responses.
+
+        """
+
+        if len(dataset) == 0:
+            return
+
+        for task_data in dataset:
+            self.adapt(
+                task_data['item'],
+                task_data['response'],
+                **dict([x for x in task_data.items() if x[0] not in ['item', 'response']])
+            )
+
+    def pre_person_background(self, dataset):
+        """ Background information about the person to be predicted for. In contrast to the
+        data supplied by pre_adapt, the data given here is not extracted from the test data.
+        For example, could be responses given by the individual in question to an external
+        independent experiment (e.g., participated in a spatial-relation experiment and later
+        in a syllogistic experiment which serve as the test data).
+
+        Parameters
+        ----------
+        dataset : list(dict(str, object))
             Training data for the model. List of tasks containing the items
             and corresponding responses.
 
