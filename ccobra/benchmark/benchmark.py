@@ -33,8 +33,14 @@ def fix_rel_path(path, base_path):
 
     """
 
+    # Replace internal ccobra path
+    if '%ccobra%' in path:
+        package_path = os.path.split(os.path.split(__file__)[0])[0]
+        path = path.replace('%ccobra%', package_path)
+
     if path and not os.path.isabs(path):
         return os.path.normpath(base_path + os.sep + path)
+
     return path
 
 def fix_model_path(path, base_path=None):
@@ -94,7 +100,7 @@ def fix_model_path(path, base_path=None):
 
     raise ValueError("Could not identify model to load for '{}'".format(path))
 
-def prepare_domain_encoders(domain_encoder_paths):
+def prepare_domain_encoders(domain_encoder_paths, base_path):
     """ Processes the domain encoder information from the benchmark specification. Handles
     relative paths or path placeholders (e.g., '%ccobra%' mapping to the module directory of
     the local CCOBRA installation).
@@ -113,11 +119,8 @@ def prepare_domain_encoders(domain_encoder_paths):
 
     domain_encoders = {}
     for domain, domain_encoder_path in domain_encoder_paths.items():
-        # Replace internal ccobra path
-        if '%ccobra%' in domain_encoder_path:
-            package_path = os.path.split(os.path.split(__file__)[0])[0]
-            domain_encoder_path = os.path.normpath(
-                domain_encoder_path.replace('%ccobra%', package_path))
+        # Normalize encoder path
+        domain_encoder_path = fix_rel_path(domain_encoder_path, base_path)
 
         # To instantiate the encoder we need to change to its context (i.e., set the PATH variable
         # accordingly).
@@ -327,7 +330,7 @@ class Benchmark():
         # Parse domain encoder information
         self.encoders = {}
         if 'domain_encoders' in self.json_content:
-            self.encoders = prepare_domain_encoders(self.json_content['domain_encoders'])
+            self.encoders = prepare_domain_encoders(self.json_content['domain_encoders'], self.base_path)
 
         # Include default encoders if not overridden
         if 'syllogistic' not in self.encoders:

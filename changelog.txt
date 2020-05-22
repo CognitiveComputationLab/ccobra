@@ -10,6 +10,7 @@
 - Streamline evaluator
 - Add "prediction" evaluation type as an evaluation without adaption
 - Change model interface to pre_train, pre_train_person, and pre_train_background
+- Allow "%ccobra%" placeholder to occur in all benchmark paths
 
 ## Version 0.16.0
 
