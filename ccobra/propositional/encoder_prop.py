@@ -2,7 +2,7 @@
 
 """
 
-import ccobra
+from ..domainhandler import CCobraDomainEncoder
 
 OPERATORS = [
     'not',
@@ -12,7 +12,7 @@ OPERATORS = [
     'if'
 ]
 
-class PropositionalEncoder(ccobra.CCobraDomainEncoder):
+class PropositionalEncoder(CCobraDomainEncoder):
     """ Syllogistic encoder. Provides functions for abbreviating syllogistic tasks and responses.
 
     """

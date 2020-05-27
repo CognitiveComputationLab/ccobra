@@ -4,9 +4,6 @@
 
 import logging
 
-import pandas as pd
-import numpy as np
-
 from .item import Item
 
 
@@ -108,9 +105,22 @@ class CCobraData():
         return self._data
 
     def head(self):
+        """ Displays the first 10 lines of the dataframe.
+
+        """
+
         return self._data.head()
 
     def to_eval_dict(self):
+        """ Converts the dataset to an evaluation dictionary mapping from individuals to data.
+
+        Returns
+        -------
+        dict(object, list)
+            Dictionary mapping from subject identifiers to lists of experimental data.
+
+        """
+
         # Prepare the dictionary of subjects containing lists of tasks they responded to
         df = self._data
 

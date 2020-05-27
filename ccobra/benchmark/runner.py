@@ -19,10 +19,10 @@ from contextlib import contextmanager
 
 import pandas as pd
 
-from . import evaluator
-from . import server
 from . import benchmark as bmark
+from . import evaluator
 from .visualization import html_creator, viz_plot
+
 
 def parse_arguments():
     """ Parses the command line arguments for the benchmark runner.
@@ -38,7 +38,7 @@ def parse_arguments():
     parser.add_argument('benchmark', type=str, help='Benchmark file.')
     parser.add_argument('-m', '--model', type=str, help='Model file.')
     parser.add_argument(
-        '-o', '--output', type=str, default='browser', help='Output style (browser/html).')
+        '-o', '--output', type=str, default='browser', help='Output style (browser/server).')
     parser.add_argument('-c', '--cache', type=str, help='Load specified cache file.')
     parser.add_argument('-s', '--save', type=str, help='Store results as csv table.')
     parser.add_argument(
@@ -106,9 +106,11 @@ def main(args):
         cache_df = pd.read_csv(args['cache'])
 
     # Load the benchmark settings
-    cached = args.get('cache', False)
     benchmark = bmark.Benchmark(
-        args['benchmark'], argmodel=(args['model'], args['classname']), cached=(cache_df != None))
+        args['benchmark'],
+        argmodel=(args['model'], args['classname']),
+        cached=(cache_df is not None)
+    )
 
     # Run the model evaluation
     is_silent = (args['output'] in ['html', 'server'])

@@ -1,16 +1,20 @@
+""" File containing classes required for benchmark handling.
+
+"""
+
+import json
 import logging
 import os
-import json
 
 import pandas as pd
 
+from . import comparator
 from . import contextmanager
 from . import modelimporter
-from . import comparator
-from ..domainhandler import CCobraDomainEncoder
-from ..syllogistic.encoder_syl import SyllogisticEncoder
-from ..propositional.encoder_prop import PropositionalEncoder
 from ..data import CCobraData
+from ..domainhandler import CCobraDomainEncoder
+from ..propositional.encoder_prop import PropositionalEncoder
+from ..syllogistic.encoder_syl import SyllogisticEncoder
 
 # Initialize logging
 logger = logging.getLogger(__name__)
@@ -89,14 +93,6 @@ def fix_model_path(path, base_path=None):
                     os.path.join(sub_directories[0], f)) and f[-2:] == "py"]
         if python_files:
             return sub_directories[0]
-
-    raise ValueError("Could not identify model to load for '{}'".format(path))
-    if python_files:
-        return sub_directories[0]
-
-    raise ValueError("Could not identify model to load for '{}'".format(path))
-    if python_files:
-        return sub_directories[0]
 
     raise ValueError("Could not identify model to load for '{}'".format(path))
 

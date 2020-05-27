@@ -2,9 +2,9 @@
 
 """
 
-import ccobra
+from ..domainhandler import CCobraDomainEncoder
 
-class SyllogisticEncoder(ccobra.CCobraDomainEncoder):
+class SyllogisticEncoder(CCobraDomainEncoder):
     """ Syllogistic encoder. Provides functions for abbreviating syllogistic tasks and responses.
 
     """

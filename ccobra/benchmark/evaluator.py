@@ -3,19 +3,17 @@
 """
 
 import copy
-import warnings
 import logging
-import sys
 import time
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
-import ccobra
+from ..model import CCobraModel
 
-from . import modelimporter
 from . import comparator
 from . import contextmanager
+from . import modelimporter
 
 
 # Initialize module-level logger
@@ -95,10 +93,10 @@ class Evaluator():
         model_name_cache = set() if self.cache_df is None else set(self.cache_df['model'].unique())
 
         # Activate model context
-        for idx, modelinfo in enumerate(self.benchmark.models):
+        for model_idx, modelinfo in enumerate(self.benchmark.models):
             # Print the progress
             log_str = "Evaluating '{}' ({}/{})...".format(
-                modelinfo.path, idx + 1, len(self.benchmark.models))
+                modelinfo.path, model_idx + 1, len(self.benchmark.models))
             logger.debug(''.join(['='] * 80))
             logger.info(log_str)
             logger.debug(''.join(['='] * 80))
@@ -110,7 +108,7 @@ class Evaluator():
             with contextmanager.dir_context(modelinfo.path):
                 # Dynamically import the CCOBRA model
                 importer = modelimporter.ModelImporter(
-                    modelinfo.path, ccobra.CCobraModel,
+                    modelinfo.path, CCobraModel,
                     load_specific_class=modelinfo.load_specific_class
                 )
 
@@ -135,8 +133,10 @@ class Evaluator():
                 model_name_cache.add(model_name)
 
                 if changed:
-                    logger.warning('Duplicate model name detected ("{}"). Changed to "{}".'.format(
-                        original_model_name, model_name))
+                    logger.warning(
+                        'Duplicate model name detected ("%s"). Changed to "%s".',
+                        original_model_name, model_name
+                    )
 
                 # Only perform general pre-training if training data is
                 # supplied and corresponding data is false. Otherwise, the
@@ -177,9 +177,9 @@ class Evaluator():
 
                     # Iterate over individual tasks
                     start_eval = time.time()
-                    for idx, task in enumerate(subj_data):
+                    for task_idx, task in enumerate(subj_data):
                         start_task = time.time()
-                        logger.debug('Querying for task %s/%s...', idx + 1, len(subj_data))
+                        logger.debug('Querying for task %s/%s...', task_idx + 1, len(subj_data))
 
                         # Integrity checks
                         assert task['item'].identifier == subj_id
@@ -230,8 +230,8 @@ class Evaluator():
 
                         result_data.append(prediction_data)
 
-                        logger.debug('Task {} took {:4f}s'.format(
-                            idx, time.time() - start_task))
+                        logger.debug(
+                            'Task {} took {:4f}s'.format(task_idx + 1, time.time() - start_task))
 
                     # Finalize subject evaluation
                     model.end_participant(subj_id)

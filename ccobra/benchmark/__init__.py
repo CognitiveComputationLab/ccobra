@@ -41,4 +41,3 @@ from .contextmanager import dir_context
 from .evaluator import Evaluator
 from .modelimporter import ModelImporter
 from .runner import entry_point, parse_arguments, main, silence_stdout
-from .server import load_in_default_browser
