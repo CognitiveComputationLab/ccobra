@@ -9,9 +9,12 @@ Daniel Brand <daniel.brand@cognition.uni-freiburg.de>
 """
 
 import argparse
+import codecs
+import datetime
+import logging
 import os
 import sys
-import logging
+import webbrowser
 from contextlib import contextmanager
 
 import pandas as pd
@@ -39,7 +42,7 @@ def parse_arguments():
     parser.add_argument('-c', '--cache', type=str, help='Load specified cache file.')
     parser.add_argument('-s', '--save', type=str, help='Store results as csv table.')
     parser.add_argument(
-        '-cn', '--classname', type=str,
+        '-cn', '--classname', type=str, default=None,
         help='Load a specific class from a folder containing multiple classes.')
     parser.add_argument(
         '-ll', '--logginglevel', type=str, default='NONE',
@@ -104,7 +107,8 @@ def main(args):
 
     # Load the benchmark settings
     cached = args.get('cache', False)
-    benchmark = bmark.Benchmark(args['benchmark'], argmodel=args['model'], cached=(cache_df != None))
+    benchmark = bmark.Benchmark(
+        args['benchmark'], argmodel=(args['model'], args['classname']), cached=(cache_df != None))
 
     # Run the model evaluation
     is_silent = (args['output'] in ['html', 'server'])
@@ -152,15 +156,23 @@ def main(args):
     benchmark_info['corresponding_data'] = benchmark.corresponding_data
 
     # Generate the HTML output
-    if args['output'] == 'browser':
-        html = htmlcrtr.to_html(res_df, benchmark_info, embedded=False)
-        server.load_in_default_browser(html.encode('utf8'))
-    elif args['output'] == 'server':
+    if args['output'] == 'server':
         html = htmlcrtr.to_html(res_df, benchmark_info, embedded=True)
         sys.stdout.buffer.write(html.encode('utf-8'))
-    elif args['output'] == 'html':
+    else:
         html = htmlcrtr.to_html(res_df, benchmark_info, embedded=False)
-        print(html)
+
+        # Save HTML output to file
+        benchmark_filename = os.path.splitext(os.path.basename(args['benchmark']))[0]
+        timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        html_filename = '_'.join([benchmark_filename, timestamp, '.html'])
+        html_filepath = os.path.join(benchmark.base_path, html_filename)
+
+        with codecs.open(html_filepath, 'w', 'utf-8') as html_out:
+            html_out.write(html)
+
+        # Open HTML output in default browser
+        webbrowser.open('file://' + os.path.realpath(html_filepath))
 
 def entry_point():
     """ Entry point for the CCOBRA executables.

@@ -177,8 +177,7 @@ class ModelInfo():
             self.path = fix_model_path(model_info['filename'], base_path)
             self.override_name = model_info.get('override_name', self.override_name)
             self.args = model_info.get('args', self.args)
-            self.load_specific_class = model_info.get(
-                'load_specific_class', self.load_specific_class)
+            self.load_specific_class = model_info.get('classname', self.load_specific_class)
 
     def __repr__(self):
         return str(self)
@@ -188,7 +187,28 @@ class ModelInfo():
             self.path, self.override_name, self.load_specific_class, self.args)
 
 class Benchmark():
+    """ Benchmark class to handle and provide information from JSON benchmark specification files.
+
+    """
+
     def __init__(self, json_path, argmodel=None, cached=False):
+        """ Initializes the benchmark instance by reading the JSON benchmark specification file
+        content.
+
+        Parameters
+        ----------
+        json_path : str
+            Path to the JSON benchmark specification file.
+
+        argmodel : (str, str), optional
+            Tuple containing the path to a specific model to load and the classname information.
+
+        cached : bool, optional
+            Flag to indicate whether the benchmark is cached or not. If true, the benchmark models
+            are ignored.
+
+        """
+
         logger.debug('Opening benchmark: "%s"', json_path)
 
         # Load raw benchmark file content
@@ -203,9 +223,10 @@ class Benchmark():
             logger.debug('Cached run. Removed models from benchmark')
 
         # Inject model added via arguments
-        if argmodel:
-            argmodel_path = os.path.abspath(argmodel)
-            self.json_content['models'].append(argmodel_path)
+        if argmodel != (None, None):
+            argmodel_path = os.path.abspath(argmodel[0])
+            self.json_content['models'].append(
+                {"filename": argmodel_path, "classname": argmodel[1]})
             logger.debug('Injected model supplied via arguments')
 
         # Determine JSON path to fix relative path information
@@ -225,6 +246,10 @@ class Benchmark():
                 raise ValueError('data.pre_train_person is not allowed in coverage evaluation.')
 
     def parse_type(self):
+        """ Parses the benchmark type (prediction, adaption, coverage).
+
+        """
+
         # Set type and validate
         self.type = self.json_content.get('type', 'adaption')
         if self.type not in ['prediction', 'adaption', 'coverage']:
@@ -232,6 +257,10 @@ class Benchmark():
         logger.debug('Evaluation type: %s', self.type)
 
     def parse_comparator(self):
+        """ Parses the comparator information (equality, nvc).
+
+        """
+
         # Extract comparator settings from benchmark description
         comparator_type = self.json_content.get('comparator', 'equality')
         logger.debug('Comparator type: %s', comparator_type)
@@ -244,6 +273,23 @@ class Benchmark():
         logger.debug('eval_comparator: %s', self.eval_comparator)
 
     def parse_data_path(self, path):
+        """ Reads in a dataset CSV file and returns it as a pandas.DataFrame object. If a list
+        of paths is supplied, the datasets are combined.
+
+        Parameters
+        ----------
+        path : str
+            Path to the data file.
+
+        Returns
+        -------
+        (str, pandas.DataFrame)
+            A tuple consisting of the filepath and the corresponding data frame. If a list of data
+            paths was provided, the resulting string represents a ;-joined representation of the
+            paths and the dataframe is the combination of the individual dataframes.
+
+        """
+
         if not path:
             return None, None
 
@@ -266,6 +312,10 @@ class Benchmark():
         return full_path, df
 
     def parse_data(self):
+        """ Parses the benchmark data information. Reads in an preprocesses the datasets.
+
+        """
+
         # Verify information
         if 'data.test' not in self.json_content:
             raise ValueError('Test dataset (data.test) must be supplied.')
@@ -322,11 +372,19 @@ class Benchmark():
                 self.data_pre_person_background = CCobraData(comb_df.drop(columns='_unique_id'))
 
     def parse_models(self):
+        """ Parses the benchmark model information.
+
+        """
+
         # Prepare the models for loading
         self.models = [ModelInfo(x, self.base_path) for x in self.json_content['models']]
         logger.debug('models:\n%s', '\n'.join([str(x) for x in self.models]))
 
     def parse_domain_encoders(self):
+        """ Parses the benchmark domain encoder information.
+
+        """
+
         # Parse domain encoder information
         self.encoders = {}
         if 'domain_encoders' in self.json_content:
@@ -341,6 +399,10 @@ class Benchmark():
         logger.debug('Encoders:\n%s', self.encoders)
 
     def __str__(self):
+        """ Generates a string representation of the benchmark information.
+
+        """
+
         s = []
         s.append('Benchmark:')
         s.append('   type: {}'.format(self.type))
@@ -356,4 +418,5 @@ class Benchmark():
         s.append('   encoders:')
         for enc, val in self.encoders.items():
             s.append('      {}: {}'.format(enc, val))
+        s.append('   comparator: {}'.format(self.eval_comparator))
         return '\n'.join(s)

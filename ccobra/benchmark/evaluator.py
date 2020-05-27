@@ -22,7 +22,27 @@ from . import contextmanager
 logger = logging.getLogger(__name__)
 
 class Evaluator():
+    """ CCOBRA evaluation routine.
+
+    """
+
     def __init__(self, benchmark, is_silent=False, cache_df=None):
+        """ Initializes the evaluator object by preparing the data representations and precomputing
+        the required training and adaption steps.
+
+        Parameters
+        ----------
+        benchmarks : ccobra.Benchmark
+            Benchmark container.
+
+        is_silent : bool, optional
+            Flag indicating that output is supposed to be suppressed.
+
+        cache_df : pandas.DataFrame, option
+            Cache result dataframe.
+
+        """
+
         logger.info('Setting up evaluator...')
 
         # Store the information
@@ -65,6 +85,10 @@ class Evaluator():
         logger.debug('   do_pre_person_background: %s', self.do_pre_person_background)
 
     def evaluate(self):
+        """ Core evaluation routine.
+
+        """
+
         logger.info('Starting evaluation routine...')
 
         result_data = []

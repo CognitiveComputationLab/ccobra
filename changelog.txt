@@ -11,6 +11,7 @@
 - Add "prediction" evaluation type as an evaluation without adaption
 - Change model interface to pre_train, pre_train_person, and pre_train_background
 - Allow "%ccobra%" placeholder to occur in all benchmark paths
+- CCOBRA now stores the result html on disk and opens this file in the browser instead of temporarily creating a HTTP server itself
 
 ## Version 0.16.0
 
