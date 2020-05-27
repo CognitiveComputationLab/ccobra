@@ -111,16 +111,17 @@ Cognitive models in CCOBRA are implemented according to the interface specified
 in :class:`ccobra.CCobraModel`. An overview over the different functions is
 given in the following table
 
-================= =======================================================================================================================================
-Function          Description
-================= =======================================================================================================================================
-start_participant Hook signaling that the evaluation routine for a specific participant is about to start.
-end_participant   Hook signaling that the evaluation routine for a specific participant is about to end.
-pre_train         Pre-trains the model using a training dataset unrelated to the participant to be predicted for.
-person_train      Personalized training with responses by the participant to be predicted for.
-predict           Queries the model for a specific prediction.
-adapt             Is called after prediction and provides the true response. Allows the model to fine-tune itself to the participant to be predicted for.
-================= =======================================================================================================================================
+===================== =======================================================================================================================================
+Function              Description
+===================== =======================================================================================================================================
+start_participant     Hook signaling that the evaluation routine for a specific participant is about to start.
+end_participant       Hook signaling that the evaluation routine for a specific participant is about to end.
+pre_train             Pre-trains the model using a training dataset unrelated to the participant to be predicted for.
+pre_train_person      Personalized training with responses given by the participant to be predicted for.
+pre_person_background Personalized training with background information unrelated to the experiment to be predicted for.
+predict               Queries the model for a specific prediction.
+adapt                 Is called after prediction and provides the true response. Allows the model to fine-tune itself to the participant to be predicted for.
+===================== =======================================================================================================================================
 
 The only method models must provide in the CCOBRA framework is `predict`. This
 method is supposed to represent the model's inferential mechanism and thus has
@@ -147,25 +148,25 @@ configuration files we call *benchmarks*.
 A benchmark can consist of the following information (mandatory ones are in bold
 font):
 
-================== =============================================================================================================================
-Tag                Description
-================== =============================================================================================================================
-**type**           Type of the evaluation (adaption or coverage)
-data.train         Path to the training dataset
-data.train_person  Path to the person training dataset
-**data.test**      Path to the evaluation dataset
-corresponding_data Flag to indicate whether data.train and data.test contain the same data (CCOBRA then performs leave-one-out crossvalidation). 
-**models**         List of models to include in the benchmark.
-domains            List of domains relevant for this evaluation.
-response_types     List of response types relevant for this evaluation.
-domain_encoders    Optional encoders for tasks and responses to allow for prettier output.
-================== =============================================================================================================================
+========================== ====================================================================================
+Tag                        Description
+========================== ====================================================================================
+**type**                   Type of the evaluation (prediction, adaption or coverage).
+**data.test**              Path to the evaluation dataset.
+data.pre_train             Path to the pre training dataset.
+data.pre_train_person      Path to the person training dataset.
+data.pre_person_background Path to the person background dataset.
+corresponding_data         Flag to indicate whether subject ids uniquely identify participants across datasets.
+**models**                 List of models to include in the benchmark.
+domains                    List of domains relevant for the evaluation.
+response_types             List of response types relevant for the evaluation.
+domain_encoders            Optional encoders for tasks and responses to allow for prettier output.
+========================== ====================================================================================
 
 There are a couple of points to note related to the benchmark specification:
 
-- Paths are interpreted relative to the location of the benchmark JSON file
-- Crossvalidation can be imposed by providing ``data.test`` and ``data.train`` datasets with distinct set of participants.
-- Leave-one-out crossvalidation can be imposed by providing the same dataset to both ``data.train`` and ``data.test`` and setting ``corresponding_data: true``
+- It no absolute paths are provided, they are interpreted relative to the location of the benchmark JSON file.
+- By providing the same datasets to both ``data.test`` and ``data.pre_train`` and setting ``corresponding_data: true``, CCOBRA performs a leave-one-out crossvalidation.
 
 Lets consider an example for syllogistic reasoning:
 
@@ -173,7 +174,7 @@ Lets consider an example for syllogistic reasoning:
 
     {
         "type": "adaption",
-        "data.train": "data/Ragni2016.csv",
+        "data.pre_train": "data/Ragni2016.csv",
         "data.test": "data/Ragni2016.csv",
         "corresponding_data": true,
         "domains": ["syllogistic"],

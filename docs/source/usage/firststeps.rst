@@ -27,6 +27,8 @@ executable for other forms of output):
 
 .. image:: /_static/result.png
 
+The corresponding HTML code is written to a file next to the benchmark JSON following the format ``<benchmark-json-name>_<timestamp>.html``.
+
 How to Continue
 ---------------
 

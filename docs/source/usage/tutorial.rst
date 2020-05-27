@@ -136,7 +136,7 @@ as JSON files adhering to the following structure:
     :linenos:
 
     {
-        "data.train": "path/to/train_data.csv",
+        "data.pre_train": "path/to/train_data.csv",
         "data.test": "path/to/test_data.csv",
         "models": [
             "path/to/model1.py",
