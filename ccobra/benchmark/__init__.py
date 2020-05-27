@@ -2,14 +2,14 @@
 
 .. rubric:: Functions
 
-.. autofunction:: fix_rel_path
-.. autofunction:: fix_model_path
-.. autofunction:: tuple_to_string
 .. autofunction:: dir_context
 .. autofunction:: entry_point
-.. autofunction:: parse_arguments
+.. autofunction:: fix_model_path
+.. autofunction:: fix_rel_path
 .. autofunction:: main
+.. autofunction:: parse_arguments
 .. autofunction:: silence_stdout
+.. autofunction:: tuple_to_string
 
 .. rubric:: Classes
 
