@@ -2,8 +2,6 @@
 
 .. rubric:: Functions
 
-.. autofunction:: load_benchmark
-.. autofunction:: prepare_domain_encoders
 .. autofunction:: fix_rel_path
 .. autofunction:: fix_model_path
 .. autofunction:: tuple_to_string
@@ -12,10 +10,11 @@
 .. autofunction:: parse_arguments
 .. autofunction:: main
 .. autofunction:: silence_stdout
-.. autofunction:: load_in_default_browser
 
 .. rubric:: Classes
 
+.. autoclass:: Benchmark
+    :members:
 .. autoclass:: ModelInfo
     :members:
 .. autoclass:: Comparator
@@ -24,18 +23,14 @@
     :members:
 .. autoclass:: NVCComparator
     :members:
-.. autoclass:: CCobraEvaluator
-    :members:
-.. autoclass:: AdaptionEvaluator
-    :members:
-.. autoclass:: CoverageEvaluator
+.. autoclass:: Evaluator
     :members:
 .. autoclass:: ModelImporter
     :members:
 
 """
 
-from .benchmark import Benchmark, ModelInfo
+from .benchmark import Benchmark, ModelInfo, fix_rel_path, fix_model_path
 from .comparator import tuple_to_string, Comparator, EqualityComparator, NVCComparator
 from .contextmanager import dir_context
 from .evaluator import Evaluator
