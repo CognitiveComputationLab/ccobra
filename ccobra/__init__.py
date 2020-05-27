@@ -1,4 +1,4 @@
-""" ORCA Module
+""" CCOBRA Module
 
 .. rubric:: Submodules
 
@@ -8,6 +8,7 @@
    ccobra.benchmark
    ccobra.propositional
    ccobra.syllogistic
+   ccobra.syllogistic_generalized
 
 .. rubric:: Classes
 
@@ -28,7 +29,10 @@ from .item import Item
 from .model import CCobraModel
 from .domainhandler import CCobraDomainEncoder
 
-from . import syllogistic
 from . import benchmark
 
-__version__ = '0.16.0'
+from . import propositional
+from . import syllogistic
+from . import syllogistic_generalized
+
+__version__ = '1.0.0'
