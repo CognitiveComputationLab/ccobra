@@ -96,7 +96,7 @@ class HTMLCreator():
         if not embedded:
             scripts.append('\n'.join([
                 "           window.addEventListener('resize', function() {",
-                "           var arr = document.getElementsByTagName('script')",
+                "           var arr = document.getElementsByClassName('trigger_resize_script')",
                 "           for (var n = 0; n < arr.length; n++)",
                 "               eval(arr[n].innerHTML);",
                 "           });"

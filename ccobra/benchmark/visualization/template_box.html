@@ -47,3 +47,13 @@
                     evaluationContents['box_plot'].layout,
                     evaluationContents['box_plot'].config);
 </script>
+
+<script class="trigger_resize_script">
+	var el = document.getElementById("box_plot");
+	var update = {
+		width: el.offsetWidth,
+		height: el.offsetHeight
+	};
+
+	Plotly.relayout("box_plot", update);
+</script>

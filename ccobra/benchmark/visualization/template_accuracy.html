@@ -14,6 +14,7 @@
         data: [{{PLOT_DATA}}],
         layout: {
             title: {text: 'Accuracy of Model Predictions'},
+			autosize: true,
             yaxis: {title: {text: 'Predictive Accuracy'}, rangemode: 'nonnegative'},
             xaxis: {categoryarray: {{ORDERING}}}
         },
@@ -38,4 +39,14 @@
                     evaluationContents['accuracy_plot'].layout,
                     evaluationContents['accuracy_plot'].config);
 
+</script>
+
+<script class="trigger_resize_script">
+	var el = document.getElementById("accuracy_plot");
+	var update = {
+		width: el.offsetWidth,
+		height: el.offsetHeight
+	};
+
+	Plotly.relayout("accuracy_plot", update);
 </script>

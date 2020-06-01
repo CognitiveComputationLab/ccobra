@@ -57,7 +57,6 @@
                 var tabContent = document.getElementById(tabName);
                 tabContent.hidden = !tabContent.hidden;
 
-                console.debug("Setting expanded:" + tabContent.hidden);
                 document.getElementById(tabName + "-expand-bar").setAttribute("expanded", tabContent.hidden);
             }
 
