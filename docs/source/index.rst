@@ -13,6 +13,7 @@ Welcome to CCOBRA's documentation!
    usage/firststeps.rst
    usage/fundamentals.rst
    usage/myfirstdataset.rst
+   usage/myfirstbenchmark.rst
    usage/myfirstmodel.rst
    usage/tutorial.rst
    usage/learning.rst
