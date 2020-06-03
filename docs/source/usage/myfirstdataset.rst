@@ -7,19 +7,39 @@ This tutorial covers the typical process for integrating a novel dataset
 into the CCOBRA framework. This is necessary if you want to apply CCOBRA
 models to your own datasets.
 
+Overview
+--------
+
 The goal of the dataset preparation process is the creation of a CSV
 dataset file which contains the information required to perform evaluations
 using CCOBRA. CCOBRA datasets consist of five required attributes
 (i.e., columns in a CSV dataset file): ``id``, ``sequence``, ``domain``,
 ``task``, ``response_type``, ``choices``, and ``response``. Additionally,
 you can specify additional attributes which will be passed to models as
-parameters to the respective functions (e.g., ``predict()``).
+parameters to the respective functions (e.g., ``predict()``). Each line
+in the CSV file represents a single task presented to a participant along
+with the experimental response given to it.
+
+================= =============== ===============================================
+Attribute         Data type       Description
+================= =============== ===============================================
+``id``            ``int``/``str`` Unique participant identifier.
+``sequence``      ``int``         Position in the experimental sequence.
+``domain``        ``str``         Task domain.
+``task``          ``str``         Task information.
+``response_type`` ``str``         Response type information.
+``choices``       ``str``         Possible response choices.
+``response``      ``str``         Experimental response given by the participant.
+================= =============== ===============================================
+
+Preparing my first dataset
+--------------------------
 
 For this tutorial, we will exemplarily retrace the steps which have been
 taken to create the Ragni2016_ dataset for syllogistic reasoning.
 
 Id
-----
+::::::::
 
 The ``id`` column represents a unique identifier for participants in the
 dataset. It does not matter whether this identifier is a string token
@@ -29,7 +49,7 @@ The Ragni2016_ dataset contains data from 139 participants. Consequently,
 numerical identifiers ranging from 1 to 139 were used.
 
 Sequence
---------
+::::::::
 
 The ``sequence`` column represents a number which identifies the position
 of a particular task in the experimental sequence. Technically, these numbers
@@ -42,7 +62,7 @@ participant responded to all 64 traditional syllogisms. Consequently, the
 sequence columns for all participants contain values from 0 to 63.
 
 Domain
-------
+::::::
 
 The ``domain`` column provides information about the domain of the task.
 Currently, CCOBRA officially supports the domains ``syllogistic``,
@@ -55,7 +75,7 @@ support the data domains.
 The Ragni2016_ dataset contains syllogisms. Hence, the domain is ``syllogistic``.
 
 Task
-----
+:::::
 
 The ``task`` column represents the information about the problem to solve.
 To facilitate parsing of multi-premise tasks, CCOBRA supports a task encoding
@@ -80,7 +100,7 @@ As a result, the full syllogistic problem is represented as
 ``Some;models;managers/All;models;clerks``.
 
 Response Type
--------------
+:::::::::::::
 
 The ``response_type`` column provides the information about the type of
 response the experiment allowed for. Some experiments allow for a
@@ -105,7 +125,7 @@ select which of the nine possible conclusions followed from the premises.
 Accordingly, the response type is ``single-choice``.
 
 Choices
--------
+:::::::
 
 The ``choices`` column provides the information about which responses can be
 given by participants. In case of single-choice or multiple-choice response
@@ -129,7 +149,7 @@ of readability):
     No;managers;clerks|No;clerks;managers|NVC
 
 Response
---------
+::::::::
 
 The ``response`` column provides the actual response given by the experimental
 participant. In case of verify response types, it is either true or false to
@@ -145,7 +165,7 @@ selected by a participant. For example, a response to the syllogism presented
 above in the section on task, could be ``Some;managers;clerks``.
 
 Additional Information
-----------------------
+::::::::::::::::::::::
 
 Additional information about tasks (e.g., reaction times) or experimental
 participants (e.g., demographic information) can be passed to the models
