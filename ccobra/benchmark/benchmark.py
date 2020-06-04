@@ -355,13 +355,13 @@ class Benchmark():
         elif self.data_pre_train is not None and self.corresponding_data:
             logger.debug('extracting additional person data from comparing data_pre_train with data_test...')
 
-            # Identify the columns which are present only
+            # Identify the columns which are present only in the training data
             merge = data_pre_train_df.merge(data_test_df, how='left', indicator=True)
             data_train_only_df = merge.loc[merge['_merge'] == 'left_only'].drop(columns=['_merge'])
 
             # Append domain related data to pre_train_person
             domain_related_df = data_train_only_df.loc[data_train_only_df['domain'].isin(self.data_test.domains)]
-            
+
             if data_pre_train_person_df is not None:
                 domain_related_df = pd.concat(domain_related_df, data_pre_train_person_df)
 
@@ -370,7 +370,7 @@ class Benchmark():
 
             # Append domain unrelated data to pre_person_background
             domain_unrelated_df = data_train_only_df.loc[~data_train_only_df['domain'].isin(self.data_test.domains)]
-            
+
             if data_pre_person_background_df is not None:
                 domain_unrelated_df = pd.concat(domain_unrelated_df, data_pre_person_background_df)
 
