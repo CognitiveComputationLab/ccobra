@@ -8,7 +8,7 @@ This tutorial will walk you through the creation of a model for CCOBRA.
 Overview of CCOBRA models
 -------------------------
 
-CCOBRA provides an interface class called ``CCobraModel`` which defines
+CCOBRA provides an interface class called :class:`~ccobra.CCobraModel` which defines
 the set of function used to handle the framework-model communication:
 
 ========================= ======== =====================================================================================
@@ -74,7 +74,7 @@ Constructor
             self.mfa_personal = dict()
 
 Our model's constructur starts by calling the constructor of the parent class
-``CCobraModel`` passing information about the supported domains ``['syllogistic']`` and
+:class:`~ccobra.CCobraModel` passing information about the supported domains ``['syllogistic']`` and
 the supported response types ``['single-choice']``. In this case, our model is only
 applicable to the domain of syllogistic reasoning and expects that only a single response
 conclusion was given by experimental participants.
@@ -111,7 +111,7 @@ Pre-Training
 For the pre-training step, we iterate over all the experimental participants and for each
 of them over the individual tasks contained in the dataset. In the innermost loop, the
 ``task_data`` variable contains an ``item`` and the corresponding ``response``. Here, the
-item refers to an instance of CCOBRA's Item class, which contains all the information
+item refers to an instance of CCOBRA's :class:`~ccobra.Item` class, which contains all the information
 available with respect to the presented problem (e.g., premises, response choices, etc.).
 
 To be able to match structurally equivalent syllogism even though they may contain different
@@ -120,7 +120,7 @@ categorical terms (e.g., *All A are B; Some B are C* and
 from the item container into a standardized form. In syllogistic reasoning, there exists
 a common form of abbreviating tasks by encoding the quantifiers using capital letters (e.g.,
 *AI1* for the example from before). This conversion step is handled internally by the
-``Syllogism`` helper class which is instantiated in line 7. Consequently, we can use this
+:class:`~ccobra.syllogistic.Syllogism` helper class which is instantiated in line 7. Consequently, we can use this
 object to extract encodings for the task and response.
 
 Finally, we populate the mfa dictionary for the population data (``self.mfa_population``)
@@ -253,6 +253,6 @@ essentially reflects a single iteration of the ``pre_train_person`` function.
 .. note::
 
     Since the pre_train_person function often performs just a sequence of adaption steps,
-    the default ``CCobraModel`` class implements this as a default functionality. Hence,
+    the :class:`~ccobra.CCobraModel` class implements this as a default functionality. Hence,
     for our implementation of the MFA model, we could have omitted the ``pre_train_person``
     function without altering the model's behavior.

@@ -15,6 +15,7 @@ Welcome to CCOBRA's documentation!
    usage/myfirstdataset.rst
    usage/myfirstbenchmark.rst
    usage/myfirstmodel.rst
+   usage/benchmarktypes.rst
    usage/tutorial.rst
    usage/learning.rst
 

@@ -190,13 +190,15 @@ Lets consider an example for syllogistic reasoning:
 
 The benchmark instructs CCOBRA to perform an ``adaption`` analysis in which
 models are sequentially fed tasks and are updated afterwards. This type of
-analysis evaluates the general ability of models to provide accurate predictions
-for human behavior. In contrast ``coverage`` would provide all tasks as
-person-training data before querying for predictions for the same set of tasks.
-This type of analysis essentially evaluates the ability of models to capture
-a participant with respect to their parameter spaces (note, that for
-database-like models which store training data, this type of analysis does not
-provide meaningful results).
+analysis evaluates the general ability of models to provide accurate
+predictions for human behavior. In contrast ``prediction`` would allow models
+to fit at the beginning of the run, but they were allowed to adjust during
+the prediction phase. Finally, ``coverage`` would provide all tasks as 
+person-training data before querying for predictions for the same set of
+tasks. This type of analysis essentially evaluates the ability of models to
+capture a participant with respect to their parameter spaces (note, that for
+database-like models which store training data, this type of analysis does
+not provide meaningful results).
 
 Next, training and test datasets are both set to ``Ragni2016.csv`` and
 ``corresponding_data`` is set to ``true`` indicating that CCOBRA is supposed
