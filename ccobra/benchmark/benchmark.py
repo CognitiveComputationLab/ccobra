@@ -353,19 +353,29 @@ class Benchmark():
             logger.debug('adjusting identifier offsets...')
             self.data_pre_train.prefix_identifiers()
         elif self.data_pre_train is not None and self.corresponding_data:
-            logger.debug('extracting person_background from comparing data_pre_train with data_test...')
+            logger.debug('extracting additional person data from comparing data_pre_train with data_test...')
 
             # Identify the columns which are present only
             merge = data_pre_train_df.merge(data_test_df, how='left', indicator=True)
             data_train_only_df = merge.loc[merge['_merge'] == 'left_only'].drop(columns=['_merge'])
 
-            # Append to background data
-            comb_df = data_train_only_df
-            if data_pre_person_background_df is not None:
-                comb_df = pd.concat(comb_df, data_pre_person_background_df)
+            # Append domain related data to pre_train_person
+            domain_related_df = data_train_only_df.loc[data_train_only_df['domain'].isin(self.data_test.domains)]
+            
+            if data_pre_train_person_df is not None:
+                domain_related_df = pd.concat(domain_related_df, data_pre_train_person_df)
 
-            if not comb_df.empty:
-                self.data_pre_person_background = CCobraData(comb_df.drop(columns='_unique_id'))
+            if not domain_related_df.empty:
+                self.data_pre_train_person = CCobraData(domain_related_df.drop(columns='_unique_id'))
+
+            # Append domain unrelated data to pre_person_background
+            domain_unrelated_df = data_train_only_df.loc[~data_train_only_df['domain'].isin(self.data_test.domains)]
+            
+            if data_pre_person_background_df is not None:
+                domain_unrelated_df = pd.concat(domain_unrelated_df, data_pre_person_background_df)
+
+            if not domain_unrelated_df.empty:
+                self.data_pre_person_background = CCobraData(domain_unrelated_df.drop(columns='_unique_id'))
 
     def parse_models(self):
         """ Parses the benchmark model information.

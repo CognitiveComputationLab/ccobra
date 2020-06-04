@@ -166,13 +166,13 @@ class Evaluator():
                     # Perform background fitting
                     if self.do_pre_person_background:
                         logger.debug('Person background training for %s...', model_name)
-                        cur_train_data = self.dict_pre_person_background[subj_key_identifier]
+                        cur_train_data = self.dict_pre_person_background.get(subj_key_identifier, [])
                         model.pre_person_background(cur_train_data)
 
                     # Perform person training
                     if self.do_pre_train_person:
                         logger.debug('Person training for %s...', model_name)
-                        subj_person_train_data = self.dict_pre_train_person[subj_key_identifier]
+                        subj_person_train_data = self.dict_pre_train_person.get(subj_key_identifier, [])
                         model.pre_train_person(subj_person_train_data)
 
                     # Iterate over individual tasks
