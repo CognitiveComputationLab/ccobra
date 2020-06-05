@@ -12,6 +12,9 @@
         <style>
             {{CSSNESS}}
         </style>
+		<script>
+			var resultData = {{RESULT_DATA}};
+		</script>
     </head>
     <body>
         <h1>CCOBRA Evaluation Results</h1>
@@ -142,8 +145,7 @@
                     save_plot(e.target.getAttribute("plot_type"));
                 };
             }
-
-            var resultData = {{RESULT_DATA}};
+			
             function downloadResultData() {
                 var csvContent = "data:text/csv;charset=utf-8,";
                 csvContent += resultData.join(String.fromCharCode(10));

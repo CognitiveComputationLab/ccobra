@@ -204,7 +204,7 @@ class Evaluator():
                             'sequence': task['item'].sequence_number,
                             'task': comparator.tuple_to_string(task['item'].task),
                             'choices': comparator.tuple_to_string(task['item'].choices),
-                            'truth': task['response'],
+                            'truth': comparator.tuple_to_string(task['response']),
                             'prediction': comparator.tuple_to_string(prediction),
                             'hit': hit,
                             'type': self.benchmark.type

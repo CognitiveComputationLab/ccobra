@@ -125,7 +125,8 @@ def main(args):
     htmlcrtr = html_creator.HTMLCreator([
         viz_plot.AccuracyVisualizer(),
         viz_plot.BoxplotVisualizer(),
-        viz_plot.TableVisualizer()
+        viz_plot.MFATableVisualizer(),
+        viz_plot.SubjectTableVisualizer()
     ])
 
     # Prepare the benchmark output information and visualize the evaluation results

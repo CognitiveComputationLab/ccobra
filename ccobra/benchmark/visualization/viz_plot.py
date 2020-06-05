@@ -262,13 +262,13 @@ class BoxplotVisualizer(PlotVisualizer):
 
         return 'Subject-Based Boxplots'
 
-class TableVisualizer(PlotVisualizer):
+class MFATableVisualizer(PlotVisualizer):
     """ MFA table visualizer.
 
     """
 
     def __init__(self):
-        super(TableVisualizer, self).__init__('template_mfa.html', 'template_mfa.css')
+        super(MFATableVisualizer, self).__init__('template_mfa.html', 'template_mfa.css')
 
     def get_content_dict(self, result_df):
         """ Constructs the template-html mapping dictionary.
@@ -335,3 +335,51 @@ class TableVisualizer(PlotVisualizer):
         """
 
         return 'Most-Frequent Answer Comparison'
+
+class SubjectTableVisualizer(PlotVisualizer):
+    """ MFA table visualizer.
+
+    """
+
+    def __init__(self):
+        super(SubjectTableVisualizer, self).__init__('template_subject_table.html', 'template_subject_table.css')
+
+    def get_content_dict(self, result_df):
+        """ Constructs the template-html mapping dictionary.
+
+        Parameters
+        ----------
+        result_df : pd.DataFrame
+            CCOBRA result dataframe.
+
+        Returns
+        -------
+        dict(str, str)
+            Returns the content dictionary mapping from template placeholders to html snippets.
+
+        """
+
+        is_broken = result_df[['task_enc', 'prediction_enc', 'truth_enc']].apply(
+            lambda x: 0 < ((x[0] is None) + (x[1] is None) + (x[2] is None)) < 3, axis=1)
+
+        if np.any(is_broken):
+            return {
+                'TEXT': 'Invalid encoder specification. Table cannot be produced.'
+            }
+
+        return {
+            'TEXT': 'The following section shows the results for specific subjects. Please select the subject' \
+            + ' identifier using the selection box below.'
+        }
+
+    def shorttitle(self):
+        """ Shorttitle for the visualizer.
+
+        Returns
+        -------
+        str
+            Shorttitle for the visualizer.
+
+        """
+
+        return 'Subject Results'

@@ -1,0 +1,8 @@
+.subj_table td[corrpred] {
+    background-color: rgba(84, 209, 0, 0.231);
+}
+
+#subject_table_container {
+    width: 100%;
+    overflow-x: auto;
+}
