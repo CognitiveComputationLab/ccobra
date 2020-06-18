@@ -1,0 +1,12 @@
+#model_log_table_container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.model_log_table {
+    border: 1px solid #bbbbbb;
+}
+
+.model_log_table tr[bigrowmark]{
+    background-color: #cccccc80;
+}

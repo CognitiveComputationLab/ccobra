@@ -90,6 +90,7 @@ class Evaluator():
         logger.info('Starting evaluation routine...')
 
         result_data = []
+        model_logging_results = {}
         model_name_cache = set() if self.cache_df is None else set(self.cache_df['model'].unique())
 
         # Activate model context
@@ -103,6 +104,9 @@ class Evaluator():
 
             if not self.is_silent:
                 print(log_str)
+                
+            # Initialize the dictionary for the models logging output
+            model_logging_dict = {}
 
             # Setup model context
             with contextmanager.dir_context(modelinfo.path):
@@ -233,26 +237,33 @@ class Evaluator():
                         logger.debug(
                             'Task {} took {:4f}s'.format(task_idx + 1, time.time() - start_task))
 
-                    # Finalize subject evaluation
-                    model.end_participant(subj_id)
+                    # Finalize subject evaluation and allow the model to store parameters
+                    model_log = {}
+                    model.end_participant(subj_id, model_log)
+                    if len(model_log) > 0:
+                        model_logging_dict[subj_id]= model_log
 
                     logger.debug('Subject evaluation took {:.4}s'.format(time.time() - start_eval))
                     logger.debug('Subject {} done. took {:.4}s'.format(
                         subj_id, time.time() - start_subject))
 
+                # Save the models logging information if available
+                if len(model_logging_dict) > 0:
+                    model_logging_results[model_name] = model_logging_dict
+                
                 # Unload the imported model and its dependencies. Might cause garbage collection
                 # issues
                 importer.unimport()
-
+                
         res_df = pd.DataFrame(result_data)
         if self.cache_df is None:
-            return res_df
+            return res_df, model_logging_results
 
         if not result_data:
-            return self.cache_df
+            return self.cache_df, {}
 
         assert sorted(list(res_df)) == sorted(list(self.cache_df)), 'Incompatible cache'
-        return pd.concat([res_df, self.cache_df])
+        return pd.concat([res_df, self.cache_df]), model_logging_results
 
     def check_model_applicability(self, pre_model):
         """ Verifies the applicability of a model by checking its supported domains and response

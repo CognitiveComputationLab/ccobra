@@ -66,7 +66,7 @@ class PlotVisualizer():
         with open(template_path) as file_handle:
             self.template = file_handle.read()
 
-    def get_content_dict(self, result_df):
+    def get_content_dict(self, result_df, model_log):
         """ Obtain the dictionary mapping from HTML template placeholders
         to content.
 
@@ -84,7 +84,7 @@ class PlotVisualizer():
 
         raise NotImplementedError()
 
-    def to_html(self, result_df):
+    def to_html(self, result_df, model_log=None):
         """ Fill template with content
 
         Parameters
@@ -100,7 +100,7 @@ class PlotVisualizer():
         """
 
         # Obtain the template content
-        content_dict = self.get_content_dict(result_df)
+        content_dict = self.get_content_dict(result_df, model_log)
 
         # Fill the template and return the resulting HTML
         template = self.template
@@ -133,7 +133,7 @@ class AccuracyVisualizer(PlotVisualizer):
 
         super(AccuracyVisualizer, self).__init__('template_accuracy.html')
 
-    def get_content_dict(self, result_df):
+    def get_content_dict(self, result_df, model_log):
         """ Constructs the template-html mapping dictionary.
 
         Parameters
@@ -199,7 +199,7 @@ class BoxplotVisualizer(PlotVisualizer):
 
         super(BoxplotVisualizer, self).__init__('template_box.html')
 
-    def get_content_dict(self, result_df):
+    def get_content_dict(self, result_df, model_log):
         """ Constructs the template-html mapping dictionary.
 
         Parameters
@@ -270,7 +270,7 @@ class MFATableVisualizer(PlotVisualizer):
     def __init__(self):
         super(MFATableVisualizer, self).__init__('template_mfa.html', 'template_mfa.css')
 
-    def get_content_dict(self, result_df):
+    def get_content_dict(self, result_df, model_log):
         """ Constructs the template-html mapping dictionary.
 
         Parameters
@@ -344,7 +344,7 @@ class SubjectTableVisualizer(PlotVisualizer):
     def __init__(self):
         super(SubjectTableVisualizer, self).__init__('template_subject_table.html', 'template_subject_table.css')
 
-    def get_content_dict(self, result_df):
+    def get_content_dict(self, result_df, model_log):
         """ Constructs the template-html mapping dictionary.
 
         Parameters
@@ -383,3 +383,51 @@ class SubjectTableVisualizer(PlotVisualizer):
         """
 
         return 'Subject Results'
+
+class ModelLogVisualizer(PlotVisualizer):
+    """ MFA table visualizer.
+
+    """
+
+    def __init__(self):
+        super(ModelLogVisualizer, self).__init__('template_model_log.html', 'template_model_log.css')
+
+    def get_content_dict(self, result_df, model_log):
+        """ Constructs the template-html mapping dictionary.
+
+        Parameters
+        ----------
+        result_df : pd.DataFrame
+            CCOBRA result dataframe.
+
+        Returns
+        -------
+        dict(str, str)
+            Returns the content dictionary mapping from template placeholders to html snippets.
+
+        """
+
+        is_broken = result_df[['task_enc', 'prediction_enc', 'truth_enc']].apply(
+            lambda x: 0 < ((x[0] is None) + (x[1] is None) + (x[2] is None)) < 3, axis=1)
+
+        if model_log is None or len(model_log) == 0:
+            return {
+                'TEXT': 'None of the models logged any information.'
+            }
+
+        return {
+            'MODEL_LOGS' : json.dumps(model_log),
+            'TEXT' : 'Logged information from the models.'
+        }
+
+    def shorttitle(self):
+        """ Shorttitle for the visualizer.
+
+        Returns
+        -------
+        str
+            Shorttitle for the visualizer.
+
+        """
+
+        return 'Model Logs'

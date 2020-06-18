@@ -59,7 +59,7 @@ class CCobraModel():
 
         pass
 
-    def end_participant(self, identifier, **kwargs):
+    def end_participant(self, identifier, model_log, **kwargs):
         """ Hook for when participant simulation ends.
 
         Parameters
@@ -67,6 +67,9 @@ class CCobraModel():
         identifier : str or int
             Participant identifier.
 
+        model_log : dict(str, object)
+            Dictionary to allow the model to log information for the final output (e.g., parameter
+            configurations for this participant).
         """
 
         pass

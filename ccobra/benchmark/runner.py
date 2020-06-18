@@ -116,7 +116,7 @@ def main(args):
     is_silent = (args['output'] in ['html', 'server'])
     eva = evaluator.Evaluator(benchmark, is_silent=is_silent, cache_df=cache_df)
     with silence_stdout(is_silent):
-        res_df = eva.evaluate()
+        res_df, model_log = eva.evaluate()
 
     if 'save' in args:
         res_df.to_csv(args['save'], index=False)
@@ -126,7 +126,8 @@ def main(args):
         viz_plot.AccuracyVisualizer(),
         viz_plot.BoxplotVisualizer(),
         viz_plot.MFATableVisualizer(),
-        viz_plot.SubjectTableVisualizer()
+        viz_plot.SubjectTableVisualizer(),
+        viz_plot.ModelLogVisualizer()
     ])
 
     # Prepare the benchmark output information and visualize the evaluation results
@@ -160,10 +161,10 @@ def main(args):
 
     # Generate the HTML output
     if args['output'] == 'server':
-        html = htmlcrtr.to_html(res_df, benchmark_info, embedded=True)
+        html = htmlcrtr.to_html(res_df, benchmark_info, model_log, embedded=True)
         sys.stdout.buffer.write(html.encode('utf-8'))
     else:
-        html = htmlcrtr.to_html(res_df, benchmark_info, embedded=False)
+        html = htmlcrtr.to_html(res_df, benchmark_info, model_log, embedded=False)
 
         # Save HTML output to file
         benchmark_filename = os.path.splitext(os.path.basename(args['benchmark']))[0]

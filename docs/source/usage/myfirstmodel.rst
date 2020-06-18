@@ -11,18 +11,18 @@ Overview of CCOBRA models
 CCOBRA provides an interface class called :class:`~ccobra.CCobraModel` which defines
 the set of function used to handle the framework-model communication:
 
-========================= ======== =====================================================================================
+========================= ======== ==============================================================================================
 Function name             Required Description
-========================= ======== =====================================================================================
+========================= ======== ==============================================================================================
 ``setup_environment``     no       Provide meta-information about the evaluation setting.
 ``start_participant``     no       Provide information about the participant to be predicted for.
-``end_participant``       no       Callback hook for when evaluation for a participant ends.
+``end_participant``       no       Callback hook for when evaluation for a participant ends. Allows the model to log information.
 ``pre_train``             no       Provides data for training on unrelated examples.
 ``pre_train_person``      no       Provides data for training on responses by the participant to be predicted for.
 ``pre_person_background`` no       Provides data for training on external data from the participant to be predicted for.
 ``predict``               yes      Queries the model for a prediction for a specific task.
 ``adapt``                 no       Provides the true participant response to allow for online learning.
-========================= ======== =====================================================================================
+========================= ======== ==============================================================================================
 
 Model Object Lifetime
 :::::::::::::::::::::

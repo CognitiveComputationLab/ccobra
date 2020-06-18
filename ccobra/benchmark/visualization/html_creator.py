@@ -47,7 +47,7 @@ class HTMLCreator():
             with codecs.open(path, "r", "utf-8") as file_handle:
                 self.external_contents[key] = file_handle.read() + '\n'
 
-    def to_html(self, result_df, benchmark, embedded=False):
+    def to_html(self, result_df, benchmark, model_log, embedded=False):
         """ Generates the html output string.
 
         Parameters
@@ -57,6 +57,9 @@ class HTMLCreator():
 
         benchmark : dict(str, object)
             Benchmark properties.
+            
+        model_log : dict(str, dict(str, object))
+            Dictionary containing logging information that models supplied via end_participant.
 
         embedded : bool
             Flag indicating embedded usage. Removes CSS and window handling scripts from the
@@ -81,7 +84,7 @@ class HTMLCreator():
                 css_dependencies.append(metric.template_CSS)
 
             # Add HTML content div
-            metric_html = metric.to_html(result_df)
+            metric_html = metric.to_html(result_df, model_log)
             metric_tab_data = (metric.shorttitle().lower().replace(' ', '-'), metric.shorttitle())
 
             metric_content = '<div id="{}-expand-bar" class="expand-bar">{}</div>'.format(
