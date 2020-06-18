@@ -1,91 +1,91 @@
 <p style="text-align: center">{{TEXT}}</p>
 
 <p style="text-align: center">
-	Select subject ID: <select id="select_subject_box"></select>
+    Select subject ID: <select id="select_subject_box"></select>
 </p>
 <p style="text-align: center">
-	<button class="button_result" type="button" onclick="drawTable()">Show</button>
+    <button class="button_result" type="button" onclick="drawTable()">Show</button>
 </p>
 
 <div id="subject_table_container"></div>
 <script>
-	function readData(rows) {
-		var subjectDict = {};
-		var models = new Set();
-		var tasks = new Set();
-		var ids = new Set();
-		
-		var header = rows[0].replace(/\r/g, "").split(",");
-		if(header.indexOf("task_enc") == -1) return [{},[],[],[]];
+    function readData(rows) {
+        var subjectDict = {};
+        var models = new Set();
+        var tasks = new Set();
+        var ids = new Set();
 
-		for(i=1; i<rows.length; i++) {
-			if(rows[i] == "") continue;
-			elements = rows[i].replace(/\r/g, "").split(",");
-			
-			id = elements[header.indexOf("id")];
-			if(!(id in subjectDict)) subjectDict[id] = {};
-			ids.add(id);
-			
-			task = elements[header.indexOf("task_enc")];
-			if(!(task in subjectDict[id])) subjectDict[id][task] = {};
-			tasks.add(task);
-			
-			model = elements[header.indexOf("model")];
-			models.add(model);
-			subjectDict[id][task][model] = elements[header.indexOf("prediction_enc")];
-			subjectDict[id][task]["_truth"] = elements[header.indexOf("truth_enc")];
-		}
-		return [subjectDict, tasks, models, ids];
-	}
-	function addOptionsToList(lis, options) {
-		for(i=0; i<options.length; i++) {
-			var opt = document.createElement('option');
-			opt.appendChild(document.createTextNode(options[i]));
-			lis.appendChild(opt);
-		}
-	}
-	
-	var dataResult = readData(resultData);
-	var subjectDict = dataResult[0];
-	var uniqueTasks = Array.from(dataResult[1]);
-	uniqueTasks.sort();
-	var uniqueModels = Array.from(dataResult[2]);
-	uniqueModels.sort();
-	var uniqueIds = Array.from(dataResult[3]);
+        var header = rows[0].replace(/\r/g, "").split(",");
+        if(header.indexOf("task_enc") == -1) return [{},[],[],[]];
 
-	addOptionsToList(document.getElementById('select_subject_box'), uniqueIds);
-	
-	function drawTable() {
-		var selection = document.getElementById('select_subject_box').value;
-		if(selection === 'undefined' || selection == "") return;
-		if(!(selection in subjectDict)) return;
-		if(uniqueIds.length == 0) return;
-		
-		var table_html = '<table class="subj_table" align="center">';
-		var header = ["Task"];
-		for(i=0; i<uniqueModels.length; i++) header.push(uniqueModels[i]);
-		header.push("Truth");
-		table_html += '<tr><th>';
+        for(i=1; i<rows.length; i++) {
+            if(rows[i] == "") continue;
+            elements = rows[i].replace(/\r/g, "").split(",");
+
+            id = elements[header.indexOf("id")];
+            if(!(id in subjectDict)) subjectDict[id] = {};
+            ids.add(id);
+
+            task = elements[header.indexOf("task_enc")];
+            if(!(task in subjectDict[id])) subjectDict[id][task] = {};
+            tasks.add(task);
+
+            model = elements[header.indexOf("model")];
+            models.add(model);
+            subjectDict[id][task][model] = elements[header.indexOf("prediction_enc")];
+            subjectDict[id][task]["_truth"] = elements[header.indexOf("truth_enc")];
+        }
+        return [subjectDict, tasks, models, ids];
+    }
+    function addOptionsToList(lis, options) {
+        for(i=0; i<options.length; i++) {
+            var opt = document.createElement('option');
+            opt.appendChild(document.createTextNode(options[i]));
+            lis.appendChild(opt);
+        }
+    }
+
+    var dataResult = readData(resultData);
+    var subjectDict = dataResult[0];
+    var uniqueTasks = Array.from(dataResult[1]);
+    uniqueTasks.sort();
+    var uniqueModels = Array.from(dataResult[2]);
+    uniqueModels.sort();
+    var uniqueIds = Array.from(dataResult[3]);
+
+    addOptionsToList(document.getElementById('select_subject_box'), uniqueIds);
+
+    function drawTable() {
+        var selection = document.getElementById('select_subject_box').value;
+        if(selection === 'undefined' || selection == "") return;
+        if(!(selection in subjectDict)) return;
+        if(uniqueIds.length == 0) return;
+
+        var table_html = '<table class="subj_table" align="center">';
+        var header = ["Task"];
+        for(i=0; i<uniqueModels.length; i++) header.push(uniqueModels[i]);
+        header.push("Truth");
+        table_html += '<tr><th>';
         table_html += header.join("</th><th>");
         table_html += "</th></tr>";
-		
-		subjectResults = subjectDict[selection];
-		uniqueTasks.forEach(function(task) {
-			taskResults = subjectResults[task];
-			table_html += "<tr>";
-			table_html += "<td>" + task + "</td>";
-			truth = taskResults["_truth"];
-			uniqueModels.forEach(function(model) {
-				prediction = taskResults[model];
-				if(prediction == truth)
-					table_html += "<td corrpred>" + prediction + "</td>";
-				else	
-					table_html += "<td>" + prediction + "</td>";
-			});
-			table_html += "<td>" + taskResults["_truth"] + "</td>";
-			table_html += "</tr>";
-		});	
-		document.getElementById("subject_table_container").innerHTML = table_html;
-	}
+
+        subjectResults = subjectDict[selection];
+        uniqueTasks.forEach(function(task) {
+            taskResults = subjectResults[task];
+            table_html += "<tr>";
+            table_html += "<td>" + task + "</td>";
+            truth = taskResults["_truth"];
+            uniqueModels.forEach(function(model) {
+                prediction = taskResults[model];
+                if(prediction == truth)
+                    table_html += "<td corrpred>" + prediction + "</td>";
+                else
+                    table_html += "<td>" + prediction + "</td>";
+            });
+            table_html += "<td>" + taskResults["_truth"] + "</td>";
+            table_html += "</tr>";
+        });
+        document.getElementById("subject_table_container").innerHTML = table_html;
+    }
 
 </script>

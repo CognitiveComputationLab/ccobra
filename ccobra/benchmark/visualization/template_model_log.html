@@ -4,69 +4,69 @@
     <p>
         {{TEXT}}
     </p>
-	<p style="text-align: center">
-	Select model: <select id="select_model_box"></select>
-	<button name="show_model_log_button" type="button" class="button_result" onclick="showModelLog();">Show</button>
-	</p>
+    <p style="text-align: center">
+    Select model: <select id="select_model_box"></select>
+    <button name="show_model_log_button" type="button" class="button_result" onclick="showModelLog();">Show</button>
+    </p>
     <button id="save_model_log_button" type="button" class="button_result">Save Full Log</button>
-	<button id="save_current_log_button" type="button" class="button_result" hidden>Save Current Log</button>
-	
-	<div id="model_log_table_container"></div>
+    <button id="save_current_log_button" type="button" class="button_result" hidden>Save Current Log</button>
+
+    <div id="model_log_table_container"></div>
 </div>
 
 <script>
-	var modelLogData = {{MODEL_LOGS}};
-	var currentModelLog = "";
-	var currentModelName = "";
-	var model_selector = document.getElementById("select_model_box");
-	for (var key of Object.keys(modelLogData)) {
-		var opt = document.createElement('option');
-		opt.appendChild(document.createTextNode(key));
-		model_selector.appendChild(opt);
-	}
-	
-	function showModelLog() {
-		sel_model = model_selector.value;
-		if(sel_model in modelLogData) {
-			modelLogs = modelLogData[sel_model];
-			currentModelLog = modelLogs;
-			currentModelName = sel_model;
-			document.getElementById("save_current_log_button").hidden = false;
-			
-			var table_html = '<table class="model_log_table" align="center">';
-			table_html += '<tr><th>Subject</th><th>Key</th><th>Content</th></tr>';
-			should_mark = true;
-			for(subj of Object.keys(modelLogs)) {
-				parametersDict = modelLogs[subj];
-				parameters = Object.keys(parametersDict);
-				if(should_mark)
-					table_html += '<tr bigrowmark><td rowspan="' + parameters.length + '">' + subj + '</td>';
-				else
-					table_html += '<tr><td rowspan="' + parameters.length + '">' + subj + '</td>';
-				isFirst = true;
-				
-				for(param of parameters){
-					if(isFirst) {
-						table_html += '<td>' + param + '</td><td>' + JSON.stringify(parametersDict[param]) + '</td></tr>';
-						isFirst = false;
-					} else {
-						if(should_mark)
-							table_html += '<tr bigrowmark><td>' + param + '</td><td>' + JSON.stringify(parametersDict[param]) + '</td></tr>';
-						else
-							table_html += '<tr><td>' + param + '</td><td>' + JSON.stringify(parametersDict[param]) + '</td></tr>';
-					}
-				}
-				table_html += '</tr>';
-				should_mark = !should_mark;
-			}
-			table_html += '</table>';
-			document.getElementById("model_log_table_container").innerHTML = table_html;
-		}
-	}
-	
-	function saveModelLog(modelLogData, name) {
+    var modelLogData = {{MODEL_LOGS}};
+    var currentModelLog = "";
+    var currentModelName = "";
+    var model_selector = document.getElementById("select_model_box");
+    for (var key of Object.keys(modelLogData)) {
+        var opt = document.createElement('option');
+        opt.appendChild(document.createTextNode(key));
+        model_selector.appendChild(opt);
+    }
+
+    function showModelLog() {
+        sel_model = model_selector.value;
+        if(sel_model in modelLogData) {
+            modelLogs = modelLogData[sel_model];
+            currentModelLog = modelLogs;
+            currentModelName = sel_model;
+            document.getElementById("save_current_log_button").hidden = false;
+
+            var table_html = '<table class="model_log_table" align="center">';
+            table_html += '<tr><th>Subject</th><th>Key</th><th>Content</th></tr>';
+            should_mark = true;
+            for(subj of Object.keys(modelLogs)) {
+                parametersDict = modelLogs[subj];
+                parameters = Object.keys(parametersDict);
+                if(should_mark)
+                    table_html += '<tr bigrowmark><td rowspan="' + parameters.length + '">' + subj + '</td>';
+                else
+                    table_html += '<tr><td rowspan="' + parameters.length + '">' + subj + '</td>';
+                isFirst = true;
+
+                for(param of parameters){
+                    if(isFirst) {
+                        table_html += '<td>' + param + '</td><td>' + JSON.stringify(parametersDict[param]) + '</td></tr>';
+                        isFirst = false;
+                    } else {
+                        if(should_mark)
+                            table_html += '<tr bigrowmark><td>' + param + '</td><td>' + JSON.stringify(parametersDict[param]) + '</td></tr>';
+                        else
+                            table_html += '<tr><td>' + param + '</td><td>' + JSON.stringify(parametersDict[param]) + '</td></tr>';
+                    }
+                }
+                table_html += '</tr>';
+                should_mark = !should_mark;
+            }
+            table_html += '</table>';
+            document.getElementById("model_log_table_container").innerHTML = table_html;
+        }
+    }
+
+    function saveModelLog(modelLogData, name) {
         var content = "data:application/json;charset=utf-8,";
-		content += JSON.stringify(modelLogData);
+        content += JSON.stringify(modelLogData);
         var encodedUri = encodeURI(content);
         var link = document.createElement("a");
         link.setAttribute("href", encodedUri);
@@ -74,7 +74,7 @@
         document.body.appendChild(link);
         link.click();
     }
-	document.getElementById("save_model_log_button").onclick = function() {saveModelLog(modelLogData, "log_full");};
-	document.getElementById("save_current_log_button").onclick = function() {saveModelLog(currentModelLog, "log_" + currentModelName);};
+    document.getElementById("save_model_log_button").onclick = function() {saveModelLog(modelLogData, "log_full");};
+    document.getElementById("save_current_log_button").onclick = function() {saveModelLog(currentModelLog, "log_" + currentModelName);};
 </script>
 
