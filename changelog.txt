@@ -1,3 +1,12 @@
+## Upcoming
+
+- Improve rendering performance of output HTML file
+- Extend and improve documentation
+- Change behavior of person training data. Same domains as test data are provided as pre_train_person data, other domains are provided as pre_person_background data
+- Add possibility for model logging in end_participant
+- Add model log visualization
+- Hide inapplicable visualizations
+
 ## Version 1.0.0
 
 - Remove training data from coverage benchmarks
