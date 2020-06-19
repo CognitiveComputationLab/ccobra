@@ -85,6 +85,11 @@ class HTMLCreator():
 
             # Add HTML content div
             metric_html = metric.to_html(result_df, model_log)
+            
+            # Skip metrics if they have no information
+            if metric_html is None:
+                continue
+            
             metric_tab_data = (metric.shorttitle().lower().replace(' ', '-'), metric.shorttitle())
 
             metric_content = '<div id="{}-expand-bar" class="expand-bar">{}</div>'.format(

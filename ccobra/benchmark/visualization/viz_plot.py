@@ -74,11 +74,15 @@ class PlotVisualizer():
         ----------
         result_df : pd.DataFrame
             CCOBRA result dataframe.
+            
+        model_log : dict(str, dict(str, object))
+            Dictionary containing logging information that models supplied via end_participant.
 
         Returns
         -------
         dict(str, str)
             Returns the content dictionary mapping from template placeholders to html snippets.
+            None is returned, if the prerequisites for the visualization are not met.
 
         """
 
@@ -91,16 +95,24 @@ class PlotVisualizer():
         ----------
         result_df : pd.DataFrame
             CCOBRA result dataframe.
-
+            
+        model_log : dict(str, dict(str, object))
+            Dictionary containing logging information that models supplied via end_participant.
+            
         Returns
         -------
         str
-            Html content string for this visualizer.
+            Html content string for this visualizer. None is returned, if the prerequisites
+            for the visualization are not met.
 
         """
 
         # Obtain the template content
         content_dict = self.get_content_dict(result_df, model_log)
+        
+        # If the content dict is empty, the complete section can be skipped
+        if content_dict is None:
+            return None
 
         # Fill the template and return the resulting HTML
         template = self.template
@@ -140,6 +152,9 @@ class AccuracyVisualizer(PlotVisualizer):
         ----------
         result_df : pd.DataFrame
             CCOBRA result dataframe.
+            
+        model_log : dict(str, dict(str, object))
+            Dictionary containing logging information that models supplied via end_participant.
 
         Returns
         -------
@@ -206,6 +221,9 @@ class BoxplotVisualizer(PlotVisualizer):
         ----------
         result_df : pd.DataFrame
             CCOBRA result dataframe.
+            
+        model_log : dict(str, dict(str, object))
+            Dictionary containing logging information that models supplied via end_participant.
 
         Returns
         -------
@@ -277,46 +295,44 @@ class MFATableVisualizer(PlotVisualizer):
         ----------
         result_df : pd.DataFrame
             CCOBRA result dataframe.
+            
+        model_log : dict(str, dict(str, object))
+            Dictionary containing logging information that models supplied via end_participant.
 
         Returns
         -------
         dict(str, str)
             Returns the content dictionary mapping from template placeholders to html snippets.
+            If no task encoding or encoder was provided, None is returned.
 
         """
 
         is_broken = result_df[['task_enc', 'prediction_enc', 'truth_enc']].apply(
-            lambda x: 0 < ((x[0] is None) + (x[1] is None) + (x[2] is None)) < 3, axis=1)
+            lambda x: len(x[0]) == len(x[1]) == len(x[2]) == 0, axis=1)
 
-        if np.any(is_broken):
-            return {
-                'MFA_DATA': 'null',
-                'TEXT': 'Invalid encoder specification. Table cannot be produced.'
-            }
+        if np.all(is_broken):
+            return None
 
         # Construct the MFA dictionary
         mfa_dict = {}
-        for syllog, syllog_df in result_df.groupby('task_enc'):
-            mfa_dict[syllog] = {}
-            for model, model_df in syllog_df.groupby('model'):
+        for task, task_df in result_df.groupby('task_enc'):
+            mfa_dict[task] = {}
+            for model, model_df in task_df.groupby('model'):
                 pred_counts = collections.Counter(model_df['prediction_enc'])
                 pred_max_count = max([x[1] for x in pred_counts.items()])
                 mfa = '<br>'.join(
                     sorted([x[0] for x in pred_counts.items() if x[1] == pred_max_count]))
-                mfa_dict[syllog][model] = mfa
+                mfa_dict[task][model] = mfa
 
             # Add data MFA
-            truth_counts = collections.Counter(syllog_df['truth_enc'])
+            truth_counts = collections.Counter(task_df['truth_enc'])
             truth_max_count = max([x[1] for x in truth_counts.items()])
             mfa = '<br>'.join(
                 sorted([x[0] for x in truth_counts.items() if x[1] == truth_max_count]))
-            mfa_dict[syllog]['DATA'] = mfa
+            mfa_dict[task]['DATA'] = mfa
 
         if not mfa_dict:
-            return {
-                'MFA_DATA': 'null',
-                'TEXT': 'No data encodings available.'
-            }
+            return None
 
         return {
             'MFA_DATA': json.dumps(mfa_dict),
@@ -356,16 +372,15 @@ class SubjectTableVisualizer(PlotVisualizer):
         -------
         dict(str, str)
             Returns the content dictionary mapping from template placeholders to html snippets.
+            If no task encoding or encoder was provided, None is returned.
 
         """
 
         is_broken = result_df[['task_enc', 'prediction_enc', 'truth_enc']].apply(
-            lambda x: 0 < ((x[0] is None) + (x[1] is None) + (x[2] is None)) < 3, axis=1)
+            lambda x: len(x[0]) == len(x[1]) == len(x[2]) == 0, axis=1)
 
-        if np.any(is_broken):
-            return {
-                'TEXT': 'Invalid encoder specification. Table cannot be produced.'
-            }
+        if np.all(is_broken):
+            return None
 
         return {
             'TEXT': 'The following section shows the results for specific subjects. Please select the subject' \
@@ -399,21 +414,20 @@ class ModelLogVisualizer(PlotVisualizer):
         ----------
         result_df : pd.DataFrame
             CCOBRA result dataframe.
+            
+        model_log : dict(str, dict(str, object))
+            Dictionary containing logging information that models supplied via end_participant.
 
         Returns
         -------
         dict(str, str)
             Returns the content dictionary mapping from template placeholders to html snippets.
+            None is returned if no logged informations are available.
 
         """
 
-        is_broken = result_df[['task_enc', 'prediction_enc', 'truth_enc']].apply(
-            lambda x: 0 < ((x[0] is None) + (x[1] is None) + (x[2] is None)) < 3, axis=1)
-
         if model_log is None or len(model_log) == 0:
-            return {
-                'TEXT': 'None of the models logged any information.'
-            }
+            return None
 
         return {
             'MODEL_LOGS' : json.dumps(model_log),
