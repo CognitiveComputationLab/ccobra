@@ -104,7 +104,7 @@ class Evaluator():
 
             if not self.is_silent:
                 print(log_str)
-                
+
             # Initialize the dictionary for the models logging output
             model_logging_dict = {}
 
@@ -188,51 +188,16 @@ class Evaluator():
                         # Integrity checks
                         assert task['item'].identifier == subj_id
 
-                        # Obtain prediction from the model
-                        prediction = model.predict(copy.deepcopy(task['item']), **task['aux'])
-                        hit = int(self.benchmark.eval_comparator.compare(prediction, task['response']))
+                        # Query models for predictions
+                        for eh in self.benchmark.evaluation_handlers:
+                            target = task[eh.data_column]
+                            eh.predict(model, model_name, task['item'], target, task['aux'])
 
-                        logger.debug('Prediction to %s is %s', task['item'].task, prediction)
-
-                        # Adapt to true response
+                        # Perform model adaption
                         if self.do_adapt:
-                            model.adapt(copy.deepcopy(task['item']), task['response'], **task['aux'])
-
-                        # Collect the evaluation result data
-                        domain = task['item'].domain
-                        prediction_data = {
-                            'model': model_name,
-                            'id': subj_id,
-                            'domain': task['item'].domain,
-                            'response_type': task['item'].response_type,
-                            'sequence': task['item'].sequence_number,
-                            'task': comparator.tuple_to_string(task['item'].task),
-                            'choices': comparator.tuple_to_string(task['item'].choices),
-                            'truth': comparator.tuple_to_string(task['response']),
-                            'prediction': comparator.tuple_to_string(prediction),
-                            'hit': hit,
-                            'type': self.benchmark.type
-                        }
-
-                        # If domain encoders are specified, attach encodings to the result
-                        task_enc = ''
-                        truth_enc = ''
-                        pred_enc = ''
-                        if domain in self.benchmark.encoders:
-                            task_enc = self.benchmark.encoders[domain].encode_task(
-                                task['item'].task) if domain in self.benchmark.encoders else np.nan
-                            truth_enc = self.benchmark.encoders[domain].encode_response(
-                                task['response'], task['item'].task) if domain in self.benchmark.encoders else np.nan
-                            pred_enc = self.benchmark.encoders[domain].encode_response(
-                                prediction, task['item'].task) if domain in self.benchmark.encoders else np.nan
-
-                        prediction_data.update({
-                            'task_enc': task_enc,
-                            'truth_enc': truth_enc,
-                            'prediction_enc': pred_enc
-                        })
-
-                        result_data.append(prediction_data)
+                            for eh in self.benchmark.evaluation_handlers:
+                                target = task[eh.data_column]
+                                eh.adapt(model, task['item'], task['full'])
 
                         logger.debug(
                             'Task {} took {:4f}s'.format(task_idx + 1, time.time() - start_task))
@@ -250,12 +215,34 @@ class Evaluator():
                 # Save the models logging information if available
                 if len(model_logging_dict) > 0:
                     model_logging_results[model_name] = model_logging_dict
-                
+
                 # Unload the imported model and its dependencies. Might cause garbage collection
                 # issues
                 importer.unimport()
-                
-        res_df = pd.DataFrame(result_data)
+
+        res_df = None
+        on_list = [
+            'model',
+            'id',
+            'domain',
+            'response_type',
+            'sequence',
+            'task',
+            'choices'
+        ]
+
+        for enc in self.benchmark.evaluation_handlers:
+            if res_df is None:
+                res_df = enc.get_result_df()
+            else:
+                res_df = res_df.merge(enc.get_result_df(), on=on_list, suffixes=('', '_' + enc.data_column))
+
+        res_df = res_df.rename(columns={
+            'score': 'hit',
+            'truth_enc': 'truth_enc',
+            'prediction_enc': 'prediction_enc'
+        })
+
         if self.cache_df is None:
             return res_df, model_logging_results
 

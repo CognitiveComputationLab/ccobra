@@ -74,7 +74,7 @@ class PlotVisualizer():
         ----------
         result_df : pd.DataFrame
             CCOBRA result dataframe.
-            
+
         model_log : dict(str, dict(str, object))
             Dictionary containing logging information that models supplied via end_participant.
 
@@ -95,10 +95,10 @@ class PlotVisualizer():
         ----------
         result_df : pd.DataFrame
             CCOBRA result dataframe.
-            
+
         model_log : dict(str, dict(str, object))
             Dictionary containing logging information that models supplied via end_participant.
-            
+
         Returns
         -------
         str
@@ -109,7 +109,7 @@ class PlotVisualizer():
 
         # Obtain the template content
         content_dict = self.get_content_dict(result_df, model_log)
-        
+
         # If the content dict is empty, the complete section can be skipped
         if content_dict is None:
             return None
@@ -152,7 +152,7 @@ class AccuracyVisualizer(PlotVisualizer):
         ----------
         result_df : pd.DataFrame
             CCOBRA result dataframe.
-            
+
         model_log : dict(str, dict(str, object))
             Dictionary containing logging information that models supplied via end_participant.
 
@@ -221,7 +221,7 @@ class BoxplotVisualizer(PlotVisualizer):
         ----------
         result_df : pd.DataFrame
             CCOBRA result dataframe.
-            
+
         model_log : dict(str, dict(str, object))
             Dictionary containing logging information that models supplied via end_participant.
 
@@ -295,7 +295,7 @@ class MFATableVisualizer(PlotVisualizer):
         ----------
         result_df : pd.DataFrame
             CCOBRA result dataframe.
-            
+
         model_log : dict(str, dict(str, object))
             Dictionary containing logging information that models supplied via end_participant.
 
@@ -306,6 +306,9 @@ class MFATableVisualizer(PlotVisualizer):
             If no task encoding or encoder was provided, None is returned.
 
         """
+
+        if np.any([x not in result_df for x in ['task_enc', 'prediction_enc', 'truth_enc']]):
+            return None
 
         is_broken = result_df[['task_enc', 'prediction_enc', 'truth_enc']].apply(
             lambda x: len(x[0]) == len(x[1]) == len(x[2]) == 0, axis=1)
@@ -376,6 +379,9 @@ class SubjectTableVisualizer(PlotVisualizer):
 
         """
 
+        if np.any([x not in result_df for x in ['task_enc', 'prediction_enc', 'truth_enc']]):
+            return None
+
         is_broken = result_df[['task_enc', 'prediction_enc', 'truth_enc']].apply(
             lambda x: len(x[0]) == len(x[1]) == len(x[2]) == 0, axis=1)
 
@@ -414,7 +420,7 @@ class ModelLogVisualizer(PlotVisualizer):
         ----------
         result_df : pd.DataFrame
             CCOBRA result dataframe.
-            
+
         model_log : dict(str, dict(str, object))
             Dictionary containing logging information that models supplied via end_participant.
 

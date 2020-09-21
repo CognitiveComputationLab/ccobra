@@ -31,8 +31,9 @@
 """
 
 from .benchmark import Benchmark, ModelInfo, fix_rel_path, fix_model_path
-from .comparator import tuple_to_string, Comparator, EqualityComparator, NVCComparator
+from .comparator import tuple_to_string, Comparator, EqualityComparator, NVCComparator, AbsDiffComparator
 from .contextmanager import dir_context
 from .evaluator import Evaluator
 from .modelimporter import ModelImporter
 from .runner import entry_point, parse_arguments, main, silence_stdout
+from .evaluation_handler import EvaluationHandler

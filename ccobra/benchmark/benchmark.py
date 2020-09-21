@@ -11,6 +11,7 @@ import pandas as pd
 from . import comparator
 from . import contextmanager
 from . import modelimporter
+from . import evaluation_handler
 from ..data import CCobraData
 from ..domainhandler import CCobraDomainEncoder
 from ..propositional.encoder_prop import PropositionalEncoder
@@ -231,10 +232,9 @@ class Benchmark():
 
         # Parse the JSON content
         self.parse_type()
-        self.parse_comparator()
-        self.parse_data()
+        self.parse_auxiliary_evaluations()
         self.parse_models()
-        self.parse_domain_encoders()
+        self.parse_data()
 
         # Verify
         if self.type == 'coverage':
@@ -252,21 +252,61 @@ class Benchmark():
             raise ValueError('Unsupported evaluation type: {}'.format(self.type))
         logger.debug('Evaluation type: %s', self.type)
 
-    def parse_comparator(self):
+    def parse_comparator(self, comparator_type):
         """ Parses the comparator information (equality, nvc).
 
         """
 
-        # Extract comparator settings from benchmark description
-        comparator_type = self.json_content.get('comparator', 'equality')
+        # Create the comparator instance
         logger.debug('Comparator type: %s', comparator_type)
         if comparator_type == 'equality':
-            self.eval_comparator = comparator.EqualityComparator()
+            return comparator.EqualityComparator()
         elif comparator_type == 'nvc':
-            self.eval_comparator = comparator.NVCComparator()
+            return comparator.NVCComparator()
+        elif comparator_type == 'absdiff':
+            return comparator.AbsDiffComparator()
         else:
             raise ValueError('Invalid comparator type specified: {}'.format(comparator_type))
-        logger.debug('eval_comparator: %s', self.eval_comparator)
+
+    def parse_auxiliary_evaluations(self):
+        evaluations = self.json_content.get('aux_evaluations', [])
+
+        response_domain_encoders = self.json_content.get('domain_encoders', {})
+        if 'syllogistic' not in response_domain_encoders:
+            response_domain_encoders['syllogistic'] = '%ccobra%/syllogistic/encoder_syl.py'
+        if 'propositional' not in response_domain_encoders:
+            response_domain_encoders['propositional'] = '%ccobra%/propositional/encoder_prop.py'
+
+        response_eval = {
+            'data_column': 'response',
+            'comparator': self.json_content.get('comparator', 'equality'),
+            'prediction_fn_name': 'predict',
+            'adapt_fn_name': 'adapt',
+            'encoders': response_domain_encoders
+        }
+        evaluations.insert(0, response_eval)
+
+        evaluation_handlers = []
+        evaluation_targets = []
+        for eva in evaluations:
+            encoders = None
+            if 'encoders' in eva:
+                encoders = prepare_domain_encoders(eva['encoders'], self.base_path)
+
+            eh = evaluation_handler.EvaluationHandler(
+                data_column=eva['data_column'],
+                comparator=self.parse_comparator(eva['comparator']),
+                predict_fn_name=eva['prediction_fn_name'],
+                adapt_fn_name=eva['adapt_fn_name'],
+                encoders=encoders
+            )
+            evaluation_handlers.append(eh)
+            evaluation_targets.append(eva['data_column'])
+
+            logger.debug('Added evaluation handler: %s', eh)
+
+        self.evaluation_handlers = evaluation_handlers
+        self.evaluation_targets = evaluation_targets
 
     def parse_data_path(self, path):
         """ Reads in a dataset CSV file and returns it as a pandas.DataFrame object. If a list
@@ -342,10 +382,10 @@ class Benchmark():
         logger.debug('corresponding_data: %s', self.corresponding_data)
 
         # Construct CCOBRA datasets
-        self.data_test = CCobraData(data_test_df)
-        self.data_pre_train = CCobraData(data_pre_train_df) if data_pre_train_df is not None else None
-        self.data_pre_train_person = CCobraData(data_pre_train_person_df) if data_pre_train_person_df is not None else None
-        self.data_pre_person_background = CCobraData(data_pre_person_background_df) if data_pre_person_background_df is not None else None
+        self.data_test = CCobraData(data_test_df, target_columns=self.evaluation_targets)
+        self.data_pre_train = CCobraData(data_pre_train_df, target_columns=self.evaluation_targets) if data_pre_train_df is not None else None
+        self.data_pre_train_person = CCobraData(data_pre_train_person_df, target_columns=self.evaluation_targets) if data_pre_train_person_df is not None else None
+        self.data_pre_person_background = CCobraData(data_pre_person_background_df, target_columns=self.evaluation_targets) if data_pre_person_background_df is not None else None
 
         # In case of non-corresponding datasets, make sure that identifiers do not overlap by
         # offsetting the training data (ensures that test identifiers remain identifiable)
@@ -366,7 +406,7 @@ class Benchmark():
                 domain_related_df = pd.concat(domain_related_df, data_pre_train_person_df)
 
             if not domain_related_df.empty:
-                self.data_pre_train_person = CCobraData(domain_related_df.drop(columns='_unique_id'))
+                self.data_pre_train_person = CCobraData(domain_related_df.drop(columns='_unique_id'), target_columns=self.evaluation_targets)
 
             # Append domain unrelated data to pre_person_background
             domain_unrelated_df = data_train_only_df.loc[~data_train_only_df['domain'].isin(self.data_test.domains)]
@@ -375,7 +415,7 @@ class Benchmark():
                 domain_unrelated_df = pd.concat(domain_unrelated_df, data_pre_person_background_df)
 
             if not domain_unrelated_df.empty:
-                self.data_pre_person_background = CCobraData(domain_unrelated_df.drop(columns='_unique_id'))
+                self.data_pre_person_background = CCobraData(domain_unrelated_df.drop(columns='_unique_id'), target_columns=self.evaluation_targets)
 
     def parse_models(self):
         """ Parses the benchmark model information.
@@ -385,24 +425,6 @@ class Benchmark():
         # Prepare the models for loading
         self.models = [ModelInfo(x, self.base_path) for x in self.json_content['models']]
         logger.debug('models:\n%s', '\n'.join([str(x) for x in self.models]))
-
-    def parse_domain_encoders(self):
-        """ Parses the benchmark domain encoder information.
-
-        """
-
-        # Parse domain encoder information
-        self.encoders = {}
-        if 'domain_encoders' in self.json_content:
-            self.encoders = prepare_domain_encoders(self.json_content['domain_encoders'], self.base_path)
-
-        # Include default encoders if not overridden
-        if 'syllogistic' not in self.encoders:
-            self.encoders['syllogistic'] = SyllogisticEncoder()
-        if 'propositional' not in self.encoders:
-            self.encoders['propositional'] = PropositionalEncoder()
-
-        logger.debug('Encoders:\n%s', self.encoders)
 
     def __str__(self):
         """ Generates a string representation of the benchmark information.
@@ -424,5 +446,8 @@ class Benchmark():
         s.append('   encoders:')
         for enc, val in self.encoders.items():
             s.append('      {}: {}'.format(enc, val))
-        s.append('   comparator: {}'.format(self.eval_comparator))
+        s.append('   evaluation handlers:')
+        for eh in self.evaluation_handlers:
+            s.append('      {}'.format(str(eh)))
+        s.append('   evaluation targets: {}'.format(self.evaluation_targets))
         return '\n'.join(s)

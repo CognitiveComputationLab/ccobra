@@ -2,6 +2,7 @@
 
 """
 
+import copy
 import logging
 
 from .item import Item
@@ -15,7 +16,7 @@ class CCobraData():
 
     """
 
-    def __init__(self, data, required_fields=None):
+    def __init__(self, data, target_columns):
         """ Initializes the CCOBRA data container by passing a data frame
         and validating its contents.
 
@@ -30,13 +31,10 @@ class CCobraData():
 
         """
 
+        self.target_columns = target_columns
         self.required_fields = [
-            'id', 'sequence', 'task', 'choices', 'response',
-            'response_type', 'domain'
-        ]
-
-        if required_fields:
-            self.required_fields = required_fields
+            'id', 'sequence', 'task', 'choices', 'response_type', 'domain'
+        ] + target_columns
 
         # Verify and store the data
         self.verify_data(data)
@@ -142,7 +140,7 @@ class CCobraData():
                 )
                 task_dict['item'] = item
 
-                # Parse the responses
+                # Parse the main response
                 responses = None
                 if isinstance(task_series['response'], str):
                     responses = []
@@ -154,12 +152,29 @@ class CCobraData():
                     responses = task_series['response']
                 task_dict['response'] = responses
 
+                # Parse the auxiliary targets
+                for target_col in self.target_columns:
+                    if target_col == 'response':
+                        continue
+
+                    if isinstance(task_series[target_col], str):
+                        responses = []
+                        for response in task_series[target_col].split('|'):
+                            responses.append([x.split(';') for x in response.split('/')])
+                    else:
+                        responses = task_series[target_col]
+                    task_dict[target_col] = responses
+
                 # Add auxiliary elements from the data
                 aux = {}
                 for key, value in task_series.iteritems():
                     if key not in self.required_fields + ['_unique_id']:
                         aux[key] = value
                 task_dict['aux'] = aux
+
+                task_dict['full'] = copy.deepcopy(task_dict['aux'])
+                for target_col in self.target_columns:
+                    task_dict['full'][target_col] = task_dict[target_col]
 
                 subj_data.append(task_dict)
             dataset[subj] = subj_data

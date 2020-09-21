@@ -1,6 +1,7 @@
 ## New Changes
 
 - Change row marking in model_log visualization to alternate between colors
+- Add evaluation handlers to suppy auxiliary evaluation targets
 
 ## Version 1.1.0
 

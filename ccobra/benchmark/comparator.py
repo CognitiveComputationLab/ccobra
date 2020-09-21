@@ -4,6 +4,8 @@
 
 import copy
 
+import numpy as np
+
 def tuple_to_string(tuptup):
     """ Converts a tuple to its string representation. Uses different separators (';', '/', '|') for
     different depths of the representation.
@@ -103,7 +105,7 @@ class EqualityComparator():
 
         """
 
-        return tuple_to_string(obj_a) == tuple_to_string(obj_b)
+        return int(tuple_to_string(obj_a) == tuple_to_string(obj_b))
 
 class NVCComparator():
     """ NVC response comparator. Performs the evaluation based on NVC and non-NVC classes.
@@ -130,4 +132,33 @@ class NVCComparator():
 
         """
 
-        return (tuple_to_string(obj_a) == 'NVC') == (tuple_to_string(obj_b) == 'NVC')
+        return int((tuple_to_string(obj_a) == 'NVC') == (tuple_to_string(obj_b) == 'NVC'))
+
+class AbsDiffComparator():
+    """ Absolute differences comparator.
+
+    """
+
+    @staticmethod
+    def compare(num_a, num_b):
+        """ Compares two response numbers based on their absolute difference.
+
+        Parameters
+        ----------
+        num_a : float
+            Number A.
+
+        num_b : float
+            Number B.
+
+        Returns
+        -------
+        float
+            Absolute difference between the differences.
+
+        """
+
+        if not isinstance(num_a, (int, float)) or not isinstance(num_b, (int, float)):
+            raise ValueError('Incompatible value types for comparison.')
+
+        return np.abs(num_a - num_b)
