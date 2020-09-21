@@ -35,14 +35,10 @@
 
             var table_html = '<table class="model_log_table" align="center">';
             table_html += '<tr><th>Subject</th><th>Key</th><th>Content</th></tr>';
-            should_mark = true;
             for(subj of Object.keys(modelLogs)) {
                 parametersDict = modelLogs[subj];
                 parameters = Object.keys(parametersDict);
-                if(should_mark)
-                    table_html += '<tr bigrowmark><td rowspan="' + parameters.length + '">' + subj + '</td>';
-                else
-                    table_html += '<tr><td rowspan="' + parameters.length + '">' + subj + '</td>';
+                table_html += '<tr><td rowspan="' + parameters.length + '">' + subj + '</td>';
                 isFirst = true;
 
                 for(param of parameters){
@@ -50,14 +46,10 @@
                         table_html += '<td>' + param + '</td><td>' + JSON.stringify(parametersDict[param]) + '</td></tr>';
                         isFirst = false;
                     } else {
-                        if(should_mark)
-                            table_html += '<tr bigrowmark><td>' + param + '</td><td>' + JSON.stringify(parametersDict[param]) + '</td></tr>';
-                        else
-                            table_html += '<tr><td>' + param + '</td><td>' + JSON.stringify(parametersDict[param]) + '</td></tr>';
+                        table_html += '<tr><td>' + param + '</td><td>' + JSON.stringify(parametersDict[param]) + '</td></tr>';
                     }
                 }
                 table_html += '</tr>';
-                should_mark = !should_mark;
             }
             table_html += '</table>';
             document.getElementById("model_log_table_container").innerHTML = table_html;

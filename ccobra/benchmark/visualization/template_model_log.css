@@ -6,7 +6,3 @@
 .model_log_table {
     border: 1px solid #bbbbbb;
 }
-
-.model_log_table tr[bigrowmark]{
-    background-color: #cccccc80;
-}
