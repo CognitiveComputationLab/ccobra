@@ -237,11 +237,12 @@ class Evaluator():
             else:
                 res_df = res_df.merge(enc.get_result_df(), on=on_list, suffixes=('', '_' + enc.data_column))
 
-        res_df = res_df.rename(columns={
-            'score': 'hit',
-            'truth_enc': 'truth_enc',
-            'prediction_enc': 'prediction_enc'
-        })
+        res_df = res_df.rename(columns={'score' : 'score_response'})
+        #res_df = res_df.rename(columns={
+        #    'score': 'hit',
+        #    'truth_enc': 'truth_enc',
+        #    'prediction_enc': 'prediction_enc'
+        #})
 
         if self.cache_df is None:
             return res_df, model_logging_results

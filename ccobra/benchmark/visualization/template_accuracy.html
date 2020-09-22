@@ -1,21 +1,20 @@
-<div id="accuracy_plot"></div>
+<div id="bar_plot_{{PLOT_TYPE}}"></div>
 
 <div class='caption'>
     <p>
-        Predictive accuracies of the benchmark models, i.e., the percentages of
-        correct predictions.
+        Bar plot showing the '{{COMPARATOR}}' of the benchmark models when predicting '{{PLOT_TYPE}}'.
     </p>
 
-    <button name="figsave" type="button" class="button_result" plot_type="accuracy_plot">Save Plot</button>
+    <button name="figsave" type="button" class="button_result" plot_type="bar_plot_{{PLOT_TYPE}}">Save Plot</button>
 </div>
 
 <script>
-    evaluationContents['accuracy_plot'] = {
+    evaluationContents['bar_plot_{{PLOT_TYPE}}'] = {
         data: [{{PLOT_DATA}}],
         layout: {
-            title: {text: 'Accuracy of Model Predictions'},
+            title: {text: '{{COMPARATOR}} ({{PLOT_TYPE}})'},
 			autosize: true,
-            yaxis: {title: {text: 'Predictive Accuracy'}, rangemode: 'nonnegative'},
+            yaxis: {title: {text: '{{COMPARATOR}}'}, rangemode: 'nonnegative'},
             xaxis: {categoryarray: {{ORDERING}}}
         },
         config: {
@@ -34,19 +33,19 @@
     }
 
     // Plot the data
-    Plotly.newPlot("accuracy_plot",
-                    evaluationContents['accuracy_plot'].data,
-                    evaluationContents['accuracy_plot'].layout,
-                    evaluationContents['accuracy_plot'].config);
+    Plotly.newPlot("bar_plot_{{PLOT_TYPE}}",
+                    evaluationContents['bar_plot_{{PLOT_TYPE}}'].data,
+                    evaluationContents['bar_plot_{{PLOT_TYPE}}'].layout,
+                    evaluationContents['bar_plot_{{PLOT_TYPE}}'].config);
 
 </script>
 
 <script class="trigger_resize_script">
-	var el = document.getElementById("accuracy_plot");
+	var el = document.getElementById("bar_plot_{{PLOT_TYPE}}");
 	var update = {
 		width: el.offsetWidth,
 		height: el.offsetHeight
 	};
 
-	Plotly.relayout("accuracy_plot", update);
+	Plotly.relayout("bar_plot_{{PLOT_TYPE}}", update);
 </script>

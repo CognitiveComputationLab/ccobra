@@ -80,6 +80,18 @@ class Comparator():
         """
 
         raise NotImplementedError()
+        
+    def get_name(self):
+        """ Returns the name of the comparator
+
+        Returns
+        -------
+        string
+            Comparator name
+
+        """
+        
+        raise NotImplementedError()
 
 class EqualityComparator():
     """ Equality comparator. Checks if both responses are equal.
@@ -106,6 +118,18 @@ class EqualityComparator():
         """
 
         return int(tuple_to_string(obj_a) == tuple_to_string(obj_b))
+        
+    def get_name(self):
+        """ Returns the name of the comparator
+
+        Returns
+        -------
+        string
+            Comparator name
+
+        """
+        
+        return "Accuracy"
 
 class NVCComparator():
     """ NVC response comparator. Performs the evaluation based on NVC and non-NVC classes.
@@ -133,6 +157,18 @@ class NVCComparator():
         """
 
         return int((tuple_to_string(obj_a) == 'NVC') == (tuple_to_string(obj_b) == 'NVC'))
+        
+    def get_name(self):
+        """ Returns the name of the comparator
+
+        Returns
+        -------
+        string
+            Comparator name
+
+        """
+        
+        return "NVC Accuracy"
 
 class AbsDiffComparator():
     """ Absolute differences comparator.
@@ -162,3 +198,15 @@ class AbsDiffComparator():
             raise ValueError('Incompatible value types for comparison.')
 
         return np.abs(num_a - num_b)
+        
+    def get_name(self):
+        """ Returns the name of the comparator
+
+        Returns
+        -------
+        string
+            Comparator name
+
+        """
+        
+        return "Absolute Difference"

@@ -66,7 +66,7 @@ class PlotVisualizer():
         with open(template_path) as file_handle:
             self.template = file_handle.read()
 
-    def get_content_dict(self, result_df, model_log):
+    def get_content_dict(self, result_df, eval_handler, model_log):
         """ Obtain the dictionary mapping from HTML template placeholders
         to content.
 
@@ -74,6 +74,9 @@ class PlotVisualizer():
         ----------
         result_df : pd.DataFrame
             CCOBRA result dataframe.
+            
+        eval_handler : EvaluationHandler
+            EvaluationHandler objects of the current evaluation
 
         model_log : dict(str, dict(str, object))
             Dictionary containing logging information that models supplied via end_participant.
@@ -88,13 +91,16 @@ class PlotVisualizer():
 
         raise NotImplementedError()
 
-    def to_html(self, result_df, model_log=None):
+    def to_html(self, result_df, eval_handler, model_log=None):
         """ Fill template with content
 
         Parameters
         ----------
         result_df : pd.DataFrame
             CCOBRA result dataframe.
+            
+        eval_handler : EvaluationHandler
+            EvaluationHandler objects of the current evaluation
 
         model_log : dict(str, dict(str, object))
             Dictionary containing logging information that models supplied via end_participant.
@@ -108,11 +114,14 @@ class PlotVisualizer():
         """
 
         # Obtain the template content
-        content_dict = self.get_content_dict(result_df, model_log)
+        content_dict = self.get_content_dict(result_df, eval_handler, model_log)
 
         # If the content dict is empty, the complete section can be skipped
         if content_dict is None:
             return None
+            
+        content_dict['PLOT_TYPE'] = eval_handler.data_column
+        content_dict['COMPARATOR'] = eval_handler.comparator.get_name()
 
         # Fill the template and return the resulting HTML
         template = self.template
@@ -120,8 +129,13 @@ class PlotVisualizer():
             template = template.replace('{{{{{}}}}}'.format(key), value)
         return template
 
-    def shorttitle(self):
+    def shorttitle(self, eval_handler):
         """ Shorttitle for the visualizer.
+
+        Parameters
+        ----------
+        eval_handler : EvaluationHandler
+            EvaluationHandler objects of the current evaluation
 
         Returns
         -------
@@ -145,13 +159,16 @@ class AccuracyVisualizer(PlotVisualizer):
 
         super(AccuracyVisualizer, self).__init__('template_accuracy.html')
 
-    def get_content_dict(self, result_df, model_log):
+    def get_content_dict(self, result_df, eval_handler, model_log):
         """ Constructs the template-html mapping dictionary.
 
         Parameters
         ----------
         result_df : pd.DataFrame
             CCOBRA result dataframe.
+            
+        eval_handler : EvaluationHandler
+            EvaluationHandler objects of the current evaluation
 
         model_log : dict(str, dict(str, object))
             Dictionary containing logging information that models supplied via end_participant.
@@ -163,8 +180,10 @@ class AccuracyVisualizer(PlotVisualizer):
 
         """
 
+        data_column = "score_{}".format(eval_handler.data_column)
+
         acc_df = result_df.groupby(
-            'model', as_index=False)['hit'].agg(['mean', 'std']).sort_values('mean')
+            'model', as_index=False)[data_column].agg(['mean', 'std']).sort_values('mean')
 
         n_models = len(acc_df.index.tolist())
         alpha = '80'
@@ -180,15 +199,15 @@ class AccuracyVisualizer(PlotVisualizer):
 
         # Compute the explicit ordering
         ordering = result_df.groupby(
-            'model', as_index=False)['hit'].agg('mean').sort_values(
-                'hit', ascending=True)['model'].tolist()
+            'model', as_index=False)[data_column].agg('mean').sort_values(
+                data_column, ascending=True)['model'].tolist()
 
         return {
             'PLOT_DATA': json.dumps(data),
-            'ORDERING': json.dumps(ordering)
+            'ORDERING': json.dumps(ordering),
         }
 
-    def shorttitle(self):
+    def shorttitle(self, eval_handler):
         """ Shorttitle for the visualizer.
 
         Returns
@@ -197,9 +216,8 @@ class AccuracyVisualizer(PlotVisualizer):
             Shorttitle for the visualizer.
 
         """
-
-        return 'Prediction Accuracy'
-
+        return "Bar Plot: {} ({})".format(
+            eval_handler.comparator.get_name(), eval_handler.data_column)
 class BoxplotVisualizer(PlotVisualizer):
     """ Subject-Based boxplot visualizer for the CCOBRA evaluation results.
     Depicts boxplots for predictive accuracies on individuals as well as
@@ -214,13 +232,16 @@ class BoxplotVisualizer(PlotVisualizer):
 
         super(BoxplotVisualizer, self).__init__('template_box.html')
 
-    def get_content_dict(self, result_df, model_log):
+    def get_content_dict(self, result_df, eval_handler, model_log):
         """ Constructs the template-html mapping dictionary.
 
         Parameters
         ----------
         result_df : pd.DataFrame
             CCOBRA result dataframe.
+            
+        eval_handler : EvaluationHandler
+            EvaluationHandler objects of the current evaluation
 
         model_log : dict(str, dict(str, object))
             Dictionary containing logging information that models supplied via end_participant.
@@ -231,15 +252,16 @@ class BoxplotVisualizer(PlotVisualizer):
             Returns the content dictionary mapping from template placeholders to html snippets.
 
         """
+        data_column = "score_{}".format(eval_handler.data_column)
 
         subj_df = result_df.groupby(
-            ['model', 'id'], as_index=False)['hit'].agg('mean')
+            ['model', 'id'], as_index=False)[data_column].agg('mean')
         data = []
         n_models = len(subj_df['model'].unique())
 
         for model, model_df in subj_df.groupby('model'):
             data.append({
-                'y': model_df['hit'].tolist(),
+                'y': model_df[data_column].tolist(),
                 'type': 'box',
                 'name': model,
                 'boxpoints': 'all',
@@ -260,15 +282,15 @@ class BoxplotVisualizer(PlotVisualizer):
 
         # Compute the explicit ordering
         ordering = result_df.groupby(
-            'model', as_index=False)['hit'].agg('mean').sort_values(
-                'hit', ascending=True)['model'].tolist()
+            'model', as_index=False)[data_column].agg('mean').sort_values(
+                data_column, ascending=True)['model'].tolist()
 
         return {
             'PLOT_DATA': json.dumps(data),
             'ORDERING': json.dumps(ordering)
         }
 
-    def shorttitle(self):
+    def shorttitle(self, eval_handler):
         """ Shorttitle for the visualizer.
 
         Returns
@@ -278,7 +300,7 @@ class BoxplotVisualizer(PlotVisualizer):
 
         """
 
-        return 'Subject-Based Boxplots'
+        return 'Subject-Based Boxplots ({})'.format(eval_handler.data_column)
 
 class MFATableVisualizer(PlotVisualizer):
     """ MFA table visualizer.
@@ -288,13 +310,16 @@ class MFATableVisualizer(PlotVisualizer):
     def __init__(self):
         super(MFATableVisualizer, self).__init__('template_mfa.html', 'template_mfa.css')
 
-    def get_content_dict(self, result_df, model_log):
+    def get_content_dict(self, result_df, eval_handler, model_log):
         """ Constructs the template-html mapping dictionary.
 
         Parameters
         ----------
         result_df : pd.DataFrame
             CCOBRA result dataframe.
+            
+        eval_handler : EvaluationHandler
+            EvaluationHandler objects of the current evaluation
 
         model_log : dict(str, dict(str, object))
             Dictionary containing logging information that models supplied via end_participant.
@@ -343,7 +368,7 @@ class MFATableVisualizer(PlotVisualizer):
                 + 'predictions from the models to each syllogism.'
         }
 
-    def shorttitle(self):
+    def shorttitle(self, eval_handler):
         """ Shorttitle for the visualizer.
 
         Returns
@@ -363,13 +388,19 @@ class SubjectTableVisualizer(PlotVisualizer):
     def __init__(self):
         super(SubjectTableVisualizer, self).__init__('template_subject_table.html', 'template_subject_table.css')
 
-    def get_content_dict(self, result_df, model_log):
+    def get_content_dict(self, result_df, eval_handler, model_log):
         """ Constructs the template-html mapping dictionary.
 
         Parameters
         ----------
         result_df : pd.DataFrame
             CCOBRA result dataframe.
+            
+        eval_handler : EvaluationHandler
+            EvaluationHandler objects of the current evaluation
+            
+        model_log : dict(str, dict(str, object))
+            Dictionary containing logging information that models supplied via end_participant.
 
         Returns
         -------
@@ -393,7 +424,7 @@ class SubjectTableVisualizer(PlotVisualizer):
             + ' identifier using the selection box below.'
         }
 
-    def shorttitle(self):
+    def shorttitle(self, eval_handler):
         """ Shorttitle for the visualizer.
 
         Returns
@@ -413,13 +444,16 @@ class ModelLogVisualizer(PlotVisualizer):
     def __init__(self):
         super(ModelLogVisualizer, self).__init__('template_model_log.html', 'template_model_log.css')
 
-    def get_content_dict(self, result_df, model_log):
+    def get_content_dict(self, result_df, eval_handler, model_log):
         """ Constructs the template-html mapping dictionary.
 
         Parameters
         ----------
         result_df : pd.DataFrame
             CCOBRA result dataframe.
+            
+        eval_handler : EvaluationHandler
+            EvaluationHandler objects of the current evaluation
 
         model_log : dict(str, dict(str, object))
             Dictionary containing logging information that models supplied via end_participant.
@@ -440,7 +474,7 @@ class ModelLogVisualizer(PlotVisualizer):
             'TEXT' : 'Logged information from the models.'
         }
 
-    def shorttitle(self):
+    def shorttitle(self, eval_handler):
         """ Shorttitle for the visualizer.
 
         Returns

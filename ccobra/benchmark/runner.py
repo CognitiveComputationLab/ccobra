@@ -121,14 +121,30 @@ def main(args):
     if 'save' in args:
         res_df.to_csv(args['save'], index=False)
 
-    # Run the metric visualizer
-    htmlcrtr = html_creator.HTMLCreator([
+    # Create metrics dictionary
+    #(TODO: check if there is a good way of dynamically specify the visualization)
+    default_list = [
         viz_plot.AccuracyVisualizer(),
-        viz_plot.BoxplotVisualizer(),
-        viz_plot.MFATableVisualizer(),
-        viz_plot.SubjectTableVisualizer(),
-        viz_plot.ModelLogVisualizer()
-    ])
+        viz_plot.BoxplotVisualizer()
+    ]
+    metrics = []
+    for idx, eva in enumerate(benchmark.evaluation_handlers):
+        if idx == 0:
+            metrics.append((
+                eva, [
+                    viz_plot.AccuracyVisualizer(),
+                    viz_plot.BoxplotVisualizer(),
+                    viz_plot.SubjectTableVisualizer(),
+                    viz_plot.MFATableVisualizer(),
+                    viz_plot.ModelLogVisualizer()
+                ]))
+        else:
+            metrics.append((
+                eva, default_list
+            ))
+
+    # Run the metric visualizer
+    htmlcrtr = html_creator.HTMLCreator(metrics)
 
     # Prepare the benchmark output information and visualize the evaluation results
     path_pre_train = ''

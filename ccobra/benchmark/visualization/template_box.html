@@ -1,18 +1,18 @@
-<div id="box_plot"></div>
+<div id="box_plot_{{PLOT_TYPE}}"></div>
 <div class='caption'>
         <p>
             This plot depicts boxplots for the models indicating
-            individual subject performance. The data used for the plot are
-            accuracies for individuals. Consequently, min and max refer to
-            the accuracy of the worst and best matching subjects. The dots
-            refer to the mean accuracies of individual participants.
+            individual subject performance. The data used for the plot is
+            {{COMPARATOR}} for individuals. Consequently, min and max refer to
+            the {{COMPARATOR}} of the worst and best matching subjects. The dots
+            refer to the mean {{COMPARATOR}} of individual participants.
         </p>
 
-        <button name="figsave" type="button" class="button_result" plot_type="box_plot">Save Plot</button>
+        <button name="figsave" type="button" class="button_result" plot_type="box_plot_{{PLOT_TYPE}}">Save Plot</button>
     </div>
 
 <script>
-    evaluationContents['box_plot'] = {
+    evaluationContents['box_plot_{{PLOT_TYPE}}'] = {
         data: {{PLOT_DATA}},
         layout: {
             hovermode: 'closest',
@@ -22,8 +22,8 @@
                 y: -0.25,
                 orientation: 'h'
             },
-            title: {text: 'Subject Performance Boxplot'},
-            yaxis: {title: {text: 'Predictive Accuracy'}, rangemode: 'nonnegative'},
+            title: {text: 'Subject Performance Boxplot ({{PLOT_TYPE}})'},
+            yaxis: {title: {text: '{{COMPARATOR}}'}, rangemode: 'nonnegative'},
             xaxis: {categoryarray: {{ORDERING}}}
         },
         config: {
@@ -42,18 +42,18 @@
     }
 
     // Plot the data
-    Plotly.newPlot("box_plot",
-                    evaluationContents['box_plot'].data,
-                    evaluationContents['box_plot'].layout,
-                    evaluationContents['box_plot'].config);
+    Plotly.newPlot("box_plot_{{PLOT_TYPE}}",
+                    evaluationContents['box_plot_{{PLOT_TYPE}}'].data,
+                    evaluationContents['box_plot_{{PLOT_TYPE}}'].layout,
+                    evaluationContents['box_plot_{{PLOT_TYPE}}'].config);
 </script>
 
 <script class="trigger_resize_script">
-	var el = document.getElementById("box_plot");
+	var el = document.getElementById("box_plot_{{PLOT_TYPE}}");
 	var update = {
 		width: el.offsetWidth,
 		height: el.offsetHeight
 	};
 
-	Plotly.relayout("box_plot", update);
+	Plotly.relayout("box_plot_{{PLOT_TYPE}}", update);
 </script>

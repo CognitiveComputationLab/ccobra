@@ -21,7 +21,11 @@ class EvaluationHandler():
         aux = copy.deepcopy(aux)
 
         # Obtain the model prediction
-        prediction = getattr(model, self.predict_fn_name)(item, **aux)
+        pred_fn = getattr(model, self.predict_fn_name, None)
+        if pred_fn is None:
+            raise NotImplementedError("{} has to be implemented in {}".format(self.predict_fn_name, modelname))
+            
+        prediction = pred_fn(item, **aux)
         score = self.comparator.compare(prediction, target)
 
         # Collect the evaluation result data
@@ -48,12 +52,19 @@ class EvaluationHandler():
         self.result.append(res_dict)
 
     def adapt(self, model, item, full):
+        if self.adapt_fn_name is None:
+            return
+    
         item = copy.deepcopy(item)
         full = copy.deepcopy(full)
 
         target = full[self.data_column]
         aux = {x: y for x, y in full.items() if x != self.data_column}
-        getattr(model, self.adapt_fn_name)(item, target, **aux)
+        adapt_fn = getattr(model, self.adapt_fn_name, None)
+        if adapt_fn is None:
+            return
+        
+        adapt_fn(item, target, **aux)
 
     def get_result_df(self):
         return pd.DataFrame(self.result)

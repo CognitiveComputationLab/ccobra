@@ -13,19 +13,19 @@ class HTMLCreator():
 
     """
 
-    def __init__(self, metrics):
-        """ Initializes the html creator with a list of metrics, i.e., components for constructing
-        different views on the data (e.g., an accuracy plot).
+    def __init__(self, evaluations):
+        """ Initializes the html creator with a list of evaluations
 
         Parameters
         ----------
-        metrics : list
-            List of metric visualization objects, i.e., components for creating html snippets
+        evaluations : list(tuple(EvaluationHandler, list(PlotVisualizer)))
+            List of tuples containing an EvaluationHandler object and the corresponding list of
+            visualization objects, i.e., components for creating html snippets
             representing views (e.g., plots) on the data.
-
+            
         """
 
-        self.metrics = metrics
+        self.evaluations = evaluations
 
         # Load the template
         self.external_contents = {
@@ -78,26 +78,30 @@ class HTMLCreator():
         # Construct the content for the website
         content = []
         css_dependencies = []
-        for metric in self.metrics:
-            # Add dependencies
-            if metric.template_CSS:
-                css_dependencies.append(metric.template_CSS)
+        
+        for evaluation_tuple in self.evaluations:
+            eval_handler, metrics = evaluation_tuple
 
-            # Add HTML content div
-            metric_html = metric.to_html(result_df, model_log)
-            
-            # Skip metrics if they have no information
-            if metric_html is None:
-                continue
-            
-            metric_tab_data = (metric.shorttitle().lower().replace(' ', '-'), metric.shorttitle())
+            for metric in metrics:
+                # Add dependencies
+                if metric.template_CSS:
+                    css_dependencies.append(metric.template_CSS)
 
-            metric_content = '<div id="{}-expand-bar" class="expand-bar">{}</div>'.format(
-                metric_tab_data[0], metric_tab_data[1])
-            metric_content += '<div id="{}" class="expand-bar-content">{}</div>'.format(
-                metric_tab_data[0], metric_html)
+                # Add HTML content div
+                metric_html = metric.to_html(result_df, eval_handler, model_log)
+                
+                # Skip metrics if they have no information
+                if metric_html is None:
+                    continue
+                
+                metric_tab_data = (metric.shorttitle(eval_handler).lower().replace(' ', '-'), metric.shorttitle(eval_handler))
 
-            content.append(metric_content)
+                metric_content = '<div id="{}-expand-bar" class="expand-bar">{}</div>'.format(
+                    metric_tab_data[0], metric_tab_data[1])
+                metric_content += '<div id="{}" class="expand-bar-content">{}</div>'.format(
+                    metric_tab_data[0], metric_html)
+
+                content.append(metric_content)
 
         # Generate auxiliary scripts
         scripts = []

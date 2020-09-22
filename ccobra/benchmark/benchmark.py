@@ -295,9 +295,9 @@ class Benchmark():
 
             eh = evaluation_handler.EvaluationHandler(
                 data_column=eva['data_column'],
-                comparator=self.parse_comparator(eva['comparator']),
+                comparator=self.parse_comparator(eva.get('comparator', 'equality')),
                 predict_fn_name=eva['prediction_fn_name'],
-                adapt_fn_name=eva['adapt_fn_name'],
+                adapt_fn_name=eva.get('adapt_fn_name', None),
                 encoders=encoders
             )
             evaluation_handlers.append(eh)
