@@ -6,12 +6,13 @@ import numpy as np
 from . import comparator
 
 class EvaluationHandler():
-    def __init__(self, data_column, comparator, predict_fn_name, adapt_fn_name, encoders):
+    def __init__(self, data_column, comparator, predict_fn_name, adapt_fn_name, task_encoders, resp_encoders):
         self.data_column = data_column
         self.comparator = comparator
         self.predict_fn_name = predict_fn_name
         self.adapt_fn_name = adapt_fn_name
-        self.encoders = encoders
+        self.task_encoders = task_encoders
+        self.resp_encoders = resp_encoders
 
         # Prepare result dataframe
         self.result = []
@@ -30,7 +31,7 @@ class EvaluationHandler():
 
         # Collect the evaluation result data
         res_dict = {
-            'model': model.name,
+            'model': modelname,
             'id': item.identifier,
             'domain': item.domain,
             'response_type': item.response_type,
@@ -42,12 +43,14 @@ class EvaluationHandler():
             'score': score
         }
 
-        if self.encoders:
+        if self.task_encoders:
             domain = res_dict['domain']
-            if domain in self.encoders:
-                res_dict['task_enc'] = self.encoders[domain].encode_task(item.task) if domain in self.encoders else np.nan
-                res_dict['truth_enc'] = self.encoders[domain].encode_response(target, item.task) if domain in self.encoders else np.nan
-                res_dict['prediction_enc'] = self.encoders[domain].encode_response(prediction, item.task) if domain in self.encoders else np.nan
+            res_dict['task_enc'] = self.task_encoders[domain].encode_task(item.task) if domain in self.task_encoders else np.nan
+        
+        if self.resp_encoders:
+            domain = res_dict['domain']
+            res_dict['truth_enc_{}'.format(self.data_column)] = self.resp_encoders[domain].encode_response(target, item.task) if domain in self.resp_encoders else np.nan
+            res_dict['prediction_enc_{}'.format(self.data_column)] = self.resp_encoders[domain].encode_response(prediction, item.task) if domain in self.resp_encoders else np.nan
 
         self.result.append(res_dict)
 

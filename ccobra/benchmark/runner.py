@@ -125,7 +125,8 @@ def main(args):
     #(TODO: check if there is a good way of dynamically specify the visualization)
     default_list = [
         viz_plot.AccuracyVisualizer(),
-        viz_plot.BoxplotVisualizer()
+        viz_plot.BoxplotVisualizer(),
+        viz_plot.SubjectTableVisualizer()
     ]
     metrics = []
     for idx, eva in enumerate(benchmark.evaluation_handlers):

@@ -13,9 +13,10 @@ from . import contextmanager
 from . import modelimporter
 from . import evaluation_handler
 from ..data import CCobraData
-from ..domainhandler import CCobraDomainEncoder
-from ..propositional.encoder_prop import PropositionalEncoder
-from ..syllogistic.encoder_syl import SyllogisticEncoder
+from ..taskhandler import CCobraTaskEncoder
+from ..responsehandler import CCobraResponseEncoder
+from ..propositional.task_encoder_prop import PropositionalTaskEncoder
+from ..syllogistic.task_encoder_syl import SyllogisticTaskEncoder
 
 # Initialize logging
 logger = logging.getLogger(__name__)
@@ -97,40 +98,75 @@ def fix_model_path(path, base_path=None):
 
     raise ValueError("Could not identify model to load for '{}'".format(path))
 
-def prepare_domain_encoders(domain_encoder_paths, base_path):
-    """ Processes the domain encoder information from the benchmark specification. Handles
+def prepare_task_encoders(encoder_paths, base_path):
+    """ Processes the task encoder information from the benchmark specification. Handles
     relative paths or path placeholders (e.g., '%ccobra%' mapping to the module directory of
     the local CCOBRA installation).
 
     Parameters
     ----------
-    domain_encoder_paths : dict(str, str)
-        Dictionary mapping from domains to encoders.
+    encoder_paths : dict(str, str)
+        Dictionary mapping from domains to task encoders with absolute paths.
 
     Returns
     -------
     dict(str, str)
-        Dictionary mapping from domains to encoders with absolute paths.
+        Dictionary mapping from domains to paths containing task encoders.
 
     """
 
-    domain_encoders = {}
-    for domain, domain_encoder_path in domain_encoder_paths.items():
+    encoders = {}
+    for domain, encoder_path in encoder_paths.items():
         # Normalize encoder path
-        domain_encoder_path = fix_rel_path(domain_encoder_path, base_path)
+        encoder_path = fix_rel_path(encoder_path, base_path)
 
         # To instantiate the encoder we need to change to its context (i.e., set the PATH variable
         # accordingly).
         enc = None
-        with contextmanager.dir_context(domain_encoder_path):
-            imp = modelimporter.ModelImporter(domain_encoder_path, superclass=CCobraDomainEncoder)
+        with contextmanager.dir_context(encoder_path):
+            imp = modelimporter.ModelImporter(encoder_path, superclass=CCobraTaskEncoder)
             enc = imp.instantiate()
 
         if not enc:
             raise ValueError('Failed to instantiate encoder class.')
-        domain_encoders[domain] = enc
+        encoders[domain] = enc
 
-    return domain_encoders
+    return encoders
+    
+def prepare_resp_encoders(encoder_paths, base_path):
+    """ Processes the response encoder information from the benchmark specification. Handles
+    relative paths or path placeholders (e.g., '%ccobra%' mapping to the module directory of
+    the local CCOBRA installation).
+
+    Parameters
+    ----------
+    encoder_paths : dict(str, str)
+        Dictionary mapping from domains to response encoders with absolute paths.
+
+    Returns
+    -------
+    dict(str, str)
+        Dictionary mapping from domains to paths containing response encoders.
+
+    """
+
+    encoders = {}
+    for domain, encoder_path in encoder_paths.items():
+        # Normalize encoder path
+        encoder_path = fix_rel_path(encoder_path, base_path)
+
+        # To instantiate the encoder we need to change to its context (i.e., set the PATH variable
+        # accordingly).
+        enc = None
+        with contextmanager.dir_context(encoder_path):
+            imp = modelimporter.ModelImporter(encoder_path, superclass=CCobraResponseEncoder)
+            enc = imp.instantiate()
+
+        if not enc:
+            raise ValueError('Failed to instantiate encoder class.')
+        encoders[domain] = enc
+
+    return encoders
 
 class ModelInfo():
     """ Model information container. Contains the properties required to initialize and identify
@@ -271,34 +307,46 @@ class Benchmark():
     def parse_auxiliary_evaluations(self):
         evaluations = self.json_content.get('aux_evaluations', [])
 
-        response_domain_encoders = self.json_content.get('domain_encoders', {})
-        if 'syllogistic' not in response_domain_encoders:
-            response_domain_encoders['syllogistic'] = '%ccobra%/syllogistic/encoder_syl.py'
-        if 'propositional' not in response_domain_encoders:
-            response_domain_encoders['propositional'] = '%ccobra%/propositional/encoder_prop.py'
+        task_encoders = self.json_content.get('task_encoders', {})
+        if 'syllogistic' not in task_encoders:
+            task_encoders['syllogistic'] = '%ccobra%/syllogistic/task_encoder_syl.py'
+        if 'propositional' not in task_encoders:
+            task_encoders['propositional'] = '%ccobra%/propositional/task_encoder_prop.py'
+            
+        resp_encoders = self.json_content.get('response_encoders', {})
+        if 'syllogistic' not in resp_encoders:
+            resp_encoders['syllogistic'] = '%ccobra%/syllogistic/resp_encoder_syl.py'
+        if 'propositional' not in resp_encoders:
+            resp_encoders['propositional'] = '%ccobra%/propositional/resp_encoder_prop.py'
 
         response_eval = {
             'data_column': 'response',
             'comparator': self.json_content.get('comparator', 'equality'),
             'prediction_fn_name': 'predict',
             'adapt_fn_name': 'adapt',
-            'encoders': response_domain_encoders
+            'task_encoders': task_encoders,
+            'response_encoders': resp_encoders
         }
         evaluations.insert(0, response_eval)
 
         evaluation_handlers = []
         evaluation_targets = []
         for eva in evaluations:
-            encoders = None
-            if 'encoders' in eva:
-                encoders = prepare_domain_encoders(eva['encoders'], self.base_path)
+            task_encoders = None
+            if 'task_encoders' in eva:
+                task_encoders = prepare_task_encoders(eva['task_encoders'], self.base_path)
 
+            resp_encoders = None
+            if 'response_encoders' in eva:
+                resp_encoders = prepare_resp_encoders(eva['response_encoders'], self.base_path)
+            
             eh = evaluation_handler.EvaluationHandler(
                 data_column=eva['data_column'],
                 comparator=self.parse_comparator(eva.get('comparator', 'equality')),
                 predict_fn_name=eva['prediction_fn_name'],
                 adapt_fn_name=eva.get('adapt_fn_name', None),
-                encoders=encoders
+                task_encoders=task_encoders,
+                resp_encoders=resp_encoders
             )
             evaluation_handlers.append(eh)
             evaluation_targets.append(eva['data_column'])

@@ -12,8 +12,8 @@ OPERATORS = [
     'if'
 ]
 
-class PropositionalEncoder(ccobra.CCobraDomainEncoder):
-    """ Syllogistic encoder. Provides functions for abbreviating syllogistic tasks and responses.
+class PropositionalTaskEncoder(ccobra.CCobraTaskEncoder):
+    """ Syllogistic encoder. Provides functions for abbreviating syllogistic tasks.
 
     """
 
@@ -71,24 +71,3 @@ class PropositionalEncoder(ccobra.CCobraDomainEncoder):
         """
 
         return ', '.join([PropositionalEncoder.encode_clause(x) for x in task])
-
-    @staticmethod
-    def encode_response(response, task):
-        """ Encodes a response to its propositional encoding.
-
-        Parameters
-        ----------
-        response : list(str)
-            Propositional response in list representation (e.g., ["not", "A"]).
-
-        task : list(list(str))
-            Propositional task as a list of clauses (e.g., [["If", "A", "B"], ["A"]]).
-
-        Returns
-        -------
-        str
-            String representation of the propositional response.
-
-        """
-
-        return PropositionalEncoder.encode_clause(response[0])

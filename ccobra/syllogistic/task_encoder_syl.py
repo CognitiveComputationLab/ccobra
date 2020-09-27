@@ -4,8 +4,8 @@
 
 import ccobra
 
-class SyllogisticEncoder(ccobra.CCobraDomainEncoder):
-    """ Syllogistic encoder. Provides functions for abbreviating syllogistic tasks and responses.
+class SyllogisticTaskEncoder(ccobra.CCobraTaskEncoder):
+    """ Syllogistic encoder. Provides functions for abbreviating syllogistic tasks.
 
     """
 

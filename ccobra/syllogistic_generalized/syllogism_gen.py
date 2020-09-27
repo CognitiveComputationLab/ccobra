@@ -2,7 +2,8 @@
 
 """
 
-from .encoder_sylgen import GeneralizedSyllogisticEncoder, QUANTIFIERS_SYLLOGISTIC_GENERALIZED_ENCODING
+from .task_encoder_sylgen import GeneralizedSyllogisticTaskEncoder, QUANTIFIERS_SYLLOGISTIC_GENERALIZED_ENCODING
+from .resp_encoder_sylgen import GeneralizedSyllogisticResponseEncoder
 from ..item import Item
 
 
@@ -21,7 +22,7 @@ def encode_task(task):
 
     """
 
-    return GeneralizedSyllogisticEncoder.encode_task(task)
+    return GeneralizedSyllogisticTaskEncoder.encode_task(task)
 
 def encode_response(response, task):
     """ Encodes a response to its generalized syllogistic encoding.
@@ -41,7 +42,7 @@ def encode_response(response, task):
 
     """
 
-    return GeneralizedSyllogisticEncoder.encode_response(response, task)
+    return GeneralizedSyllogisticResponseEncoder.encode_response(response, task)
 
 def decode_response(enc_response, task):
     """ Decodes an encoded generalized syllogistic response by transforming it to the

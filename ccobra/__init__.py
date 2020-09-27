@@ -27,7 +27,9 @@
 from .data import CCobraData
 from .item import Item
 from .model import CCobraModel
-from .domainhandler import CCobraDomainEncoder
+from .responsehandler import CCobraResponseEncoder
+from .identity_resp_encoder import IdentityResponseEncoder
+from .taskhandler import CCobraTaskEncoder
 
 from . import benchmark
 

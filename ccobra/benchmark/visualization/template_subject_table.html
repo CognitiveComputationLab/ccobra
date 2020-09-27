@@ -1,16 +1,19 @@
 <p style="text-align: center">{{TEXT}}</p>
 
 <p style="text-align: center">
-    Select subject ID: <select id="select_subject_box"></select>
+    Select subject ID: <select id="select_subject_box_{{PLOT_TYPE}}"></select>
 </p>
 <p style="text-align: center">
-    <button class="button_result" type="button" onclick="drawTable()">Show</button>
+    <button class="button_result" type="button" onclick="drawSubjectTable_{{PLOT_TYPE}}()">Show</button>
 </p>
 
-<div id="subject_table_container"></div>
+<div id="subject_table_container_{{PLOT_TYPE}}"></div>
+
 <script>
+	var subj_table_predenc_name_{{PLOT_TYPE}} = "{{PRED_ENC_NAME}}";
+	var subj_table_truthenc_name_{{PLOT_TYPE}} = "{{TRUTH_ENC_NAME}}";
     function readData(rows) {
-        var subjectDict = {};
+        var subjectDict_{{PLOT_TYPE}} = {};
         var models = new Set();
         var tasks = new Set();
         var ids = new Set();
@@ -23,19 +26,19 @@
             elements = rows[i].replace(/\r/g, "").split(",");
 
             id = elements[header.indexOf("id")];
-            if(!(id in subjectDict)) subjectDict[id] = {};
+            if(!(id in subjectDict_{{PLOT_TYPE}})) subjectDict_{{PLOT_TYPE}}[id] = {};
             ids.add(id);
 
             task = elements[header.indexOf("task_enc")];
-            if(!(task in subjectDict[id])) subjectDict[id][task] = {};
+            if(!(task in subjectDict_{{PLOT_TYPE}}[id])) subjectDict_{{PLOT_TYPE}}[id][task] = {};
             tasks.add(task);
 
             model = elements[header.indexOf("model")];
             models.add(model);
-            subjectDict[id][task][model] = elements[header.indexOf("prediction_enc")];
-            subjectDict[id][task]["_truth"] = elements[header.indexOf("truth_enc")];
+            subjectDict_{{PLOT_TYPE}}[id][task][model] = elements[header.indexOf(subj_table_predenc_name_{{PLOT_TYPE}})];
+            subjectDict_{{PLOT_TYPE}}[id][task]["_truth"] = elements[header.indexOf(subj_table_truthenc_name_{{PLOT_TYPE}})];
         }
-        return [subjectDict, tasks, models, ids];
+        return [subjectDict_{{PLOT_TYPE}}, tasks, models, ids];
     }
     function addOptionsToList(lis, options) {
         for(i=0; i<options.length; i++) {
@@ -45,37 +48,37 @@
         }
     }
 
-    var dataResult = readData(resultData);
-    var subjectDict = dataResult[0];
-    var uniqueTasks = Array.from(dataResult[1]);
-    uniqueTasks.sort();
-    var uniqueModels = Array.from(dataResult[2]);
-    uniqueModels.sort();
-    var uniqueIds = Array.from(dataResult[3]);
+    var dataResult_{{PLOT_TYPE}} = readData(resultData);
+    var subjectDict_{{PLOT_TYPE}} = dataResult_{{PLOT_TYPE}}[0];
+    var uniqueTasks_{{PLOT_TYPE}} = Array.from(dataResult_{{PLOT_TYPE}}[1]);
+    uniqueTasks_{{PLOT_TYPE}}.sort();
+    var uniqueModels_{{PLOT_TYPE}} = Array.from(dataResult_{{PLOT_TYPE}}[2]);
+    uniqueModels_{{PLOT_TYPE}}.sort();
+    var uniqueIds_{{PLOT_TYPE}} = Array.from(dataResult_{{PLOT_TYPE}}[3]);
 
-    addOptionsToList(document.getElementById('select_subject_box'), uniqueIds);
+    addOptionsToList(document.getElementById('select_subject_box_{{PLOT_TYPE}}'), uniqueIds_{{PLOT_TYPE}});
 
-    function drawTable() {
-        var selection = document.getElementById('select_subject_box').value;
+    function drawSubjectTable_{{PLOT_TYPE}}() {
+        var selection = document.getElementById("select_subject_box_{{PLOT_TYPE}}").value;
         if(selection === 'undefined' || selection == "") return;
-        if(!(selection in subjectDict)) return;
-        if(uniqueIds.length == 0) return;
+        if(!(selection in subjectDict_{{PLOT_TYPE}})) return;
+        if(uniqueIds_{{PLOT_TYPE}}.length == 0) return;
 
         var table_html = '<table class="subj_table" align="center">';
         var header = ["Task"];
-        for(i=0; i<uniqueModels.length; i++) header.push(uniqueModels[i]);
+        for(i=0; i<uniqueModels_{{PLOT_TYPE}}.length; i++) header.push(uniqueModels_{{PLOT_TYPE}}[i]);
         header.push("Truth");
         table_html += '<tr><th>';
         table_html += header.join("</th><th>");
         table_html += "</th></tr>";
 
-        subjectResults = subjectDict[selection];
-        uniqueTasks.forEach(function(task) {
+        subjectResults = subjectDict_{{PLOT_TYPE}}[selection];
+        uniqueTasks_{{PLOT_TYPE}}.forEach(function(task) {
             taskResults = subjectResults[task];
             table_html += "<tr>";
             table_html += "<td>" + task + "</td>";
             truth = taskResults["_truth"];
-            uniqueModels.forEach(function(model) {
+            uniqueModels_{{PLOT_TYPE}}.forEach(function(model) {
                 prediction = taskResults[model];
                 if(prediction == truth)
                     table_html += "<td corrpred>" + prediction + "</td>";
@@ -85,7 +88,7 @@
             table_html += "<td>" + taskResults["_truth"] + "</td>";
             table_html += "</tr>";
         });
-        document.getElementById("subject_table_container").innerHTML = table_html;
+        document.getElementById("subject_table_container_{{PLOT_TYPE}}").innerHTML = table_html;
     }
 
 </script>

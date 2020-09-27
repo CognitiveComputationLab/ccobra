@@ -332,13 +332,7 @@ class MFATableVisualizer(PlotVisualizer):
 
         """
 
-        if np.any([x not in result_df for x in ['task_enc', 'prediction_enc', 'truth_enc']]):
-            return None
-
-        is_broken = result_df[['task_enc', 'prediction_enc', 'truth_enc']].apply(
-            lambda x: len(x[0]) == len(x[1]) == len(x[2]) == 0, axis=1)
-
-        if np.all(is_broken):
+        if np.any([x not in result_df for x in ['task_enc', 'prediction_enc_response', 'truth_enc_response']]):
             return None
 
         # Construct the MFA dictionary
@@ -346,14 +340,14 @@ class MFATableVisualizer(PlotVisualizer):
         for task, task_df in result_df.groupby('task_enc'):
             mfa_dict[task] = {}
             for model, model_df in task_df.groupby('model'):
-                pred_counts = collections.Counter(model_df['prediction_enc'])
+                pred_counts = collections.Counter(model_df['prediction_enc_response'])
                 pred_max_count = max([x[1] for x in pred_counts.items()])
                 mfa = '<br>'.join(
                     sorted([x[0] for x in pred_counts.items() if x[1] == pred_max_count]))
                 mfa_dict[task][model] = mfa
 
             # Add data MFA
-            truth_counts = collections.Counter(task_df['truth_enc'])
+            truth_counts = collections.Counter(task_df['truth_enc_response'])
             truth_max_count = max([x[1] for x in truth_counts.items()])
             mfa = '<br>'.join(
                 sorted([x[0] for x in truth_counts.items() if x[1] == truth_max_count]))
@@ -410,16 +404,21 @@ class SubjectTableVisualizer(PlotVisualizer):
 
         """
 
-        if np.any([x not in result_df for x in ['task_enc', 'prediction_enc', 'truth_enc']]):
+        pred_enc_name = "prediction_enc_{}".format(eval_handler.data_column)
+        truth_enc_name = "truth_enc_{}".format(eval_handler.data_column)
+
+        if np.any([x not in result_df for x in ['task_enc', pred_enc_name, truth_enc_name]]):
             return None
 
-        is_broken = result_df[['task_enc', 'prediction_enc', 'truth_enc']].apply(
-            lambda x: len(x[0]) == len(x[1]) == len(x[2]) == 0, axis=1)
-
-        if np.all(is_broken):
+        if np.all([isinstance(x, float) and np.isnan(x) for x in result_df[pred_enc_name]]):
+            return None
+            
+        if np.all([isinstance(x, float) and np.isnan(x) for x in result_df[truth_enc_name]]):
             return None
 
         return {
+            'PRED_ENC_NAME' : pred_enc_name,
+            'TRUTH_ENC_NAME' : truth_enc_name,
             'TEXT': 'The following section shows the results for specific subjects. Please select the subject' \
             + ' identifier using the selection box below.'
         }
@@ -434,7 +433,7 @@ class SubjectTableVisualizer(PlotVisualizer):
 
         """
 
-        return 'Subject Results'
+        return "Subject Tables: {}".format(eval_handler.data_column)
 
 class ModelLogVisualizer(PlotVisualizer):
     """ MFA table visualizer.

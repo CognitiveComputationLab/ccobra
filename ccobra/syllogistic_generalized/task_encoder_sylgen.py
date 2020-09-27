@@ -19,9 +19,9 @@ QUANTIFIERS_SYLLOGISTIC_GENERALIZED_ENCODING = {
     'Some not': 'O',
 }
 
-class GeneralizedSyllogisticEncoder(ccobra.CCobraDomainEncoder):
+class GeneralizedSyllogisticTaskEncoder(ccobra.CCobraTaskEncoder):
     """ Generalized Syllogistic encoder. Provides functions for abbreviating generalized
-    syllogistic tasks and responses.
+    syllogistic tasks.
 
     """
 
@@ -65,38 +65,3 @@ class GeneralizedSyllogisticEncoder(ccobra.CCobraDomainEncoder):
 
         return quant1 + quant2 + str(figure)
 
-    @staticmethod
-    def encode_response(response, task):
-        """ Encodes a response to its syllogistic encoding.
-
-        Parameters
-        ----------
-        response : list(str)
-            Syllogistc response in list representation (e.g., ['All', 'A', 'C'])
-
-        task : list(list(str))
-            Syllogistic task in list representation (e.g., [['All', 'A', 'B'], ['Some', 'B', 'C']]).
-
-        Returns
-        -------
-        str
-            Syllogistic response encoding (e.g., 'Aac').
-
-        """
-
-        if not isinstance(response[0], list):
-            response = [response]
-
-        if response[0] == 'NVC':
-            return 'NVC'
-
-        if response[0][0] == 'NVC':
-            return 'NVC'
-
-        object_sets = [set(x[1:]) for x in task]
-        midterm = object_sets[0].intersection(object_sets[1])
-        obj_a = object_sets[0] - midterm
-
-        quant = QUANTIFIERS_SYLLOGISTIC_GENERALIZED_ENCODING[response[0][0]]
-
-        return quant + ('ac' if response[0][1] == list(obj_a)[0] else 'ca')

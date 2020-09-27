@@ -15,5 +15,6 @@
 
 """
 
-from .encoder_sylgen import GeneralizedSyllogisticEncoder, QUANTIFIERS_SYLLOGISTIC_GENERALIZED_ENCODING
+from .task_encoder_sylgen import GeneralizedSyllogisticTaskEncoder, QUANTIFIERS_SYLLOGISTIC_GENERALIZED_ENCODING
+from .resp_encoder_sylgen import GeneralizedSyllogisticResponseEncoder
 from .syllogism_gen import decode_response, encode_response, encode_task, GeneralizedSyllogism

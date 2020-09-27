@@ -5,8 +5,8 @@
 import numpy as np
 
 from ..item import Item
-from .encoder_syl import SyllogisticEncoder
-
+from .task_encoder_syl import SyllogisticTaskEncoder
+from .resp_encoder_syl import SyllogisticResponseEncoder
 
 #: List of syllogistic task identifiers.
 SYLLOGISMS = []
@@ -119,7 +119,7 @@ def encode_task(task):
 
     """
 
-    return SyllogisticEncoder.encode_task(task)
+    return SyllogisticTaskEncoder.encode_task(task)
 
 def encode_response(response, task):
     """ Encodes a response to its syllogistic encoding.
@@ -139,7 +139,7 @@ def encode_response(response, task):
 
     """
 
-    return SyllogisticEncoder.encode_response(response, task)
+    return SyllogisticResponseEncoder.encode_response(response, task)
 
 
 def decode_response(enc_response, task):

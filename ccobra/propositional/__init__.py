@@ -7,4 +7,5 @@
 
 """
 
-from .encoder_prop import PropositionalEncoder
+from .task_encoder_prop import PropositionalTaskEncoder
+from .resp_encoder_prop import PropositionalResponseEncoder
