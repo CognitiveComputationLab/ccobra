@@ -132,7 +132,7 @@ def prepare_task_encoders(encoder_paths, base_path):
         encoders[domain] = enc
 
     return encoders
-    
+
 def prepare_resp_encoders(encoder_paths, base_path):
     """ Processes the response encoder information from the benchmark specification. Handles
     relative paths or path placeholders (e.g., '%ccobra%' mapping to the module directory of
@@ -312,7 +312,7 @@ class Benchmark():
             task_encoders['syllogistic'] = '%ccobra%/syllogistic/task_encoder_syl.py'
         if 'propositional' not in task_encoders:
             task_encoders['propositional'] = '%ccobra%/propositional/task_encoder_prop.py'
-            
+
         resp_encoders = self.json_content.get('response_encoders', {})
         if 'syllogistic' not in resp_encoders:
             resp_encoders['syllogistic'] = '%ccobra%/syllogistic/resp_encoder_syl.py'
@@ -339,7 +339,7 @@ class Benchmark():
             resp_encoders = None
             if 'response_encoders' in eva:
                 resp_encoders = prepare_resp_encoders(eva['response_encoders'], self.base_path)
-            
+
             eh = evaluation_handler.EvaluationHandler(
                 data_column=eva['data_column'],
                 comparator=self.parse_comparator(eva.get('comparator', 'equality')),
@@ -491,9 +491,6 @@ class Benchmark():
         s.append('   models:')
         for idx, model in enumerate(self.models):
             s.append('      ({}) {}'.format(idx + 1, model))
-        s.append('   encoders:')
-        for enc, val in self.encoders.items():
-            s.append('      {}: {}'.format(enc, val))
         s.append('   evaluation handlers:')
         for eh in self.evaluation_handlers:
             s.append('      {}'.format(str(eh)))

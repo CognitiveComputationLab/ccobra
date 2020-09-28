@@ -25,7 +25,7 @@ class EvaluationHandler():
         pred_fn = getattr(model, self.predict_fn_name, None)
         if pred_fn is None:
             raise NotImplementedError("{} has to be implemented in {}".format(self.predict_fn_name, modelname))
-            
+
         prediction = pred_fn(item, **aux)
         score = self.comparator.compare(prediction, target)
 
@@ -46,7 +46,7 @@ class EvaluationHandler():
         if self.task_encoders:
             domain = res_dict['domain']
             res_dict['task_enc'] = self.task_encoders[domain].encode_task(item.task) if domain in self.task_encoders else np.nan
-        
+
         if self.resp_encoders:
             domain = res_dict['domain']
             res_dict['truth_enc_{}'.format(self.data_column)] = self.resp_encoders[domain].encode_response(target, item.task) if domain in self.resp_encoders else np.nan
@@ -57,7 +57,7 @@ class EvaluationHandler():
     def adapt(self, model, item, full):
         if self.adapt_fn_name is None:
             return
-    
+
         item = copy.deepcopy(item)
         full = copy.deepcopy(full)
 
@@ -66,18 +66,20 @@ class EvaluationHandler():
         adapt_fn = getattr(model, self.adapt_fn_name, None)
         if adapt_fn is None:
             return
-        
+
         adapt_fn(item, target, **aux)
 
     def get_result_df(self):
         return pd.DataFrame(self.result)
 
     def __repr__(self):
-        s = 'EvaluationHandler(data_column={}, comparator={}, predict_fn_name={}, adapt_fn_name={})'.format(
+        s = 'EvaluationHandler(data_column={}, comparator={}, predict_fn_name={}, adapt_fn_name={}, task_encoders={}, resp_encoders={})'.format(
             self.data_column,
             self.comparator,
             self.predict_fn_name,
-            self.adapt_fn_name
+            self.adapt_fn_name,
+            self.task_encoders,
+            self.resp_encoders
         )
         return s
 
