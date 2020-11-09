@@ -23,6 +23,8 @@
 """
 
 
+from .version import __version__
+
 from .data import CCobraData
 from .item import Item
 from .model import CCobraModel
@@ -33,4 +35,3 @@ from . import propositional
 from . import syllogistic
 from . import syllogistic_generalized
 
-__version__ = '1.1.0'

@@ -23,6 +23,8 @@ from . import benchmark as bmark
 from . import evaluator
 from .visualization import html_creator, viz_plot
 
+from ..version import __version__
+
 
 def parse_arguments():
     """ Parses the command line arguments for the benchmark runner.
@@ -34,7 +36,7 @@ def parse_arguments():
 
     """
 
-    parser = argparse.ArgumentParser(description='')
+    parser = argparse.ArgumentParser(description='CCOBRA version {}.'.format(__version__))
     parser.add_argument('benchmark', type=str, help='Benchmark file.')
     parser.add_argument('-m', '--model', type=str, help='Model file.')
     parser.add_argument(
@@ -200,6 +202,12 @@ def entry_point():
 
     """
 
+    # Manually catch version command line argument
+    if len(sys.argv) > 1 and sys.argv[1] == '--version':
+        print('CCOBRA version {}'.format(__version__))
+        exit()
+
+    # Parse command line arguments
     args = parse_arguments()
 
     try:
