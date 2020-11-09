@@ -10,6 +10,9 @@ models to your own datasets.
 Overview
 --------
 
+Base format
+^^^^^^^^^^^
+
 The goal of the dataset preparation process is the creation of a CSV
 dataset file which contains the information required to perform evaluations
 using CCOBRA. CCOBRA datasets consist of five required attributes
@@ -32,6 +35,85 @@ Attribute         Data type       Description
 ``response``      ``str``         Experimental response given by the participant.
 ================= =============== ===============================================
 
+A crucial aspect for the specification of tasks and responses is their encoding.
+Since CCOBRA uses datasets in CSV format, the tasks and responses need to be encoded
+in plaintext strings. These strings contain delimiters as follows:
+
+- ``;`` separates terms within a single premise (e.g., "All;A;B" denotes the
+  syllogistic premise "All A are B")
+- ``/`` separates premises of a task (e.g., "A/iff;A;B" denotes the two premises
+  "A" and "A if and only if B")
+- ``|`` is used to separate unrelated pieces of information such as different response
+  options (e.g., "nothing|B|not;B|not;A|" separates the responses "nothing", "B",
+  "not B", and "not A")
+
+The content for the task-specific attributes (task, choices, response) thus
+depends largely on the problem domain. Consider an `example from propositional
+reasoning <https://github.com/CognitiveComputationLab/ccobra/blob/master/benchmarks/propositional/data/data.csv>`_:
+
+====== ======== ========= ===================== ======== ============= =============
+id     sequence task      choices               response response_type domain
+====== ======== ========= ===================== ======== ============= =============
+...    ...      ...       ...                   ...      ...           ...
+WWYIPK 4        A/iff;A;B nothing|B|not;B|not;A B        single-choice propositional
+...    ...      ...       ...                   ...      ...           ...
+====== ======== ========= ===================== ======== ============= =============
+
+This line represents a response given by participant ``WWYIPK`` given to the fourth
+task that was presented in the experimental sequence. The task was ``A/iff;A;B``
+which corresponds to the propositional problem
+
+.. code:: none
+
+    A  
+    A if and only if B
+    ---
+    What, if anything, follows?
+
+The set of possible response choices is specified as ``nothing|B|not;B|not;A``
+corresponding to the response options
+
+.. code:: none
+
+    No valid conclusion
+    B
+    not B
+    not A
+
+From this set of options, the participant decided to select ``B`` as the conclusion.
+Finally, the response type is ``single-choice`` reflecting that only one of the
+choices could be selected by the participant and the domain is ``propositional``
+reasoning.
+
+Extended Datasets
+^^^^^^^^^^^^^^^^^
+
+Some experiments might yield additional data which could be beneficial to
+cognitive models. Consider for example introductory questionnaires targeting
+demographic information (age, profession, educational background) or psychometric
+measures such as personality factors (e.g., Big Five). The additional information
+about the individualities of participants enable models to fine-tune their
+inferential mechanisms to the participant in question which should allow for
+better predictions overall.
+
+In CCOBRA, these additional pieces of information can be appended to the base
+format of the CSV dataset as additional columns. Consider an `example for
+syllogistic reasoning <https://github.com/CognitiveComputationLab/ccobra/blob/master/benchmarks/syllogistic/data/Ragni2016.csv>`_:
+
+== ======== === ==================== ============= =========== ====== ===
+id sequence ... response             response_type domain      gender age
+== ======== === ==================== ============= =========== ====== ===
+1  0        ... Some;managers;clerks single-choice syllogistic female 56
+== ======== === ==================== ============= =========== ====== ===
+
+In this example, the mandatory attributes (see above) are extended by two additional
+attributes (``gender``, ``age``) which provide demographic information about the
+participant.
+
+Internally, CCOBRA maintains the additional information in dictionaries which
+are passed to the relevant model evaluation methods (e.g., ``predict``) as
+``kwargs``.
+
 Preparing my first dataset
 --------------------------
 
@@ -39,7 +121,7 @@ For this tutorial, we will exemplarily retrace the steps which have been
 taken to create the Ragni2016_ dataset for syllogistic reasoning.
 
 Id
-::::::::
+^^^^^^^
 
 The ``id`` column represents a unique identifier for participants in the
 dataset. It does not matter whether this identifier is a string token
@@ -49,7 +131,7 @@ The Ragni2016_ dataset contains data from 139 participants. Consequently,
 numerical identifiers ranging from 1 to 139 were used.
 
 Sequence
-::::::::
+^^^^^^^^
 
 The ``sequence`` column represents a number which identifies the position
 of a particular task in the experimental sequence. Technically, these numbers
@@ -62,7 +144,7 @@ participant responded to all 64 traditional syllogisms. Consequently, the
 sequence columns for all participants contain values from 0 to 63.
 
 Domain
-::::::
+^^^^^^
 
 The ``domain`` column provides information about the domain of the task.
 Currently, CCOBRA officially supports the domains ``syllogistic``,
@@ -75,7 +157,7 @@ support the data domains.
 The Ragni2016_ dataset contains syllogisms. Hence, the domain is ``syllogistic``.
 
 Task
-:::::
+^^^^
 
 The ``task`` column represents the information about the problem to solve.
 To facilitate parsing of multi-premise tasks, CCOBRA supports a task encoding
@@ -100,7 +182,7 @@ As a result, the full syllogistic problem is represented as
 ``Some;models;managers/All;models;clerks``.
 
 Response Type
-:::::::::::::
+^^^^^^^^^^^^^
 
 The ``response_type`` column provides the information about the type of
 response the experiment allowed for. Some experiments allow for a
@@ -125,7 +207,7 @@ select which of the nine possible conclusions followed from the premises.
 Accordingly, the response type is ``single-choice``.
 
 Choices
-:::::::
+^^^^^^^
 
 The ``choices`` column provides the information about which responses can be
 given by participants. In case of single-choice or multiple-choice response
@@ -149,7 +231,7 @@ of readability):
     No;managers;clerks|No;clerks;managers|NVC
 
 Response
-::::::::
+^^^^^^^^
 
 The ``response`` column provides the actual response given by the experimental
 participant. In case of verify response types, it is either true or false to
@@ -165,7 +247,7 @@ selected by a participant. For example, a response to the syllogism presented
 above in the section on task, could be ``Some;managers;clerks``.
 
 Additional Information
-::::::::::::::::::::::
+^^^^^^^^^^^^^^^^^^^^^^
 
 Additional information about tasks (e.g., reaction times) or experimental
 participants (e.g., demographic information) can be passed to the models

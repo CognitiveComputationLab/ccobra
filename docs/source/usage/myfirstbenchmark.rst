@@ -3,17 +3,15 @@
 My First Benchmark
 ==================
 
-This tutorial walks you through the creation of a benchmark specification file.
-
 Overview
 --------
 
 A CCOBRA benchmark is a JSON file which specifies the information required by CCOBRA to perform
 a model evaluation. Benchmark files consist of the following attributes:
 
-============================== ======== =============================================================================================================================
+============================== ======== =====================================================================================================================================================
 Attribute                      Required Description
-============================== ======== =============================================================================================================================
+============================== ======== =====================================================================================================================================================
 ``type``                       yes      Evaluation type out of [``prediction``, ``coverage``, ``adaption``].
 ``data.test``                  yes      Evaluation data.
 ``data.pre_train``             no       Population pre-training data (fed to ``pre_train`` function).
@@ -23,8 +21,11 @@ Attribute                      Required Description
 ``domains``                    no       List of domains contained in the data.
 ``response_types``             no       List of response types contained in the data.
 ``models``                     yes      List of models to evaluate.
-``domain_encoders``            no       List of domain encoders to abbreviate tasks in the data.
-============================== ======== =============================================================================================================================
+``task_encoders``              no       Dictionary mapping from domains to task encoder classes to abbreviate task representations for the result output.
+``response_encoders``          no       Dictionary mapping from domains to response encoder classes to abbreviate response representations for the result output.
+``comparator``                 no       Class providing a function for assigning a score to a given prediction with respect to the true response (pre-defined: `equality`, `absdiff`, `nvc`).
+``aux_evaluations``            no       List of additional evaluation settings using auxiliary data columns as targets (e.g., reaction times in addition to responses)
+============================== ======== =====================================================================================================================================================
 
 Path Handling
 :::::::::::::
@@ -38,6 +39,41 @@ For instance, if encoders for the officially supported domains (e.g., syllogisms
 the official encoders can be used. To facilitate referencing files within the CCOBRA package,
 ``%ccobra%`` can be used. It is a shorthand for pointing at the location of the local CCOBRA
 installation folder on your machine.
+
+Auxiliary Evaluations
+:::::::::::::::::::::
+
+In addition to the prediction of responses, CCOBRA allows the inclusion of auxiliary evaluations
+based on different columns in the dataset. Each of these auxiliary evaluations is represented as
+a dictionary containing the following keys:
+
+- ``data_column``: Column in the dataset to use as prediction targets.
+- ``comparator``: See table above.
+- ``task_encoders``: See table above.
+- ``response_encoders``: See table above.
+- ``prediction_fn_name``: Name of the function to use for generating predictions (must be contained in the model).
+- ``adaption_fn_name``: Name of the function to use for adaption.
+
+Suppose a syllogistic dataset contains the additional `rt` column representing reaction times. Given a model
+that implements the `predict_rt(...)` and `adapt_rt(...)` functions for predicting and adapting to
+reaction times, respectively, the auxiliary evaluation can be specified as follows:
+
+.. code-block:: json
+
+    {
+        "aux_evaluations": [{
+            "data_column": "rt",
+            "comparator": "absdiff",
+            "task_encoders": {
+                "syllogistic": "%ccobra%/syllogistic/task_encoder_syl.py"
+            },
+            "response_encoders": {
+                "syllogistic": "%ccobra%/syllogistic/resp_encoder_syl.py"
+            },
+            "prediction_fn_name": "predict_rt",
+            "adaption_fn_name": "adapt_rt"
+        }]
+    }
 
 Creation of Benchmark Specification File
 ----------------------------------------
@@ -57,10 +93,7 @@ the ``baseline-adaption.json`` located in the `CCOBRA repository <https://github
         "models": [
             "models/Baseline/Uniform-Model/uniform_model.py",
             "models/Baseline/MFA-Model/mfa_model.py"
-        ],
-        "domain_encoders": {
-            "syllogistic": "%ccobra%/syllogistic/encoder_syl.py"
-        }
+        ]
     }
 
 This benchmark specifies an evaluation of type adaption, i.e., after each prediction has been
@@ -78,9 +111,6 @@ Two models are specified to be considered in the evaluation: The
 `uniform model <https://github.com/CognitiveComputationLab/ccobra/blob/master/benchmarks/syllogistic/models/Baseline/Uniform-Model/uniform_model.py>`_
 and the
 `mfa model <https://github.com/CognitiveComputationLab/ccobra/blob/master/benchmarks/syllogistic/models/Baseline/MFA-Model/mfa_model.py>`_.
-
-Finally, a domain encoder for the syllogistic domain is included to provide encoded forms of the
-tasks, predictions, and true participant responses which enable the MFA comparison output.
 
 Running the Benchmark
 :::::::::::::::::::::

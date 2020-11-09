@@ -15,8 +15,5 @@
         "models/2012-Khemlani/VerbalModels/verbalmodels.py",
         "models/Baseline/MFA-Model",
         "models/Baseline/Uniform-Model"
-    ],
-    "domain_encoders": {
-        "syllogistic": "%ccobra%/syllogistic/encoder_syl.py"
-    }
+    ]
 }

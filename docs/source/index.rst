@@ -7,23 +7,28 @@ Welcome to CCOBRA's documentation!
 ==================================
 
 .. toctree::
-   :caption: Contents
+   :caption: Fundamentals
 
    usage/installation.rst
    usage/firststeps.rst
-   usage/fundamentals.rst
    usage/myfirstdataset.rst
    usage/myfirstbenchmark.rst
    usage/myfirstmodel.rst
+
+.. toctree::
+   :caption: Concepts
+
    usage/benchmarktypes.rst
-   usage/tutorial.rst
    usage/learning.rst
 
+.. toctree::
+   :caption: Examples
 
 API Documentation
 -----------------
-
+   
 .. autosummary::
    :toctree: _autosummary
+   :caption: API
 
    ccobra

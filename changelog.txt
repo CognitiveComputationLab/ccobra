@@ -6,6 +6,7 @@
 - Make comparators dynamically loadable
 - Make output visualizations extend below 0
 - Overhaul documentation
+- Remove domain encoder information from benchmark files
 
 ## Version 1.1.0
 

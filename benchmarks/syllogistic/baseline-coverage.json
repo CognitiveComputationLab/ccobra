@@ -8,8 +8,5 @@
     "models": [
         "models/Baseline/MFA-Model/mfa_model.py",
         "models/Baseline/Uniform-Model/uniform_model.py"
-    ],
-    "domain_encoders": {
-        "syllogistic": "%ccobra%/syllogistic/encoder_syl.py"
-    }
+    ]
 }

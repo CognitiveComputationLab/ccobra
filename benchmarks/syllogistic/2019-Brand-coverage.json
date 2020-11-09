@@ -9,8 +9,5 @@
         "models/2019-Brand/TransSet/transset.py",
         "models/Baseline/MFA-Model",
         "models/Baseline/Uniform-Model"
-    ],
-    "domain_encoders": {
-        "syllogistic": "%ccobra%/syllogistic/encoder_syl.py"
-    }
+    ]
 }

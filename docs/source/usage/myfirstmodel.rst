@@ -3,10 +3,8 @@
 My First Model
 ==============
 
-This tutorial will walk you through the creation of a model for CCOBRA.
-
-Overview of CCOBRA models
--------------------------
+Overview
+-------------------
 
 CCOBRA provides an interface class called :class:`~ccobra.CCobraModel` which defines
 the set of function used to handle the framework-model communication:
