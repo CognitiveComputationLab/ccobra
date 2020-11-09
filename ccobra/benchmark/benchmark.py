@@ -168,6 +168,33 @@ def prepare_resp_encoders(encoder_paths, base_path):
 
     return encoders
 
+def prepare_comparator(comparator_path):
+    """ Processes the comparator path from the benchmark specification. Imports the object
+    dynamically.
+
+    Parameters
+    ----------
+    comparator_path : str
+        Path to the python script file containing the comparator definition.
+
+    Returns
+    -------
+    ccobra.benchmark.comparator.Comparator
+        Comparator object.
+
+    """
+
+    comp = None
+
+    with contextmanager.dir_context(comparator_path):
+        imp = modelimporter.ModelImporter(comparator_path, superclass=comparator.Comparator)
+        comp = imp.instantiate()
+
+    if not comp:
+        raise ValueError('Failed to instantiate comparator class.')
+
+    return comp
+
 class ModelInfo():
     """ Model information container. Contains the properties required to initialize and identify
     CCOBRA model instances.
@@ -213,9 +240,27 @@ class ModelInfo():
             self.load_specific_class = model_info.get('classname', self.load_specific_class)
 
     def __repr__(self):
+        """ Generates a string representation for the model info container.
+
+        Returns
+        -------
+        str
+            ModelInfo string representation.
+
+        """
+
         return str(self)
 
     def __str__(self):
+        """ Generates a string representation for the model info container.
+
+        Returns
+        -------
+        str
+            ModelInfo string representation.
+
+        """
+
         return 'path={}, override_name={}, load_specific_class={}, args={}'.format(
             self.path, self.override_name, self.load_specific_class, self.args)
 
@@ -288,23 +333,47 @@ class Benchmark():
             raise ValueError('Unsupported evaluation type: {}'.format(self.type))
         logger.debug('Evaluation type: %s', self.type)
 
-    def parse_comparator(self, comparator_type):
-        """ Parses the comparator information (equality, nvc).
+    def parse_comparator(self, comparator_str):
+        """ Parses the comparator information.
+
+        Parameters
+        ----------
+        comparator_str : str
+            Either is one of the library-defined comparator labels (equality, nvc, absdiff) or
+            a path to a comparator implementation to load dynamically.
+
+        Returns
+        -------
+        ccobra.benchmark.comparator.Comparator
+            Comparator object.
 
         """
 
         # Create the comparator instance
-        logger.debug('Comparator type: %s', comparator_type)
-        if comparator_type == 'equality':
+        logger.debug('Comparator string: %s', comparator_str)
+        if comparator_str == 'equality':
             return comparator.EqualityComparator()
-        elif comparator_type == 'nvc':
+        elif comparator_str == 'nvc':
             return comparator.NVCComparator()
-        elif comparator_type == 'absdiff':
+        elif comparator_str == 'absdiff':
             return comparator.AbsDiffComparator()
-        else:
-            raise ValueError('Invalid comparator type specified: {}'.format(comparator_type))
+
+        logger.debug('Nonlabel comparator string: %s', comparator_str)
+
+        # Normalize path string
+        comparator_str = fix_rel_path(comparator_str, self.base_path)
+        logger.debug('Absolute comparator path: %s', comparator_str)
+
+        if not os.path.isfile(comparator_str):
+            raise ValueError('Comparator string is not a file: {}'.format(comparator_str))
+
+        return prepare_comparator(comparator_str)
 
     def parse_auxiliary_evaluations(self):
+        """ Parses auxiliary evaluation configurations from the benchmark content.
+
+        """
+
         evaluations = self.json_content.get('aux_evaluations', [])
 
         task_encoders = self.json_content.get('task_encoders', {})

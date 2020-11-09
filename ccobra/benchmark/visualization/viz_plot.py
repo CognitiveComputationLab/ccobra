@@ -74,7 +74,7 @@ class PlotVisualizer():
         ----------
         result_df : pd.DataFrame
             CCOBRA result dataframe.
-            
+
         eval_handler : EvaluationHandler
             EvaluationHandler objects of the current evaluation
 
@@ -98,7 +98,7 @@ class PlotVisualizer():
         ----------
         result_df : pd.DataFrame
             CCOBRA result dataframe.
-            
+
         eval_handler : EvaluationHandler
             EvaluationHandler objects of the current evaluation
 
@@ -119,7 +119,7 @@ class PlotVisualizer():
         # If the content dict is empty, the complete section can be skipped
         if content_dict is None:
             return None
-            
+
         content_dict['PLOT_TYPE'] = eval_handler.data_column
         content_dict['COMPARATOR'] = eval_handler.comparator.get_name()
 
@@ -166,7 +166,7 @@ class AccuracyVisualizer(PlotVisualizer):
         ----------
         result_df : pd.DataFrame
             CCOBRA result dataframe.
-            
+
         eval_handler : EvaluationHandler
             EvaluationHandler objects of the current evaluation
 
@@ -205,6 +205,7 @@ class AccuracyVisualizer(PlotVisualizer):
         return {
             'PLOT_DATA': json.dumps(data),
             'ORDERING': json.dumps(ordering),
+            'RANGEMODE': 'nonnegative' if np.all(acc_df['mean'] >= 0) else 'normal'
         }
 
     def shorttitle(self, eval_handler):
@@ -239,7 +240,7 @@ class BoxplotVisualizer(PlotVisualizer):
         ----------
         result_df : pd.DataFrame
             CCOBRA result dataframe.
-            
+
         eval_handler : EvaluationHandler
             EvaluationHandler objects of the current evaluation
 
@@ -287,7 +288,8 @@ class BoxplotVisualizer(PlotVisualizer):
 
         return {
             'PLOT_DATA': json.dumps(data),
-            'ORDERING': json.dumps(ordering)
+            'ORDERING': json.dumps(ordering),
+            'RANGEMODE': 'nonnegative' if np.all(model_df[data_column] >= 0) else 'normal'
         }
 
     def shorttitle(self, eval_handler):
@@ -317,7 +319,7 @@ class MFATableVisualizer(PlotVisualizer):
         ----------
         result_df : pd.DataFrame
             CCOBRA result dataframe.
-            
+
         eval_handler : EvaluationHandler
             EvaluationHandler objects of the current evaluation
 
@@ -389,10 +391,10 @@ class SubjectTableVisualizer(PlotVisualizer):
         ----------
         result_df : pd.DataFrame
             CCOBRA result dataframe.
-            
+
         eval_handler : EvaluationHandler
             EvaluationHandler objects of the current evaluation
-            
+
         model_log : dict(str, dict(str, object))
             Dictionary containing logging information that models supplied via end_participant.
 
@@ -412,7 +414,7 @@ class SubjectTableVisualizer(PlotVisualizer):
 
         if np.all([isinstance(x, float) and np.isnan(x) for x in result_df[pred_enc_name]]):
             return None
-            
+
         if np.all([isinstance(x, float) and np.isnan(x) for x in result_df[truth_enc_name]]):
             return None
 
@@ -450,7 +452,7 @@ class ModelLogVisualizer(PlotVisualizer):
         ----------
         result_df : pd.DataFrame
             CCOBRA result dataframe.
-            
+
         eval_handler : EvaluationHandler
             EvaluationHandler objects of the current evaluation
 

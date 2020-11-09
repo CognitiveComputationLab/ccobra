@@ -2,6 +2,10 @@
 
 - Change row marking in model_log visualization to alternate between colors
 - Add evaluation handlers to suppy auxiliary evaluation targets
+- Add separation of top-level and auxiliary evaluation targets
+- Make comparators dynamically loadable
+- Make output visualizations extend below 0
+- Overhaul documentation
 
 ## Version 1.1.0
 

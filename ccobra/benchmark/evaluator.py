@@ -85,6 +85,11 @@ class Evaluator():
     def evaluate(self):
         """ Core evaluation routine.
 
+        Returns
+        -------
+        pd.DataFrame
+            Pandas dataframe containing the evaluation results.
+
         """
 
         logger.info('Starting evaluation routine...')

@@ -1,5 +1,12 @@
 """ CCOBRA benchmark functionality.
 
+.. rubric:: Submodules
+
+.. autosummary::
+   :toctree: _autosummary
+
+   ccobra.benchmark.comparator
+
 .. rubric:: Functions
 
 .. autofunction:: dir_context
@@ -9,19 +16,12 @@
 .. autofunction:: main
 .. autofunction:: parse_arguments
 .. autofunction:: silence_stdout
-.. autofunction:: tuple_to_string
 
 .. rubric:: Classes
 
 .. autoclass:: Benchmark
     :members:
 .. autoclass:: ModelInfo
-    :members:
-.. autoclass:: Comparator
-    :members:
-.. autoclass:: EqualityComparator
-    :members:
-.. autoclass:: NVCComparator
     :members:
 .. autoclass:: Evaluator
     :members:
@@ -30,8 +30,9 @@
 
 """
 
+from . import comparator
+
 from .benchmark import Benchmark, ModelInfo, fix_rel_path, fix_model_path
-from .comparator import tuple_to_string, Comparator, EqualityComparator, NVCComparator, AbsDiffComparator
 from .contextmanager import dir_context
 from .evaluator import Evaluator
 from .modelimporter import ModelImporter
