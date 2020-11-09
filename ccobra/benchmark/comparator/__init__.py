@@ -8,11 +8,11 @@
 
 .. autoclass:: Comparator
     :members:
+.. autoclass:: AbsDiffComparator
+    :members:
 .. autoclass:: EqualityComparator
     :members:
 .. autoclass:: NVCComparator
-    :members:
-.. autoclass:: Evaluator
     :members:
 
 """

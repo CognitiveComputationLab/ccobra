@@ -12,9 +12,8 @@ from . import comparator
 from . import contextmanager
 from . import modelimporter
 from . import evaluation_handler
+from .. import encoders
 from ..data import CCobraData
-from ..taskhandler import CCobraTaskEncoder
-from ..responsehandler import CCobraResponseEncoder
 from ..propositional.task_encoder_prop import PropositionalTaskEncoder
 from ..syllogistic.task_encoder_syl import SyllogisticTaskEncoder
 
@@ -115,7 +114,7 @@ def prepare_task_encoders(encoder_paths, base_path):
 
     """
 
-    encoders = {}
+    encs = {}
     for domain, encoder_path in encoder_paths.items():
         # Normalize encoder path
         encoder_path = fix_rel_path(encoder_path, base_path)
@@ -124,14 +123,14 @@ def prepare_task_encoders(encoder_paths, base_path):
         # accordingly).
         enc = None
         with contextmanager.dir_context(encoder_path):
-            imp = modelimporter.ModelImporter(encoder_path, superclass=CCobraTaskEncoder)
+            imp = modelimporter.ModelImporter(encoder_path, superclass=encoders.CCobraTaskEncoder)
             enc = imp.instantiate()
 
         if not enc:
             raise ValueError('Failed to instantiate encoder class.')
-        encoders[domain] = enc
+        encs[domain] = enc
 
-    return encoders
+    return encs
 
 def prepare_resp_encoders(encoder_paths, base_path):
     """ Processes the response encoder information from the benchmark specification. Handles
@@ -150,7 +149,7 @@ def prepare_resp_encoders(encoder_paths, base_path):
 
     """
 
-    encoders = {}
+    encs = {}
     for domain, encoder_path in encoder_paths.items():
         # Normalize encoder path
         encoder_path = fix_rel_path(encoder_path, base_path)
@@ -159,14 +158,14 @@ def prepare_resp_encoders(encoder_paths, base_path):
         # accordingly).
         enc = None
         with contextmanager.dir_context(encoder_path):
-            imp = modelimporter.ModelImporter(encoder_path, superclass=CCobraResponseEncoder)
+            imp = modelimporter.ModelImporter(encoder_path, superclass=encoders.CCobraResponseEncoder)
             enc = imp.instantiate()
 
         if not enc:
             raise ValueError('Failed to instantiate encoder class.')
-        encoders[domain] = enc
+        encs[domain] = enc
 
-    return encoders
+    return encs
 
 def prepare_comparator(comparator_path):
     """ Processes the comparator path from the benchmark specification. Imports the object

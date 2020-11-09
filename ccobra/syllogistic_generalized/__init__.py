@@ -10,7 +10,9 @@
 
 .. autoclass:: GeneralizedSyllogism
     :members:
-.. autoclass:: GeneralizedSyllogisticEncoder
+.. autoclass:: GeneralizedSyllogisticTaskEncoder
+    :members:
+.. autoclass:: GeneralizedSyllogisticResponseEncoder
     :members:
 
 """

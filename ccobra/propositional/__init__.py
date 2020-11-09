@@ -2,7 +2,9 @@
 
 .. rubric:: Classes
 
-.. autoclass:: PropositionalEncoder
+.. autoclass:: PropositionalTaskEncoder
+    :members:
+.. autoclass:: PropositionalResponseEncoder
     :members:
 
 """

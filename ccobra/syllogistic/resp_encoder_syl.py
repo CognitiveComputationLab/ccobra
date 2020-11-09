@@ -4,7 +4,7 @@
 
 import ccobra
 
-class SyllogisticResponseEncoder(ccobra.CCobraResponseEncoder):
+class SyllogisticResponseEncoder(ccobra.encoders.CCobraResponseEncoder):
     """ Syllogistic encoder. Provides functions for abbreviating syllogistic responses.
 
     """

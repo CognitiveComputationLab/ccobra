@@ -12,7 +12,7 @@ OPERATORS = [
     'if'
 ]
 
-class PropositionalResponseEncoder(ccobra.CCobraResponseEncoder):
+class PropositionalResponseEncoder(ccobra.encoders.CCobraResponseEncoder):
     """ Syllogistic encoder. Provides functions for abbreviating syllogistic responses.
 
     """

@@ -19,7 +19,7 @@ QUANTIFIERS_SYLLOGISTIC_GENERALIZED_ENCODING = {
     'Some not': 'O',
 }
 
-class GeneralizedSyllogisticResponseEncoder(ccobra.CCobraResponseEncoder):
+class GeneralizedSyllogisticResponseEncoder(ccobra.encoders.CCobraResponseEncoder):
     """ Generalized Syllogistic encoder. Provides functions for abbreviating generalized
     syllogistic responses.
 

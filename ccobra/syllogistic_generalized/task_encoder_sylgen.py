@@ -19,7 +19,7 @@ QUANTIFIERS_SYLLOGISTIC_GENERALIZED_ENCODING = {
     'Some not': 'O',
 }
 
-class GeneralizedSyllogisticTaskEncoder(ccobra.CCobraTaskEncoder):
+class GeneralizedSyllogisticTaskEncoder(ccobra.encoders.CCobraTaskEncoder):
     """ Generalized Syllogistic encoder. Provides functions for abbreviating generalized
     syllogistic tasks.
 

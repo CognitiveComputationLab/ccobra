@@ -11,7 +11,9 @@
 .. autoclass:: Syllogism
     :members:
 
-.. autoclass:: SyllogisticEncoder
+.. autoclass:: SyllogisticTaskEncoder
+    :members:
+.. autoclass:: SyllogisticResponseEncoder
     :members:
 
 """

@@ -12,7 +12,7 @@ OPERATORS = [
     'if'
 ]
 
-class PropositionalTaskEncoder(ccobra.CCobraTaskEncoder):
+class PropositionalTaskEncoder(ccobra.encoders.CCobraTaskEncoder):
     """ Syllogistic encoder. Provides functions for abbreviating syllogistic tasks.
 
     """
