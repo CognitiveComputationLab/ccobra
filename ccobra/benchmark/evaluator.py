@@ -93,7 +93,6 @@ class Evaluator():
 
         logger.info('Starting evaluation routine...')
 
-        result_data = []
         model_logging_results = {}
         model_name_cache = set() if self.cache_df is None else set(self.cache_df['model'].unique())
 
@@ -237,23 +236,25 @@ class Evaluator():
 
         for enc in self.benchmark.evaluation_handlers:
             if res_df is None:
+                logger.debug('Preparing new result dataframe based on evaluation handler')
                 res_df = enc.get_result_df()
             else:
+                logger.debug('Adding evaluation handler result to result dataframe')
                 res_df = res_df.merge(enc.get_result_df(), on=on_list, suffixes=('', '_' + enc.data_column))
 
+        # Rename score column
         res_df = res_df.rename(columns={'score' : 'score_response'})
-        #res_df = res_df.rename(columns={
-        #    'score': 'hit',
-        #    'truth_enc': 'truth_enc',
-        #    'prediction_enc': 'prediction_enc'
-        #})
 
+        # Integrate cache
         if self.cache_df is None:
+            logger.debug('Empty cache. Returning only result dataframe.')
             return res_df, model_logging_results
 
-        if not result_data:
+        if res_df.empty:
+            logger.debug('Empty result dataframe. Returning cache only.')
             return self.cache_df, {}
 
+        logger.debug('Merging cache and result dataframe...')
         assert sorted(list(res_df)) == sorted(list(self.cache_df)), 'Incompatible cache'
         return pd.concat([res_df, self.cache_df]), model_logging_results
 
