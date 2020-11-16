@@ -4,10 +4,10 @@
     Select subject ID: <select id="select_subject_box_{{PLOT_TYPE}}"></select>
 </p>
 <p style="text-align: center">
-    <button class="button_result" type="button" onclick="drawSubjectTable_{{PLOT_TYPE}}()">Show</button>
+    <button id="btn_subj_table_{{PLOT_TYPE}}" class="button_result" type="button" onclick="drawSubjectTable_{{PLOT_TYPE}}()">Show</button>
 </p>
 
-<div id="subject_table_container_{{PLOT_TYPE}}"></div>
+<div id="subject_table_container_{{PLOT_TYPE}}" class="scrollable_container"></div>
 
 <script>
 	var subj_table_predenc_name_{{PLOT_TYPE}} = "{{PRED_ENC_NAME}}";
@@ -90,5 +90,7 @@
         });
         document.getElementById("subject_table_container_{{PLOT_TYPE}}").innerHTML = table_html;
     }
+
+    document.getElementById("btn_subj_table_{{PLOT_TYPE}}").onclick = drawSubjectTable_{{PLOT_TYPE}};
 
 </script>
