@@ -70,4 +70,4 @@ class PropositionalTaskEncoder(CCobraTaskEncoder):
 
         """
 
-        return ', '.join([PropositionalEncoder.encode_clause(x) for x in task])
+        return ', '.join([PropositionalTaskEncoder.encode_clause(x) for x in task])

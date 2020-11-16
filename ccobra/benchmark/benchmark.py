@@ -13,7 +13,7 @@ from . import contextmanager
 from . import modelimporter
 from . import evaluation_handler
 from .. import encoders
-from .. import CCobraComparator
+from .. import CCobraComparator, CCobraTaskEncoder, CCobraResponseEncoder
 from ..data import CCobraData
 from ..propositional.task_encoder_prop import PropositionalTaskEncoder
 from ..syllogistic.task_encoder_syl import SyllogisticTaskEncoder
@@ -124,7 +124,7 @@ def prepare_task_encoders(encoder_paths, base_path):
         # accordingly).
         enc = None
         with contextmanager.dir_context(encoder_path):
-            imp = modelimporter.ModelImporter(encoder_path, superclass=encoders.CCobraTaskEncoder)
+            imp = modelimporter.ModelImporter(encoder_path, superclass=CCobraTaskEncoder)
             enc = imp.instantiate()
 
         if not enc:
@@ -159,7 +159,7 @@ def prepare_resp_encoders(encoder_paths, base_path):
         # accordingly).
         enc = None
         with contextmanager.dir_context(encoder_path):
-            imp = modelimporter.ModelImporter(encoder_path, superclass=encoders.CCobraResponseEncoder)
+            imp = modelimporter.ModelImporter(encoder_path, superclass=CCobraResponseEncoder)
             enc = imp.instantiate()
 
         if not enc:

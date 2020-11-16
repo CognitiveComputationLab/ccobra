@@ -73,4 +73,4 @@ class PropositionalResponseEncoder(CCobraResponseEncoder):
 
         """
 
-        return PropositionalEncoder.encode_clause(response[0])
+        return PropositionalResponseEncoder.encode_clause(response[0])

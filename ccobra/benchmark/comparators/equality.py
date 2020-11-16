@@ -2,7 +2,7 @@
 
 """
 
-from ccobra import CCobraComparator
+from ccobra import CCobraComparator, tuple_to_string
 
 
 class EqualityComparator(CCobraComparator):
@@ -29,7 +29,7 @@ class EqualityComparator(CCobraComparator):
 
         """
 
-        return int(comparator.tuple_to_string(obj_a) == comparator.tuple_to_string(obj_b))
+        return int(tuple_to_string(obj_a) == tuple_to_string(obj_b))
 
     def get_name(self):
         """ Returns the name of the comparator.

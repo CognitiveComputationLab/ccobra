@@ -2,7 +2,7 @@
 
 """
 
-from ccobra import CCobraComparator
+from ccobra import CCobraComparator, tuple_to_string
 
 
 class NVCComparator(CCobraComparator):
@@ -30,8 +30,8 @@ class NVCComparator(CCobraComparator):
 
         """
 
-        is_nvc_a = comparator.tuple_to_string(obj_a) == 'NVC'
-        is_nvc_b = comparator.tuple_to_string(obj_b) == 'NVC'
+        is_nvc_a = tuple_to_string(obj_a) == 'NVC'
+        is_nvc_b = tuple_to_string(obj_b) == 'NVC'
         return int(is_nvc_a == is_nvc_b)
 
     def get_name(self):
