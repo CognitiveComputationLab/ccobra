@@ -1,3 +1,10 @@
+## Version 1.2.1
+
+- Fix cache issue
+- Fix issue causing package to load on linux
+- Add squared difference comparator
+- Work on documentation
+
 ## Version 1.2.0
 
 - Change row marking in model_log visualization to alternate between colors
