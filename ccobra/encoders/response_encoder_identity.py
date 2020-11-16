@@ -3,9 +3,9 @@ should be shown in the results.
 
 """
 
-import ccobra.encoders as encoders
+from ccobra import CCobraResponseEncoder
 
-class IdentityResponseEncoder(encoders.CCobraResponseEncoder):
+class IdentityResponseEncoder(CCobraResponseEncoder):
     """ Identity encoder. Returns the response without further encoding
 
     """

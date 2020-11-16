@@ -2,9 +2,9 @@
 
 """
 
-import ccobra
+from ccobra import CCobraTaskEncoder
 
-class SyllogisticTaskEncoder(ccobra.encoders.CCobraTaskEncoder):
+class SyllogisticTaskEncoder(CCobraTaskEncoder):
     """ Syllogistic encoder. Provides functions for abbreviating syllogistic tasks.
 
     """

@@ -8,11 +8,12 @@ import os
 
 import pandas as pd
 
-from . import comparator
+from . import comparators
 from . import contextmanager
 from . import modelimporter
 from . import evaluation_handler
 from .. import encoders
+from .. import CCobraComparator
 from ..data import CCobraData
 from ..propositional.task_encoder_prop import PropositionalTaskEncoder
 from ..syllogistic.task_encoder_syl import SyllogisticTaskEncoder
@@ -178,7 +179,7 @@ def prepare_comparator(comparator_path):
 
     Returns
     -------
-    ccobra.benchmark.comparator.Comparator
+    ccobra.CCobraComparator
         Comparator object.
 
     """
@@ -186,7 +187,7 @@ def prepare_comparator(comparator_path):
     comp = None
 
     with contextmanager.dir_context(comparator_path):
-        imp = modelimporter.ModelImporter(comparator_path, superclass=comparator.Comparator)
+        imp = modelimporter.ModelImporter(comparator_path, superclass=CCobraComparator)
         comp = imp.instantiate()
 
     if not comp:
@@ -343,7 +344,7 @@ class Benchmark():
 
         Returns
         -------
-        ccobra.benchmark.comparator.Comparator
+        ccobra.CCobraComparator
             Comparator object.
 
         """
@@ -351,11 +352,13 @@ class Benchmark():
         # Create the comparator instance
         logger.debug('Comparator string: %s', comparator_str)
         if comparator_str == 'equality':
-            return comparator.EqualityComparator()
+            return comparators.EqualityComparator()
         elif comparator_str == 'nvc':
-            return comparator.NVCComparator()
+            return comparators.NVCComparator()
         elif comparator_str == 'absdiff':
-            return comparator.AbsDiffComparator()
+            return comparators.AbsDiffComparator()
+        elif comparator_str == 'squareddiff':
+            return comparators.SquaredDiffComparator()
 
         logger.debug('Nonlabel comparator string: %s', comparator_str)
 

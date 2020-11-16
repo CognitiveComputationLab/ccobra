@@ -4,10 +4,10 @@
 
 import numpy as np
 
-import ccobra.benchmark.comparator as comparator
+from ccobra import CCobraComparator
 
 
-class AbsDiffComparator(comparator.Comparator):
+class AbsDiffComparator(CCobraComparator):
     """ Absolute differences comparator.
 
     """
@@ -37,12 +37,12 @@ class AbsDiffComparator(comparator.Comparator):
         return np.abs(num_a - num_b)
 
     def get_name(self):
-        """ Returns the name of the comparator
+        """ Returns the name of the comparator.
 
         Returns
         -------
         string
-            Comparator name
+            Comparator name.
 
         """
 

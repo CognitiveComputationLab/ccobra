@@ -2,10 +2,10 @@
 
 """
 
-import ccobra.benchmark.comparator as comparator
+from ccobra import CCobraComparator
 
 
-class NVCComparator(comparator.Comparator):
+class NVCComparator(CCobraComparator):
     """ NVC response comparator. Performs the evaluation based on NVC and non-NVC classes.
 
     """
@@ -35,12 +35,12 @@ class NVCComparator(comparator.Comparator):
         return int(is_nvc_a == is_nvc_b)
 
     def get_name(self):
-        """ Returns the name of the comparator
+        """ Returns the name of the comparator.
 
         Returns
         -------
         string
-            Comparator name
+            Comparator name.
 
         """
 

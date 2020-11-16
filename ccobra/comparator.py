@@ -58,25 +58,25 @@ def tuple_to_string(tuptup):
     return tup
 
 
-class Comparator():
+class CCobraComparator():
     """ Comparator base class.
 
     """
 
-    def compare(self, obj_a, obj_b):
+    def compare(self, prediction, target):
         """ Base comparison method.
 
         Parameters
         ----------
-        obj_a : object
-            Object A for comparison.
+        prediction : object
+            Prediction object for comparison.
 
-        obj_b : object
-            Object B for comparison.
+        target : object
+            Target object for comparison.
 
         Returns
         -------
-        object
+        float
             Comparison result.
 
         """
@@ -84,12 +84,12 @@ class Comparator():
         raise NotImplementedError()
 
     def get_name(self):
-        """ Returns the name of the comparator
+        """ Returns the name of the comparator.
 
         Returns
         -------
         string
-            Comparator name
+            Comparator name.
 
         """
 

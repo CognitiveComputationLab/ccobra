@@ -2,7 +2,7 @@
 
 """
 
-import ccobra
+from ccobra import CCobraTaskEncoder
 
 OPERATORS = [
     'not',
@@ -12,7 +12,7 @@ OPERATORS = [
     'if'
 ]
 
-class PropositionalTaskEncoder(ccobra.encoders.CCobraTaskEncoder):
+class PropositionalTaskEncoder(CCobraTaskEncoder):
     """ Syllogistic encoder. Provides functions for abbreviating syllogistic tasks.
 
     """

@@ -1,5 +1,9 @@
 """ CCOBRA Module
 
+.. rubric:: Functions
+
+.. autofunction:: tuple_to_string
+
 .. rubric:: Submodules
 
 .. autosummary::
@@ -13,9 +17,15 @@
 
 .. rubric:: Classes
 
+.. autoclass:: CCobraComparator
+    :members:
 .. autoclass:: CCobraData
     :members:
 .. autoclass:: CCobraModel
+    :members:
+.. autoclass:: CCobraResponseEncoder
+    :members:
+.. autoclass:: CCobraTaskEncoder
     :members:
 .. autoclass:: Item
     :members:
@@ -28,6 +38,8 @@ from .version import __version__
 from .data import CCobraData
 from .item import Item
 from .model import CCobraModel
+from .encoder import CCobraTaskEncoder, CCobraResponseEncoder
+from .comparator import CCobraComparator, tuple_to_string
 
 from . import encoders
 from . import benchmark

@@ -2,9 +2,10 @@
 
 """
 
-import ccobra
+from ccobra import CCobraResponseEncoder
 
-class SyllogisticResponseEncoder(ccobra.encoders.CCobraResponseEncoder):
+
+class SyllogisticResponseEncoder(CCobraResponseEncoder):
     """ Syllogistic encoder. Provides functions for abbreviating syllogistic responses.
 
     """

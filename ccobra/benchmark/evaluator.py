@@ -11,7 +11,6 @@ import pandas as pd
 
 from ..model import CCobraModel
 
-from . import comparator
 from . import contextmanager
 from . import modelimporter
 

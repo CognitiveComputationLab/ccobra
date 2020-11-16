@@ -2,7 +2,7 @@
 
 """
 
-import ccobra
+from ccobra import CCobraResponseEncoder
 
 
 # Quantifier encodings
@@ -19,7 +19,7 @@ QUANTIFIERS_SYLLOGISTIC_GENERALIZED_ENCODING = {
     'Some not': 'O',
 }
 
-class GeneralizedSyllogisticResponseEncoder(ccobra.encoders.CCobraResponseEncoder):
+class GeneralizedSyllogisticResponseEncoder(CCobraResponseEncoder):
     """ Generalized Syllogistic encoder. Provides functions for abbreviating generalized
     syllogistic responses.
 

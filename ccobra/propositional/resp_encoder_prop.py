@@ -2,7 +2,7 @@
 
 """
 
-import ccobra
+from ccobra import CCobraResponseEncoder
 
 OPERATORS = [
     'not',
@@ -12,7 +12,7 @@ OPERATORS = [
     'if'
 ]
 
-class PropositionalResponseEncoder(ccobra.encoders.CCobraResponseEncoder):
+class PropositionalResponseEncoder(CCobraResponseEncoder):
     """ Syllogistic encoder. Provides functions for abbreviating syllogistic responses.
 
     """

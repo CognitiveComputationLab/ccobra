@@ -3,7 +3,7 @@ import copy
 import pandas as pd
 import numpy as np
 
-from . import comparator
+from .. import tuple_to_string
 
 class EvaluationHandler():
     def __init__(self, data_column, comparator, predict_fn_name, adapt_fn_name, task_encoders, resp_encoders):
@@ -38,8 +38,8 @@ class EvaluationHandler():
             'sequence': item.sequence_number,
             'task': item.task_str,
             'choices': item.choices_str,
-            'truth': comparator.tuple_to_string(target),
-            'prediction': comparator.tuple_to_string(prediction),
+            'truth': tuple_to_string(target),
+            'prediction': tuple_to_string(prediction),
             'score': score
         }
 

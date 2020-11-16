@@ -2,10 +2,10 @@
 
 """
 
-import ccobra.benchmark.comparator as comparator
+from ccobra import CCobraComparator
 
 
-class EqualityComparator(comparator.Comparator):
+class EqualityComparator(CCobraComparator):
     """ Equality comparator. Checks if both responses are equal.
 
     """
@@ -32,12 +32,12 @@ class EqualityComparator(comparator.Comparator):
         return int(comparator.tuple_to_string(obj_a) == comparator.tuple_to_string(obj_b))
 
     def get_name(self):
-        """ Returns the name of the comparator
+        """ Returns the name of the comparator.
 
         Returns
         -------
         string
-            Comparator name
+            Comparator name.
 
         """
 

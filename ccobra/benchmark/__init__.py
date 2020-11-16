@@ -5,7 +5,7 @@
 .. autosummary::
    :toctree: _autosummary
 
-   ccobra.benchmark.comparator
+   ccobra.benchmark.comparators
 
 .. rubric:: Functions
 
@@ -30,7 +30,7 @@
 
 """
 
-from . import comparator
+from . import comparators
 
 from .benchmark import Benchmark, ModelInfo, fix_rel_path, fix_model_path
 from .contextmanager import dir_context
