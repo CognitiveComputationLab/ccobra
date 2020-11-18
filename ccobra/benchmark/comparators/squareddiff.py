@@ -4,7 +4,7 @@
 
 import numpy as np
 
-from ccobra import CCobraComparator
+from ccobra import CCobraComparator, unnest
 
 
 class SquaredDiffComparator(CCobraComparator):
@@ -18,11 +18,11 @@ class SquaredDiffComparator(CCobraComparator):
 
         Parameters
         ----------
-        num_a : float
-            Number A.
+        num_a : tuple
+            Tuple containing number A.
 
-        num_b : float
-            Number B.
+        num_b : tuple
+            Tuple containing number B.
 
         Returns
         -------
@@ -31,10 +31,17 @@ class SquaredDiffComparator(CCobraComparator):
 
         """
 
-        if not isinstance(num_a, (int, float)) or not isinstance(num_b, (int, float)):
+        inner_a = unnest(num_a)
+        inner_b = unnest(num_b)
+        
+        if isinstance(inner_a, str):
+            inner_a = float(inner_a)
+        if isinstance(inner_b, str):
+            inner_b = float(inner_b)
+        if not isinstance(inner_a, (int, float)) or not isinstance(inner_b, (int, float)):
             raise ValueError('Incompatible value types for comparison.')
 
-        return (num_a - num_b) ** 2
+        return (inner_a - inner_b) ** 2
 
     def get_name(self):
         """ Returns the name of the comparator.

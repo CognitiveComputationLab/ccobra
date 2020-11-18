@@ -4,7 +4,7 @@
 
 import numpy as np
 
-from ccobra import CCobraComparator
+from ccobra import CCobraComparator, unnest
 
 
 class AbsDiffComparator(CCobraComparator):
@@ -18,11 +18,11 @@ class AbsDiffComparator(CCobraComparator):
 
         Parameters
         ----------
-        num_a : float
-            Number A.
+        num_a : tuple
+            Tuple containing number A.
 
-        num_b : float
-            Number B.
+        num_b : tuple
+            Tuple containing number B.
 
         Returns
         -------
@@ -30,11 +30,17 @@ class AbsDiffComparator(CCobraComparator):
             Absolute difference between the differences.
 
         """
-
-        if not isinstance(num_a, (int, float)) or not isinstance(num_b, (int, float)):
+        inner_a = unnest(num_a)
+        inner_b = unnest(num_b)
+        
+        if isinstance(inner_a, str):
+            inner_a = float(inner_a)
+        if isinstance(inner_b, str):
+            inner_b = float(inner_b)
+        if not isinstance(inner_a, (int, float)) or not isinstance(inner_b, (int, float)):
             raise ValueError('Incompatible value types for comparison.')
 
-        return np.abs(num_a - num_b)
+        return np.abs(inner_a - inner_b)
 
     def get_name(self):
         """ Returns the name of the comparator.

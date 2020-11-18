@@ -28,7 +28,6 @@ class EqualityComparator(CCobraComparator):
             True if both objects are equal, false otherwise.
 
         """
-
         return int(tuple_to_string(obj_a) == tuple_to_string(obj_b))
 
     def get_name(self):

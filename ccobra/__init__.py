@@ -39,7 +39,7 @@ from .data import CCobraData
 from .item import Item
 from .model import CCobraModel
 from .encoder import CCobraTaskEncoder, CCobraResponseEncoder
-from .comparator import CCobraComparator, tuple_to_string
+from .comparator import CCobraComparator, tuple_to_string, unnest
 
 from . import encoders
 from . import benchmark

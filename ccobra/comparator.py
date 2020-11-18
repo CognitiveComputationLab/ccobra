@@ -43,7 +43,7 @@ def tuple_to_string(tuptup):
         """
 
         if not isinstance(tup, list):
-            return tup
+            return str(tup)
         if not isinstance(tup[0], list):
             return sep.join(tup)
 
@@ -57,6 +57,28 @@ def tuple_to_string(tuptup):
     tup = join_deepest(tup, '|')
     return tup
 
+""" Unnests a nested tuple. If an element is insight nested lists, the function
+    returns the element, otherwise the list is returned.
+
+    Parameters
+    ----------
+    tup : list
+        Nested tuples.
+
+    Returns
+    -------
+    object
+        Element or list without unneccessary nesting.
+
+    """
+def unnest(tup):
+    while True:
+        if not isinstance(tup, list):
+            return tup
+        if len(tup) != 1:
+            return tup
+        
+        tup = tup[0]
 
 class CCobraComparator():
     """ Comparator base class.
