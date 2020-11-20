@@ -2,7 +2,11 @@
 
 .. rubric:: Functions
 
+.. autofunction:: convert_to_basic_types
+
 .. autofunction:: tuple_to_string
+
+.. autofunction:: unnest
 
 .. rubric:: Submodules
 
@@ -35,11 +39,12 @@
 
 from .version import __version__
 
+from .helper import convert_to_basic_types, tuple_to_string, unnest
 from .data import CCobraData
 from .item import Item
 from .model import CCobraModel
 from .encoder import CCobraTaskEncoder, CCobraResponseEncoder
-from .comparator import CCobraComparator, tuple_to_string, unnest
+from .comparator import CCobraComparator
 
 from . import encoders
 from . import benchmark

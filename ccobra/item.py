@@ -2,6 +2,8 @@
 
 """
 
+from . import convert_to_basic_types
+
 class Item():
     """ Container class for representing task items.
 
@@ -53,6 +55,7 @@ class Item():
         self.choices = [x.split('/') for x in choices.split('|')]
         for idx in range(len(self.choices)):
             self.choices[idx] = [x.split(';') for x in self.choices[idx]]
+        self.choices = convert_to_basic_types(self.choices)
 
         #: Domain of the task
         self.domain = domain

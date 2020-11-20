@@ -140,7 +140,7 @@ class CCobraModel():
 
         Parameters
         ----------
-        item : ccobra.data.Item
+        item : ccobra.Item
             Task information container. Holds the task text, response type,
             response choices, etc.
 
@@ -158,7 +158,7 @@ class CCobraModel():
 
         Parameters
         ----------
-        item : ccobra.data.Item
+        item : ccobra.Item
             Task information container. Holds the task text, response type,
             response choices, etc.
 

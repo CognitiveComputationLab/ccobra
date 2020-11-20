@@ -27,6 +27,8 @@
     :members:
 .. autoclass:: ModelImporter
     :members:
+.. autoclass:: EvaluationHandler
+    :members:
 
 """
 

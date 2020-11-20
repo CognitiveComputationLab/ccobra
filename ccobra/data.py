@@ -5,8 +5,8 @@
 import copy
 import logging
 
+from . import convert_to_basic_types
 from .item import Item
-
 
 # Initialize module-level logger
 logger = logging.getLogger(__name__)
@@ -150,7 +150,7 @@ class CCobraData():
                         responses = responses[0]
                 else:
                     responses = task_series['response']
-                task_dict['response'] = responses
+                task_dict['response'] = convert_to_basic_types(responses)
 
                 # Parse the auxiliary targets
                 for target_col in self.target_columns:
