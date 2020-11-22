@@ -7,7 +7,7 @@ class CCobraComparator():
 
     """
 
-    def compare(self, prediction, target):
+    def compare(self, prediction, target, response_type, choices):
         """ Base comparison method.
 
         Parameters
@@ -17,6 +17,12 @@ class CCobraComparator():
 
         target : object
             Target object for comparison.
+            
+        response_type : string
+            The response type of the prediction and target.
+            
+        choices : list(object)
+            The choice options that were available for this comparison.
 
         Returns
         -------

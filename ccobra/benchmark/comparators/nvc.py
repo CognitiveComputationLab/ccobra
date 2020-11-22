@@ -10,18 +10,23 @@ class NVCComparator(CCobraComparator):
 
     """
 
-    @staticmethod
-    def compare(obj_a, obj_b):
+    def compare(self, prediction, target, response_type, choices):
         """ Compares two response objects based on their NVCness. Only returns true if both
         responses are in agreement with either responding NVC or not NVC.
 
         Parameters
         ----------
-        obj_a : tuple
+        prediction : tuple
             Response tuple A for comparison.
 
-        obj_b : tuple
+        target : tuple
             Response tuple B for comparison.
+            
+        response_type : string
+            The response type of the prediction and target.
+            
+        choices : list(object)
+            The choice options that were available for this comparison.
 
         Returns
         -------
@@ -30,8 +35,11 @@ class NVCComparator(CCobraComparator):
 
         """
 
-        is_nvc_a = tuple_to_string(obj_a) == 'NVC'
-        is_nvc_b = tuple_to_string(obj_b) == 'NVC'
+        if response_type == "multiple-choice":
+            raise ValueError('NVC Accuracy Comparator is incompatible with the multiple-choice response type.')
+
+        is_nvc_a = tuple_to_string(prediction) == 'NVC'
+        is_nvc_b = tuple_to_string(target) == 'NVC'
         return int(is_nvc_a == is_nvc_b)
 
     def get_name(self):

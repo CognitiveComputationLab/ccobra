@@ -78,7 +78,7 @@ class EvaluationHandler():
 
         prediction = pred_fn(item, **aux)
         
-        score = self.comparator.compare(prediction, target)
+        score = self.comparator.compare(prediction, target, item.response_type, item.choices)
 
         # Collect the evaluation result data
         res_dict = {
@@ -115,6 +115,18 @@ class EvaluationHandler():
 
                 res_dict['truth_enc_{}'.format(self.data_column)] = truth_enc
                 res_dict['prediction_enc_{}'.format(self.data_column)] = prediction_enc
+            elif item.response_type == "multiple-choice":
+                if not isinstance(prediction, list):
+                    raise ValueError("A list of responses is required for multiple-choice predictions, but '{}' predicted '{}'".format(modelname, prediction))
+                
+                pred_encs = np.nan
+                truth_encs = np.nan
+                if domain in self.resp_encoders:
+                    pred_encs = "|".join([self.resp_encoders[domain].encode_response(x, item.task) for x in prediction])
+                    truth_encs = "|".join([self.resp_encoders[domain].encode_response(x, item.task) for x in target])
+                res_dict['prediction_enc_{}'.format(self.data_column)] = pred_encs
+                res_dict['truth_enc_{}'.format(self.data_column)] = truth_encs
+                
             else:
                 truth_enc = self.resp_encoders[domain].encode_response(target, item.task) if domain in self.resp_encoders else np.nan
                 prediction_enc = self.resp_encoders[domain].encode_response(prediction, item.task) if domain in self.resp_encoders else np.nan

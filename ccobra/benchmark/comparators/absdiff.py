@@ -12,17 +12,22 @@ class AbsDiffComparator(CCobraComparator):
 
     """
 
-    @staticmethod
-    def compare(num_a, num_b):
+    def compare(self, prediction, target, response_type, choices):
         """ Compares two response numbers based on their absolute difference.
 
         Parameters
         ----------
-        num_a : tuple
+        prediction : tuple
             Tuple containing number A.
 
-        num_b : tuple
+        target : tuple
             Tuple containing number B.
+                
+        response_type : string
+            The response type of the prediction and target.
+            
+        choices : list(object)
+            The choice options that were available for this comparison.
 
         Returns
         -------
@@ -30,8 +35,12 @@ class AbsDiffComparator(CCobraComparator):
             Absolute difference between the differences.
 
         """
-        inner_a = unnest(num_a)
-        inner_b = unnest(num_b)
+        
+        if response_type == "multiple-choice":
+            raise ValueError('The Absolute Difference Comparator is incompatible with the multiple-choice response type.')
+        
+        inner_a = unnest(prediction)
+        inner_b = unnest(target)
         
         if isinstance(inner_a, str):
             inner_a = float(inner_a)
