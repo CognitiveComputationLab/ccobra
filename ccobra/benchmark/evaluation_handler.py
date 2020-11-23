@@ -122,8 +122,8 @@ class EvaluationHandler():
                 pred_encs = np.nan
                 truth_encs = np.nan
                 if domain in self.resp_encoders:
-                    pred_encs = "|".join([self.resp_encoders[domain].encode_response(x, item.task) for x in prediction])
-                    truth_encs = "|".join([self.resp_encoders[domain].encode_response(x, item.task) for x in target])
+                    pred_encs = "|".join(sorted([self.resp_encoders[domain].encode_response(x, item.task) for x in prediction]))
+                    truth_encs = "|".join(sorted([self.resp_encoders[domain].encode_response(x, item.task) for x in target]))
                 res_dict['prediction_enc_{}'.format(self.data_column)] = pred_encs
                 res_dict['truth_enc_{}'.format(self.data_column)] = truth_encs
                 
