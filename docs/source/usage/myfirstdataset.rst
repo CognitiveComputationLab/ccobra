@@ -200,6 +200,8 @@ differences in study design are captured in the possible values for
 3. ``verify``: A single conclusion to a problem is presented and the
    participant is instructed to decide on whether it is valid or invalid
    (e.g., by clicking on buttons labelled true or false)
+4. ``free``: The response does not fit in the other categories (e.g., number
+   responses to math problems, percentages or freely typed responses)
 
 In the experiment underlying the Ragni2016_ dataset, the nine possible
 conclusion options for syllogistic problems were presented. Subjects had to
@@ -212,7 +214,9 @@ Choices
 The ``choices`` column provides the information about which responses can be
 given by participants. In case of single-choice or multiple-choice response
 types, choices contains the full set of responses provided to the participants.
-In case of verify, the single conclusion to be verified is contained.
+In case of verify, the single conclusion to be verified is contained. When using
+the free response type, the choices should describe the constraints for the
+responses in a meaningful way (e.g., the range of a number).
 
 In similar spirit to the task column, the choices can be encoded as well.
 Different unrelated conclusion options are delimited via ``|`` while ``/`` and
