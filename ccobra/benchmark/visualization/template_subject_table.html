@@ -75,18 +75,21 @@
         subjectResults = subjectDict_{{PLOT_TYPE}}[selection];
         uniqueTasks_{{PLOT_TYPE}}.forEach(function(task) {
             taskResults = subjectResults[task];
-            table_html += "<tr>";
-            table_html += "<td>" + task + "</td>";
-            truth = taskResults["_truth"];
-            uniqueModels_{{PLOT_TYPE}}.forEach(function(model) {
-                prediction = taskResults[model];
-                if(prediction == truth)
-                    table_html += "<td corrpred>" + prediction + "</td>";
-                else
-                    table_html += "<td>" + prediction + "</td>";
-            });
-            table_html += "<td>" + taskResults["_truth"] + "</td>";
-            table_html += "</tr>";
+            if (taskResults != null) {
+                console.debug(taskResults);
+                table_html += "<tr>";
+                table_html += "<td>" + task + "</td>";
+                truth = taskResults["_truth"];
+                uniqueModels_{{PLOT_TYPE}}.forEach(function(model) {
+                    prediction = taskResults[model];
+                    if(prediction == truth)
+                        table_html += "<td corrpred>" + prediction + "</td>";
+                    else
+                        table_html += "<td>" + prediction + "</td>";
+                });
+                table_html += "<td>" + taskResults["_truth"] + "</td>";
+                table_html += "</tr>";
+            }
         });
         document.getElementById("subject_table_container_{{PLOT_TYPE}}").innerHTML = table_html;
     }
