@@ -1,6 +1,12 @@
-## New changes
+## Version 1.2.2
 
 - Fix table visualization HTML code to work on server again
+- Add multiple choice response type support
+- Add encoder support for verify response type
+- Add basic type support in choices and responses
+- Fix subject table visualization from breaking on incomplete data
+- Change propositional encoder from using "," to using ";"
+- Update documentation
 
 ## Version 1.2.1
 
