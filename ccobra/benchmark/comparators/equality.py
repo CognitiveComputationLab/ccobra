@@ -4,7 +4,7 @@
 
 import numpy as np
 
-from ccobra import CCobraComparator, tuple_to_string
+from ccobra import CCobraComparator, tuple_to_string, unnest
 
 
 class EqualityComparator(CCobraComparator):
@@ -25,10 +25,10 @@ class EqualityComparator(CCobraComparator):
 
         target : tuple
             Response tuple B for comparison.
-            
+
         response_type : string
             The response type of the prediction and target.
-            
+
         choices : list(object)
             The choice options that were available for this comparison.
 
@@ -38,20 +38,31 @@ class EqualityComparator(CCobraComparator):
             True if both objects are equal, false otherwise.
 
         """
-        
+
         if response_type == "multiple-choice":
 
             string_choices = [tuple_to_string(x) for x in choices]
             string_preds = [tuple_to_string(x) for x in prediction]
             string_target = [tuple_to_string(x) for x in target]
-            
+
             choices_pred = [x in string_preds for x in string_choices]
             choices_target = [x in string_target for x in string_choices]
 
             overlap = np.array(choices_pred) == np.array(choices_target)
             score = np.sum(overlap) / len(choices)
             return score
-        
+
+        elif response_type == 'single-choice':
+
+            inner_pred = unnest(prediction)
+            inner_targ = unnest(target)
+
+            # For basic types, check directly for equality
+            basic_types = (int, float, bool)
+            if isinstance(inner_pred, basic_types) and isinstance(inner_targ, basic_types):
+                return int(inner_pred == inner_targ)
+
+        # For tuple types, create string representation for equality check
         return int(tuple_to_string(prediction) == tuple_to_string(target))
 
     def get_name(self):

@@ -1,3 +1,7 @@
+## Uncommitted Changes
+
+- Add basic type handling for single choice evaluation setting
+
 ## Version 1.2.2
 
 - Fix table visualization HTML code to work on server again

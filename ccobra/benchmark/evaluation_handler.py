@@ -77,7 +77,8 @@ class EvaluationHandler():
             raise NotImplementedError("{} has to be implemented in {}".format(self.predict_fn_name, modelname))
 
         prediction = pred_fn(item, **aux)
-        
+
+        # Compute the prediction score
         score = self.comparator.compare(prediction, target, item.response_type, item.choices)
 
         # Collect the evaluation result data
@@ -103,13 +104,13 @@ class EvaluationHandler():
             if item.response_type == "verify":
                 if len(item.choices) != 1:
                     raise ValueError("Only a single choice is allowed for response type 'verify'")
-                
+
                 truth_enc = np.nan
                 prediction_enc = np.nan
                 if domain in self.resp_encoders:
                     verification_target = item.choices[0]
                     verification_enc = self.resp_encoders[domain].encode_response(verification_target, item.task)
-                
+
                     prediction_enc = "{};{}".format(verification_enc, prediction)
                     truth_enc = "{};{}".format(verification_enc, target)
 
@@ -118,7 +119,7 @@ class EvaluationHandler():
             elif item.response_type == "multiple-choice":
                 if not isinstance(prediction, list):
                     raise ValueError("A list of responses is required for multiple-choice predictions, but '{}' predicted '{}'".format(modelname, prediction))
-                
+
                 pred_encs = np.nan
                 truth_encs = np.nan
                 if domain in self.resp_encoders:
@@ -126,7 +127,7 @@ class EvaluationHandler():
                     truth_encs = "|".join(sorted([self.resp_encoders[domain].encode_response(x, item.task) for x in target]))
                 res_dict['prediction_enc_{}'.format(self.data_column)] = pred_encs
                 res_dict['truth_enc_{}'.format(self.data_column)] = truth_encs
-                
+
             else:
                 truth_enc = self.resp_encoders[domain].encode_response(target, item.task) if domain in self.resp_encoders else np.nan
                 prediction_enc = self.resp_encoders[domain].encode_response(prediction, item.task) if domain in self.resp_encoders else np.nan
