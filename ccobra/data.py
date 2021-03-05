@@ -129,7 +129,8 @@ class CCobraData():
             subj_df = subj_df.sort_values('sequence')
 
             subj_data = []
-            for _, task_series in subj_df.iterrows():
+            for task_series in subj_df.itertuples():
+                task_series = task_series._asdict()
                 task_dict = {}
 
                 # Extract the task information
@@ -167,7 +168,7 @@ class CCobraData():
 
                 # Add auxiliary elements from the data
                 aux = {}
-                for key, value in task_series.iteritems():
+                for key, value in task_series.items():
                     if key not in self.required_fields + ['_unique_id']:
                         aux[key] = value
                 task_dict['aux'] = aux
