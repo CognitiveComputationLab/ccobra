@@ -1,6 +1,7 @@
 ## Uncommitted Changes
 
 - Add basic type handling for single choice evaluation setting
+- Add "|" handling to Item class
 
 ## Version 1.2.2
 

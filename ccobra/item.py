@@ -46,7 +46,12 @@ class Item():
         self.task_str = task
 
         #: Task in list representation
-        self.task = [x.split(";") for x in task.split("/") if x]
+        self.task = [x.split('/') for x in task.split('|')]
+        for idx in range(len(self.task)):
+            self.task[idx] = [x.split(';') for x in self.task[idx]]
+
+        if len(self.task) == 1:
+            self.task = self.task[0]
 
         #: Choices string representation
         self.choices_str = choices
