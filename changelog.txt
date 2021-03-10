@@ -3,6 +3,7 @@
 - Add basic type handling for single choice evaluation setting
 - Add "|" handling to Item class
 - Change iterrows to itertuples for speedup of evaluator construction
+- Add fullcoverage evaluation type
 
 ## Version 1.2.2
 

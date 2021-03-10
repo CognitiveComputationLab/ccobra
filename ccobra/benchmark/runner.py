@@ -21,6 +21,7 @@ import pandas as pd
 
 from . import benchmark as bmark
 from . import evaluator
+from . import evaluator_fullcoverage
 from .visualization import html_creator, viz_plot
 
 from ..version import __version__
@@ -116,7 +117,12 @@ def main(args):
 
     # Run the model evaluation
     is_silent = (args['output'] in ['html', 'server'])
-    eva = evaluator.Evaluator(benchmark, is_silent=is_silent, cache_df=cache_df)
+    eva = None
+    if benchmark.type == 'fullcoverage':
+        eva = evaluator_fullcoverage.EvaluatorFullCoverage(benchmark, is_silent=is_silent, cache_df=cache_df)
+    else:
+        eva = evaluator.Evaluator(benchmark, is_silent=is_silent, cache_df=cache_df)
+
     with silence_stdout(is_silent):
         res_df, model_log = eva.evaluate()
 

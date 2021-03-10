@@ -318,18 +318,18 @@ class Benchmark():
         self.parse_data()
 
         # Verify
-        if self.type == 'coverage':
+        if self.type == 'coverage' or self.type == 'fullcoverage':
             if self.data_pre_train_person is not None:
                 raise ValueError('data.pre_train_person is not allowed in coverage evaluation.')
 
     def parse_type(self):
-        """ Parses the benchmark type (prediction, adaption, coverage).
+        """ Parses the benchmark type (prediction, adaption, coverage, fullcoverage).
 
         """
 
         # Set type and validate
         self.type = self.json_content.get('type', 'adaption')
-        if self.type not in ['prediction', 'adaption', 'coverage']:
+        if self.type not in ['prediction', 'adaption', 'coverage', 'fullcoverage']:
             raise ValueError('Unsupported evaluation type: {}'.format(self.type))
         logger.debug('Evaluation type: %s', self.type)
 

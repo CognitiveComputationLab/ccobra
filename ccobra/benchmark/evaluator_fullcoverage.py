@@ -18,7 +18,7 @@ from . import modelimporter
 # Initialize module-level logger
 logger = logging.getLogger(__name__)
 
-class Evaluator():
+class EvaluatorFullCoverage():
     """ CCOBRA evaluation routine.
 
     """
@@ -64,7 +64,7 @@ class Evaluator():
             logger.debug('Supplied person background data to evaluation.')
             self.dict_pre_person_background = benchmark.data_pre_person_background.to_eval_dict()
 
-        if benchmark.type == 'coverage':
+        if benchmark.type == 'coverage' or benchmark.type == 'fullcoverage':
             self.dict_pre_train_person = self.dict_test
 
         # Extract the functionality to apply
@@ -176,12 +176,6 @@ class Evaluator():
                         cur_train_data = self.dict_pre_person_background.get(subj_key_identifier, [])
                         model.pre_person_background(cur_train_data)
 
-                    # Perform person training
-                    if self.do_pre_train_person:
-                        logger.debug('Person training for %s...', model_name)
-                        subj_person_train_data = self.dict_pre_train_person.get(subj_key_identifier, [])
-                        model.pre_train_person(subj_person_train_data)
-
                     # Iterate over individual tasks
                     start_eval = time.time()
                     for task_idx, task in enumerate(subj_data):
@@ -191,25 +185,28 @@ class Evaluator():
                         # Integrity checks
                         assert task['item'].identifier == subj_id
 
+                        # Create task model
+                        task_model = copy.deepcopy(model)
+
+                        # Perform person training
+                        if self.do_pre_train_person:
+                            logger.debug('Person training for %s...', model_name)
+                            subj_person_train_data = self.dict_pre_train_person.get(subj_key_identifier, [])
+                            task_model.pre_train_person(copy.deepcopy([x for idx, x in enumerate(subj_person_train_data) if idx != task_idx]))
+
                         # Query models for predictions
                         for eh in self.benchmark.evaluation_handlers:
                             target = task[eh.data_column]
-                            eh.predict(model, model_name, task['item'], target, task['aux'])
+                            eh.predict(task_model, model_name, task['item'], target, task['aux'])
 
                         # Perform model adaption
                         if self.do_adapt:
                             for eh in self.benchmark.evaluation_handlers:
                                 target = task[eh.data_column]
-                                eh.adapt(model, task['item'], task['full'])
+                                eh.adapt(task_model, task['item'], task['full'])
 
                         logger.debug(
                             'Task {} took {:4f}s'.format(task_idx + 1, time.time() - start_task))
-
-                    # Finalize subject evaluation and allow the model to store parameters
-                    model_log = {}
-                    model.end_participant(subj_id, model_log)
-                    if len(model_log) > 0:
-                        model_logging_dict[subj_id]= model_log
 
                     logger.debug('Subject evaluation took {:.4}s'.format(time.time() - start_eval))
                     logger.info('Subject {} done. took {:.4}s'.format(
