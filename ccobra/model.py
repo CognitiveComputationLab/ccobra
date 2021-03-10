@@ -144,6 +144,9 @@ class CCobraModel():
             Task information container. Holds the task text, response type,
             response choices, etc.
 
+        model_log : dict
+            Container for logging prediction-based information.
+
         Returns
         -------
         str
