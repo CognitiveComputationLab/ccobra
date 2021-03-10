@@ -129,8 +129,7 @@ class CCobraData():
             subj_df = subj_df.sort_values('sequence')
 
             subj_data = []
-            for task_series in subj_df.itertuples():
-                task_series = task_series._asdict()
+            for _, task_series in subj_df.iterrows():
                 task_dict = {}
 
                 # Extract the task information

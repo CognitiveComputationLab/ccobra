@@ -3,6 +3,7 @@
 """
 
 import copy
+import json
 
 import pandas as pd
 import numpy as np
@@ -76,7 +77,8 @@ class EvaluationHandler():
         if pred_fn is None:
             raise NotImplementedError("{} has to be implemented in {}".format(self.predict_fn_name, modelname))
 
-        prediction = pred_fn(item, **aux)
+        model_log = {}
+        prediction = pred_fn(item, model_log=model_log, **aux)
 
         # Compute the prediction score
         score = self.comparator.compare(prediction, target, item.response_type, item.choices)
@@ -92,7 +94,8 @@ class EvaluationHandler():
             'choices': item.choices_str,
             'truth': tuple_to_string(target),
             'prediction': tuple_to_string(prediction),
-            'score': score
+            'score': score,
+            'model_log': json.dumps(model_log)
         }
 
         if self.task_encoders:

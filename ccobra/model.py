@@ -135,7 +135,7 @@ class CCobraModel():
 
         pass
 
-    def predict(self, item, **kwargs):
+    def predict(self, item, model_log, **kwargs):
         """ Generates a single response prediction for a given task.
 
         Parameters
