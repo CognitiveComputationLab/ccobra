@@ -22,7 +22,7 @@ class RandomModel(ccobra.CCobraModel):
         """
 
         super(RandomModel, self).__init__(
-            name, ["spatial-relational"], ["verify", "single-choice"])
+            name, ["spatial-relational"], ["verify", "accept", "single-choice"])
 
     def predict(self, item, **kwargs):
         """ Predicts weighted responses to a given syllogism.

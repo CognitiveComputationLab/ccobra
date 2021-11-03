@@ -199,8 +199,15 @@ differences in study design are captured in the possible values for
    boxes next to the possible responses)
 3. ``verify``: A single conclusion to a problem is presented and the
    participant is instructed to decide on whether it is valid or invalid
-   (e.g., by clicking on buttons labelled true or false)
-4. ``free``: The response does not fit in the other categories (e.g., number
+   (e.g., by clicking on buttons labelled true or false). The participant
+   is usually instructed to check if the conclusion follows from the
+   problem description.
+4. ``accept``: A single conclusion to a problem is presented and the
+   participant is instructed to decide on whether it is possible or impossible
+   (e.g., by clicking on buttons labelled true or false). The difference to
+   verification task is that the participant is asked if the conclusion is
+   in line (but does not necessarily follow) from the problem description.
+5. ``free``: The response does not fit in the other categories (e.g., number
    responses to math problems, percentages or freely typed responses)
 
 In the experiment underlying the Ragni2016_ dataset, the nine possible
@@ -214,7 +221,7 @@ Choices
 The ``choices`` column provides the information about which responses can be
 given by participants. In case of single-choice or multiple-choice response
 types, choices contains the full set of responses provided to the participants.
-In case of verify, the single conclusion to be verified is contained. When using
+In case of verify and accept, the single conclusion to be verified is contained. When using
 the free response type, the choices should describe the constraints for the
 responses in a meaningful way (e.g., the range of a number).
 
@@ -238,10 +245,10 @@ Response
 ^^^^^^^^
 
 The ``response`` column provides the actual response given by the experimental
-participant. In case of verify response types, it is either true or false to
-indicate validity and invalidity, respectively. For the other response types,
-the column contains the selected conclusion(s) from the set of possible response
-options (i.e., the choices column).
+participant. In case of verify or accept response types, it is either true or
+false to indicate validity and invalidity, respectively. For the other response
+types, the column contains the selected conclusion(s) from the set of possible
+response options (i.e., the choices column).
 
 Again, the string encoding of the response (as introduced in task and choices)
 is used.

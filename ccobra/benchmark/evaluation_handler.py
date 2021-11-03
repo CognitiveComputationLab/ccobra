@@ -100,9 +100,9 @@ class EvaluationHandler():
 
         if self.resp_encoders:
             domain = res_dict['domain']
-            if item.response_type == "verify":
+            if item.response_type == "verify" or item.response_type == "accept":
                 if len(item.choices) != 1:
-                    raise ValueError("Only a single choice is allowed for response type 'verify'")
+                    raise ValueError("Only a single choice is allowed for response types 'verify' and 'accept'")
                 
                 truth_enc = np.nan
                 prediction_enc = np.nan

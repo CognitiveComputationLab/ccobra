@@ -317,7 +317,7 @@ class Benchmark():
         self.parse_models()
         self.parse_data()
 
-        # Verify
+        # Verify conditions for coverage
         if self.type == 'coverage':
             if self.data_pre_train_person is not None:
                 raise ValueError('data.pre_train_person is not allowed in coverage evaluation.')

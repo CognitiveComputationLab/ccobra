@@ -1,10 +1,8 @@
 {
-    "type": "adaption",
+    "type": "coverage",
     "data.test": "data/Ragni2018_smalllarge.csv",
-    "data.pre_train": "data/Ragni2018_smalllarge.csv",
-    "corresponding_data": true,
     "domains": ["spatial-relational"],
-    "response_types": ["verify"],
+    "response_types": ["accept"],
     "models": [
         "models/Baseline/Random-Model/random_model.py",
         "models/Baseline/Transitive-Closure/transitive_closure.py"
