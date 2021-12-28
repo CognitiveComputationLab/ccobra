@@ -1,3 +1,8 @@
+## Version 1.3.0
+
+- Add "accept" task type
+- Extend transitive closure model
+
 ## Version 1.2.2
 
 - Fix table visualization HTML code to work on server again
