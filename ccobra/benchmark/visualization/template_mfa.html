@@ -5,6 +5,7 @@
 <script>
     // Container Data
     var mfa_data = {{MFA_DATA}};
+	var response_type = {{RESPONSE_TYPE}};
 
     // Start generating the table
     var table_html = '<table class="mfa" align="center">';
@@ -38,15 +39,53 @@
             // Extract responses
             var pred = mfa_data[syllog][model];
             var mfa = mfa_data[syllog]['DATA'];
+			
 
-            // Check if it hits the MFA
-            if (model != 'DATA' && pred == mfa) {
-                table_html += '<td corrpred>';
-            } else if (model != 'DATA' && mfa.split('<br>').filter(val => pred.split('<br>').includes(val)).length > 0) {
-                table_html += '<td inclpred>';
-            } else {
-                table_html += '<td>';
-            }
+			var is_multiple = response_type == "multiple";
+			
+			// Check if it hits the MFA
+			if(!is_multiple) {
+				if (model != 'DATA' && pred == mfa) {
+					table_html += '<td corrpred>';
+				} else if (model != 'DATA' && mfa.split('<br>').filter(val => pred.split('<br>').includes(val)).length > 0) {
+					table_html += '<td inclpred>';
+				} else {
+					table_html += '<td>';
+				}
+			} else {
+				if (model != 'DATA' && pred == mfa) {
+					table_html += '<td corrpred>';
+				} else if(model != 'DATA'){
+					
+					let mfa_resps = mfa.split('<br>');
+					let pred_resps = pred.split('<br>');
+
+					let all_resps = [];
+					for (const mfa_resp of mfa_resps) {
+						for (const single_mfa_resp of mfa_resp.split('|')) {
+							all_resps.push(single_mfa_resp);
+						}
+					}
+					let hasIntersection = false;
+					loop1:
+					for (const pred_resp of pred_resps) {
+						loop2:
+						for (const single_resp of pred_resp.split('|')) {
+							if(all_resps.includes(single_resp)) {
+								hasIntersection = true;
+								break loop1;
+							}
+						}
+					}
+					if(hasIntersection) {
+						table_html += '<td inclpred>';
+					} else {
+						table_html += '<td>';
+					}
+				} else {
+					table_html += '<td>';
+				}
+			}
 
             table_html += pred + "</td>";
         }

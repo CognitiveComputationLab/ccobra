@@ -183,7 +183,7 @@ class AccuracyVisualizer(PlotVisualizer):
         data_column = "score_{}".format(eval_handler.data_column)
 
         acc_df = result_df.groupby(
-            'model', as_index=False)[data_column].agg(['mean', 'std']).sort_values('mean')
+            'model', as_index=True)[data_column].agg(['mean', 'std']).sort_values('mean')
 
         n_models = len(acc_df.index.tolist())
         alpha = '80'
@@ -351,6 +351,7 @@ class MFATableVisualizer(PlotVisualizer):
             # Add data MFA
             truth_counts = collections.Counter(task_df['truth_enc_response'])
             truth_max_count = max([x[1] for x in truth_counts.items()])
+                
             mfa = '<br>'.join(
                 sorted([x[0] for x in truth_counts.items() if x[1] == truth_max_count]))
             mfa_dict[task]['DATA'] = mfa
@@ -360,6 +361,7 @@ class MFATableVisualizer(PlotVisualizer):
 
         return {
             'MFA_DATA': json.dumps(mfa_dict),
+            'RESPONSE_TYPE': json.dumps("multiple" if "multiple-choice" in result_df["response_type"].values else "default"),
             'TEXT': 'The following table summarizes the most-frequent ' \
                 + 'predictions from the models to each syllogism.'
         }
@@ -421,6 +423,7 @@ class SubjectTableVisualizer(PlotVisualizer):
         return {
             'PRED_ENC_NAME' : pred_enc_name,
             'TRUTH_ENC_NAME' : truth_enc_name,
+            'RESPONSE_TYPE': json.dumps("multiple" if "multiple-choice" in result_df["response_type"].values else "default"),
             'TEXT': 'The following section shows the results for specific subjects. Please select the subject' \
             + ' identifier using the selection box below.'
         }

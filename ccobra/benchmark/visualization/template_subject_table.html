@@ -12,6 +12,8 @@
 <script>
 	var subj_table_predenc_name_{{PLOT_TYPE}} = "{{PRED_ENC_NAME}}";
 	var subj_table_truthenc_name_{{PLOT_TYPE}} = "{{TRUTH_ENC_NAME}}";
+	var response_type = {{RESPONSE_TYPE}};
+	
     function readData(rows) {
         var subjectDict_{{PLOT_TYPE}} = {};
         var models = new Set();
@@ -72,6 +74,8 @@
         table_html += header.join("</th><th>");
         table_html += "</th></tr>";
 
+		var is_multiple = response_type == "multiple";
+
         subjectResults = subjectDict_{{PLOT_TYPE}}[selection];
         uniqueTasks_{{PLOT_TYPE}}.forEach(function(task) {
             taskResults = subjectResults[task];
@@ -80,13 +84,32 @@
                 table_html += "<tr>";
                 table_html += "<td>" + task + "</td>";
                 truth = taskResults["_truth"];
-                uniqueModels_{{PLOT_TYPE}}.forEach(function(model) {
-                    prediction = taskResults[model];
-                    if(prediction == truth)
-                        table_html += "<td corrpred>" + prediction + "</td>";
-                    else
-                        table_html += "<td>" + prediction + "</td>";
-                });
+				
+				if(is_multiple) {
+					uniqueModels_{{PLOT_TYPE}}.forEach(function(model) {
+						prediction = taskResults[model];
+						pred_split = prediction.split("|");
+						truth_split = truth.split("|");
+						var intersection = pred_split.filter(function(n) {
+							return truth_split.indexOf(n) !== -1;
+						});
+						if(prediction == truth)
+							table_html += "<td corrpred>" + prediction + "</td>";
+						else if(intersection.length > 0)
+							table_html += "<td inclpred>" + prediction + "</td>";
+						else
+							table_html += "<td>" + prediction + "</td>";
+					});
+				} else {
+					uniqueModels_{{PLOT_TYPE}}.forEach(function(model) {
+						prediction = taskResults[model];
+						if(prediction == truth)
+							table_html += "<td corrpred>" + prediction + "</td>";
+						else
+							table_html += "<td>" + prediction + "</td>";
+					});
+				}
+                
                 table_html += "<td>" + taskResults["_truth"] + "</td>";
                 table_html += "</tr>";
             }

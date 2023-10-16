@@ -167,7 +167,8 @@ class CCobraData():
 
                 # Add auxiliary elements from the data
                 aux = {}
-                for key, value in task_series.iteritems():
+
+                for key, value in task_series.items():
                     if key not in self.required_fields + ['_unique_id']:
                         aux[key] = value
                 task_dict['aux'] = aux
