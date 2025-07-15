@@ -15,6 +15,7 @@ import logging
 import os
 import sys
 import webbrowser
+import json
 from contextlib import contextmanager
 
 import pandas as pd
@@ -38,14 +39,15 @@ def parse_arguments():
 
     parser = argparse.ArgumentParser(description='CCOBRA version {}.'.format(__version__))
     parser.add_argument('benchmark', type=str, help='Benchmark file.')
-    parser.add_argument('-m', '--model', type=str, help='Model file.')
     parser.add_argument(
-        '-o', '--output', type=str, default='browser', help='Output style (browser/server).')
-    parser.add_argument('-c', '--cache', type=str, help='Load specified cache file.')
+        '-o', '--output', type=str, default='browser', help='Output style (browser/server/file/none).')
     parser.add_argument('-s', '--save', type=str, help='Store results as csv table.')
+    parser.add_argument('-ml', '--modellog', type=str, help='Store model log as a json file.')
+    parser.add_argument('-m', '--model', type=str, help='Model file to include to the benchmark.')
     parser.add_argument(
         '-cn', '--classname', type=str, default=None,
         help='Load a specific class from a folder containing multiple classes.')
+    parser.add_argument('-c', '--cache', type=str, help='Load specified cache file.')
     parser.add_argument(
         '-ll', '--logginglevel', type=str, default='NONE',
         help='Set logging level [NONE, DEBUG, INFO, WARNING].'
@@ -120,26 +122,29 @@ def main(args):
     with silence_stdout(is_silent):
         res_df, model_log = eva.evaluate()
 
-    if 'save' in args:
+    if 'save' in args and args['save'] is not None:
         res_df.to_csv(args['save'], index=False)
+    
+    if 'modellog' in args and args['modellog'] is not None:
+        with codecs.open(args['modellog'], 'w', 'utf-8') as modellogfile:
+            json.dump(model_log, modellogfile)
 
     # Create metrics dictionary
-    #(TODO: check if there is a good way of dynamically specify the visualization)
     default_list = [
-        viz_plot.AccuracyVisualizer(),
-        viz_plot.BoxplotVisualizer(),
-        viz_plot.SubjectTableVisualizer()
+        viz_plot.AccuracyVisualizer(benchmark),
+        viz_plot.BoxplotVisualizer(benchmark),
+        viz_plot.SubjectTableVisualizer(benchmark)
     ]
     metrics = []
     for idx, eva in enumerate(benchmark.evaluation_handlers):
         if idx == 0:
             metrics.append((
                 eva, [
-                    viz_plot.AccuracyVisualizer(),
-                    viz_plot.BoxplotVisualizer(),
-                    viz_plot.SubjectTableVisualizer(),
-                    viz_plot.MFATableVisualizer(),
-                    viz_plot.ModelLogVisualizer()
+                    viz_plot.AccuracyVisualizer(benchmark),
+                    viz_plot.BoxplotVisualizer(benchmark),
+                    viz_plot.SubjectTableVisualizer(benchmark),
+                    viz_plot.MFATableVisualizer(benchmark),
+                    viz_plot.ModelLogVisualizer(benchmark)
                 ]))
         else:
             metrics.append((
@@ -182,7 +187,7 @@ def main(args):
     if args['output'] == 'server':
         html = htmlcrtr.to_html(res_df, benchmark_info, model_log, embedded=True)
         sys.stdout.buffer.write(html.encode('utf-8'))
-    else:
+    elif args['output'] != 'none':
         html = htmlcrtr.to_html(res_df, benchmark_info, model_log, embedded=False)
 
         # Save HTML output to file
@@ -195,7 +200,8 @@ def main(args):
             html_out.write(html)
 
         # Open HTML output in default browser
-        webbrowser.open('file://' + os.path.realpath(html_filepath))
+        if args['output'] == 'browser':
+            webbrowser.open('file://' + os.path.realpath(html_filepath))
 
 def entry_point():
     """ Entry point for the CCOBRA executables.
@@ -213,14 +219,12 @@ def entry_point():
     try:
         main(args)
     except Exception as exc:
-        if args['output'] != 'html':
+        if args['output'] not in ['html', 'server']:
             raise
         msg = 'Error: ' + str(exc)
-        if args['output'] == 'html':
-            print('<p>{}</p><script>document.getElementById(\"result\").style.backgroundColor ' \
-                '= \"Tomato\";</script>'.format(msg))
-        else:
-            print(exc)
+        print('<p>{}</p><script>document.getElementById(\"result\").style.backgroundColor ' \
+            '= \"Tomato\";</script>'.format(msg))
+
         sys.exit()
 
 if __name__ == '__main__':

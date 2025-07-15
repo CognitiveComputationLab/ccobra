@@ -66,6 +66,8 @@ class Evaluator():
 
         if benchmark.type == 'coverage':
             self.dict_pre_train_person = self.dict_test
+        if benchmark.type == 'loo-coverage':
+            self.dict_pre_train_person = self.dict_test
 
         # Extract the functionality to apply
         self.do_adapt = (benchmark.type == 'adaption')
@@ -177,7 +179,7 @@ class Evaluator():
                         model.pre_person_background(cur_train_data)
 
                     # Perform person training
-                    if self.do_pre_train_person:
+                    if (self.benchmark.type != 'loo-coverage') and self.do_pre_train_person:
                         logger.debug('Person training for %s...', model_name)
                         subj_person_train_data = self.dict_pre_train_person.get(subj_key_identifier, [])
                         model.pre_train_person(subj_person_train_data)
@@ -191,25 +193,45 @@ class Evaluator():
                         # Integrity checks
                         assert task['item'].identifier == subj_id
 
-                        # Query models for predictions
-                        for eh in self.benchmark.evaluation_handlers:
-                            target = task[eh.data_column]
-                            eh.predict(model, model_name, task['item'], target, task['aux'])
-
-                        # Perform model adaption
-                        if self.do_adapt:
+                        # If there is no leave-one-out coverage
+                        if self.benchmark.type != 'loo-coverage':
+                            # Query models for predictions
                             for eh in self.benchmark.evaluation_handlers:
                                 target = task[eh.data_column]
-                                eh.adapt(model, task['item'], task['full'])
+                                eh.predict(model, model_name, task['item'], target, task['aux'])
 
+                            # Perform model adaption
+                            if self.do_adapt:
+                                for eh in self.benchmark.evaluation_handlers:
+                                    target = task[eh.data_column]
+                                    eh.adapt(model, task['item'], task['full'])
+                        # In LOO-coverage, the model has to be pretrained for every single task
+                        else:
+                            task_model = copy.deepcopy(model)
+                            
+                            logger.debug('Person training for %s...', model_name)
+                            subj_person_train_data = self.dict_pre_train_person.get(subj_key_identifier, [])
+                            subj_person_train_data = subj_person_train_data[:task_idx] + subj_person_train_data[task_idx + 1:]
+                            task_model.pre_train_person(subj_person_train_data)
+                            
+                            # Query models for predictions
+                            for eh in self.benchmark.evaluation_handlers:
+                                target = task[eh.data_column]
+                                eh.predict(task_model, model_name, task['item'], target, task['aux'])
+                            
+                            model_log = {}
+                            task_model.end_participant(subj_id, model_log)
+                            if len(model_log) > 0:
+                                model_logging_dict["{}_{}".format(subj_id, task_idx)] = model_log
                         logger.debug(
                             'Task {} took {:4f}s'.format(task_idx + 1, time.time() - start_task))
 
                     # Finalize subject evaluation and allow the model to store parameters
-                    model_log = {}
-                    model.end_participant(subj_id, model_log)
-                    if len(model_log) > 0:
-                        model_logging_dict[subj_id]= model_log
+                    if (self.benchmark.type != 'loo-coverage'):
+                        model_log = {}
+                        model.end_participant(subj_id, model_log)
+                        if len(model_log) > 0:
+                            model_logging_dict[subj_id]= model_log
 
                     logger.debug('Subject evaluation took {:.4}s'.format(time.time() - start_eval))
                     logger.debug('Subject {} done. took {:.4}s'.format(

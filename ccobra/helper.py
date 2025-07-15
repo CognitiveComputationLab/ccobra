@@ -4,8 +4,6 @@
 
 import copy
 
-import numpy as np
-
 def convert_to_basic_types(elem):
     """ Converts an element to primitive types. If the element
     is a list, the inner elements will be converted instead.

@@ -1,4 +1,5 @@
-""" Generalized Syllogistic submodule.
+""" Generalized Syllogistic submodule that contains utility functionality to facilitate
+modeling and analyses in the domain of syllogistic reasoning with generalized quantifiers.
 
 .. rubric:: Functions
 

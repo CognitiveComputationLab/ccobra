@@ -318,18 +318,18 @@ class Benchmark():
         self.parse_data()
 
         # Verify conditions for coverage
-        if self.type == 'coverage':
+        if self.type == 'coverage' or self.type == 'loo-coverage':
             if self.data_pre_train_person is not None:
                 raise ValueError('data.pre_train_person is not allowed in coverage evaluation.')
 
     def parse_type(self):
-        """ Parses the benchmark type (prediction, adaption, coverage).
+        """ Parses the benchmark type (prediction, adaption, coverage, loo-coverage).
 
         """
 
         # Set type and validate
         self.type = self.json_content.get('type', 'adaption')
-        if self.type not in ['prediction', 'adaption', 'coverage']:
+        if self.type not in ['prediction', 'adaption', 'coverage', 'loo-coverage']:
             raise ValueError('Unsupported evaluation type: {}'.format(self.type))
         logger.debug('Evaluation type: %s', self.type)
 
@@ -522,7 +522,7 @@ class Benchmark():
             domain_related_df = data_train_only_df.loc[data_train_only_df['domain'].isin(self.data_test.domains)]
 
             if data_pre_train_person_df is not None:
-                domain_related_df = pd.concat(domain_related_df, data_pre_train_person_df)
+                domain_related_df = pd.concat([domain_related_df, data_pre_train_person_df])
 
             if not domain_related_df.empty:
                 self.data_pre_train_person = CCobraData(domain_related_df.drop(columns='_unique_id'), target_columns=self.evaluation_targets)

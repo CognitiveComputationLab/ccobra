@@ -14,6 +14,7 @@ Welcome to CCOBRA's documentation!
    usage/myfirstdataset.rst
    usage/myfirstbenchmark.rst
    usage/myfirstmodel.rst
+   usage/runningccobra.rst
 
 .. toctree::
    :caption: Concepts

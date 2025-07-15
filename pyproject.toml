@@ -1,0 +1,39 @@
+[build-system]
+requires = [
+	"setuptools",
+	"numpy",
+	"pandas"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ccobra"
+description = "The CCOBRA framework."
+license="MIT"
+dynamic = ["version"]
+readme = "README.md"
+authors = [
+    {name = "Nicolas Riesterer", email = "riestern@tf.uni-freiburg.de"},
+    {name = "Daniel Brand", email = "daniel.brand@metech.tu-chemnitz.de"},
+]
+classifiers = [
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+]
+
+[project.urls]
+Repository = "https://github.com/CognitiveComputationLab/ccobra"
+Homepage = "https://www.pva.tu-chemnitz.de/ccobra/"
+
+[project.scripts]
+ccobra = "ccobra.benchmark.runner:entry_point"
+
+[tool.setuptools.dynamic]
+version = {attr = "ccobra.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["."]
+exclude = ["tests", "tests.*"]
+
+[tool.setuptools.package-data]
+"ccobra.benchmark.visualization" = ["*.js", "*.html", "*.css"]

@@ -42,11 +42,14 @@ class PlotVisualizer():
 
     """
 
-    def __init__(self, template_file, template_CSS=None):
+    def __init__(self, benchmark, template_file, template_CSS=None):
         """ Initializes the Plot visualizer based on a template HTML filepath.
 
         Parameters
         ----------
+        benchmark : dict(str, object)
+            Benchmark properties.
+
         template_file : str
             Path to the template file underlying this visualizer.
 
@@ -59,6 +62,7 @@ class PlotVisualizer():
 
         # Member variables
         self.template_CSS = template_CSS
+        self.benchmark = benchmark
 
         # Load the HTML template
         self.template = ''
@@ -152,12 +156,15 @@ class AccuracyVisualizer(PlotVisualizer):
 
     """
 
-    def __init__(self):
+    def __init__(self, benchmark):
         """ Constructs the visualizer by providing the super class with the html template.
 
+            Parameters
+            ----------
+            benchmark : dict(str, object)
+                Benchmark properties.
         """
-
-        super(AccuracyVisualizer, self).__init__('template_accuracy.html')
+        super(AccuracyVisualizer, self).__init__(benchmark, 'template_accuracy.html')
 
     def get_content_dict(self, result_df, eval_handler, model_log):
         """ Constructs the template-html mapping dictionary.
@@ -219,6 +226,7 @@ class AccuracyVisualizer(PlotVisualizer):
         """
         return "Bar Plot: {} ({})".format(
             eval_handler.comparator.get_name(), eval_handler.data_column)
+
 class BoxplotVisualizer(PlotVisualizer):
     """ Subject-Based boxplot visualizer for the CCOBRA evaluation results.
     Depicts boxplots for predictive accuracies on individuals as well as
@@ -226,12 +234,16 @@ class BoxplotVisualizer(PlotVisualizer):
 
     """
 
-    def __init__(self):
+    def __init__(self, benchmark):
         """ Constructs the visualizer by providing the super class with the html template.
 
+            Parameters
+            ----------
+            benchmark : dict(str, object)
+                Benchmark properties.
         """
 
-        super(BoxplotVisualizer, self).__init__('template_box.html')
+        super(BoxplotVisualizer, self).__init__(benchmark, 'template_box.html')
 
     def get_content_dict(self, result_df, eval_handler, model_log):
         """ Constructs the template-html mapping dictionary.
@@ -309,8 +321,15 @@ class MFATableVisualizer(PlotVisualizer):
 
     """
 
-    def __init__(self):
-        super(MFATableVisualizer, self).__init__('template_mfa.html', 'template_mfa.css')
+    def __init__(self, benchmark):
+        """ Constructs the visualizer by providing the super class with the html template.
+
+            Parameters
+            ----------
+            benchmark : dict(str, object)
+                Benchmark properties.
+        """
+        super(MFATableVisualizer, self).__init__(benchmark, 'template_mfa.html', template_CSS='template_mfa.css')
 
     def get_content_dict(self, result_df, eval_handler, model_log):
         """ Constructs the template-html mapping dictionary.
@@ -383,8 +402,15 @@ class SubjectTableVisualizer(PlotVisualizer):
 
     """
 
-    def __init__(self):
-        super(SubjectTableVisualizer, self).__init__('template_subject_table.html', 'template_subject_table.css')
+    def __init__(self, benchmark):
+        """ Constructs the visualizer by providing the super class with the html template.
+
+            Parameters
+            ----------
+            benchmark : dict(str, object)
+                Benchmark properties.
+        """
+        super(SubjectTableVisualizer, self).__init__(benchmark, 'template_subject_table.html', template_CSS='template_subject_table.css')
 
     def get_content_dict(self, result_df, eval_handler, model_log):
         """ Constructs the template-html mapping dictionary.
@@ -445,8 +471,15 @@ class ModelLogVisualizer(PlotVisualizer):
 
     """
 
-    def __init__(self):
-        super(ModelLogVisualizer, self).__init__('template_model_log.html', 'template_model_log.css')
+    def __init__(self, benchmark):
+        """ Constructs the visualizer by providing the super class with the html template.
+
+            Parameters
+            ----------
+            benchmark : dict(str, object)
+                Benchmark properties.
+        """
+        super(ModelLogVisualizer, self).__init__(benchmark, 'template_model_log.html', template_CSS='template_model_log.css')
 
     def get_content_dict(self, result_df, eval_handler, model_log):
         """ Constructs the template-html mapping dictionary.
@@ -475,6 +508,7 @@ class ModelLogVisualizer(PlotVisualizer):
 
         return {
             'MODEL_LOGS' : json.dumps(model_log),
+            'ANALYSIS_TYPE': json.dumps(self.benchmark.type),
             'TEXT' : 'Logged information from the models.'
         }
 

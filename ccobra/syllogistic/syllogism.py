@@ -104,6 +104,113 @@ SYLLOGISTIC_FOL_RESPONSES = {
     'OO4': ['NVC']
 }
 
+def create_data_string_task(term_A, term_B, term_C, encoded_syllog):
+    """ Generates the data string representation of a syllogistic task,
+    as required by the data format in the CSV files used by CCOBRA.
+
+    Parameters
+    ----------
+    term_A : str
+        The first end-term of the syllogism.
+    
+    term_B : str
+        The middle term of the syllogism.
+
+    term_C : str
+        The second end-term of the syllogism.
+    
+    encoded_syllog : str
+        Syllogism in encoded form (e.g., AI3).
+
+    Returns
+    -------
+    str
+        String representation of the task, as used in the CSV format of CCOBRA.
+
+    """
+    quant1 = encoded_syllog[0].replace("A", "All").replace("O", "Some not").replace("I", "Some").replace("E", "No")
+    quant2 = encoded_syllog[1].replace("A", "All").replace("O", "Some not").replace("I", "Some").replace("E", "No")
+    figure = encoded_syllog[2]
+
+    if figure == "1":
+        return "{};{};{}/{};{};{}".format(quant1, term_A, term_B, quant2, term_B, term_C)
+    if figure == "2":
+        return "{};{};{}/{};{};{}".format(quant1, term_B, term_A, quant2, term_C, term_B)
+    if figure == "3":
+        return "{};{};{}/{};{};{}".format(quant1, term_A, term_B, quant2, term_C, term_B)
+    if figure == "4":
+        return "{};{};{}/{};{};{}".format(quant1, term_B, term_A, quant2, term_B, term_C)
+
+def create_data_string_choices(term_A, term_C):
+    """ Generates the data string representation of the choices in syllogisms,
+    as required by the data format in the CSV files used by CCOBRA.
+
+    Parameters
+    ----------
+    term_A : str
+        The first end-term of the syllogism.
+
+    term_C : str
+        The second end-term of the syllogism.
+    
+    Returns
+    -------
+    str
+        String representation of the choices, as used in the CSV format of CCOBRA.
+
+    """
+    template = "All;{};{}|All;{};{}|Some;{};{}|Some;{};{}" \
+        + "|No;{};{}|No;{};{}|Some not;{};{}|Some not;{};{}|NVC"
+    return template.format(
+        term_A, term_C, 
+        term_C, term_A, 
+        term_A, term_C, 
+        term_C, term_A, 
+        term_A, term_C, 
+        term_C, term_A, 
+        term_A, term_C, 
+        term_C, term_A
+    )
+
+def create_data_string_response(term_A, term_C, response):
+    """ Generates the data string representation of a syllogistic response,
+    as required by the data format in the CSV files used by CCOBRA.
+
+    Parameters
+    ----------
+    term_A : str
+        The first end-term of the syllogism.
+
+    term_C : str
+        The second end-term of the syllogism.
+    
+    response : str
+        The response in encoded format (e.g., Iac or NVC).
+    
+    Returns
+    -------
+    str
+        String representation of the response, as used in the CSV format of CCOBRA.
+
+    """
+    response = response.lower()
+    if response == "nvc":
+        return "NVC"
+
+    is_ac = response[1:] == "ac"
+    quant = "All"
+    if response[0] == "i":
+        quant = "Some"
+    elif response[0] == "o":
+        quant = "Some not"
+    elif response[0] == "e":
+        quant = "No"
+
+    if is_ac:
+        return "{};{};{}".format(quant, term_A, term_C)
+    else:
+        return "{};{};{}".format(quant, term_C, term_A)
+
 def encode_task(task):
     """ Encodes a syllogistic task.
 

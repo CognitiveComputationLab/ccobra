@@ -12,7 +12,7 @@ a model evaluation. Benchmark files consist of the following attributes:
 ============================== ======== =====================================================================================================================================================
 Attribute                      Required Description
 ============================== ======== =====================================================================================================================================================
-``type``                       yes      Evaluation type out of [``prediction``, ``coverage``, ``adaption``].
+``type``                       yes      Evaluation type out of [``prediction``, ``coverage``, ``loo-coverage``, ``adaption``].
 ``data.test``                  yes      Evaluation data.
 ``data.pre_train``             no       Population pre-training data (fed to ``pre_train`` function).
 ``data.pre_train_person``      no       Personal pre-training data (fed to ``pre_train_person`` function). Contains data from the same domain and experiment as test.
@@ -26,6 +26,13 @@ Attribute                      Required Description
 ``comparator``                 no       Class providing a function for assigning a score to a given prediction with respect to the true response (pre-defined: `equality`, `absdiff`, `nvc`).
 ``aux_evaluations``            no       List of additional evaluation settings using auxiliary data columns as targets (e.g., reaction times in addition to responses)
 ============================== ======== =====================================================================================================================================================
+
+Benchmark Types
+:::::::::::::::
+
+The benchmark type determines what information the model is provided with before making the prediction.
+Since the selection of the right type can be crucial, it is described in detail 
+:ref:`on this page <benchmarktypes>`.
 
 Path Handling
 :::::::::::::
@@ -48,7 +55,7 @@ based on different columns in the dataset. Each of these auxiliary evaluations i
 a dictionary containing the following keys:
 
 - ``data_column``: Column in the dataset to use as prediction targets.
-- ``comparator``: See table above.
+- ``comparator``: See table above or the respective section below.
 - ``task_encoders``: See table above.
 - ``response_encoders``: See table above.
 - ``prediction_fn_name``: Name of the function to use for generating predictions (must be contained in the model).
@@ -112,8 +119,74 @@ Two models are specified to be considered in the evaluation: The
 and the
 `mfa model <https://github.com/CognitiveComputationLab/ccobra/blob/master/benchmarks/syllogistic/models/Baseline/MFA-Model/mfa_model.py>`_.
 
+Comparators
+-----------
+
+Comparators are functions used in the CCOBRA evaluation to quantify the correctness or error of a prediction.
+There are four build-in comparators that can be referenced directly:
+
+Equality
+::::::::
+
+The equality comparator is the default comparator. For everything besides multiple-choice evaluations,
+it returns 1 if the prediction and the true response are exactly equal, and 0 otherwise. For multiple-choice,
+it represents both, prediction and true response, as a binary vector (with length according to the number of choices).
+The returned value is then the mean absolute error (MAE) between those vectors.
+
+It can be used in the benchmark specification by using adding ``"comparator": "equality"``.
+
+Absolute Difference
+:::::::::::::::::::
+
+This comparator is suited for comparing number values and calculates the absolute difference.
+The CCOBRA evaluation thereby shows the MAE. For example, it is good for predicting ratings or response times.
+
+It can be used in the benchmark specification by using adding ``"comparator": "absdiff"``.
+
+Squared Difference
+:::::::::::::::::::
+
+This comparator is suited for comparing number values and calculates the squared difference.
+The CCOBRA evaluation thereby shows the mean squared error MSE. 
+
+It can be used in the benchmark specification by using adding ``"comparator": "squareddiff"``.
+
+No Valid Conclusion
+:::::::::::::::::::
+
+This is a special comparator that is suited only for single-choice tasks where no valid conclusion (NVC) is a possible response.
+In syllogistic reasoning, NVC plays a special role as the correct answer to most tasks, therefore it can be used to assess the 
+performance of models to handle exactly this response.
+
+It can be used in the benchmark specification by using adding ``"comparator": "nvc"``.
+
+Custom Comparators
+::::::::::::::::::
+
+You can create your own comparators using a custom class implementing :autolink:`ccobra.CCobraComparator`.
+To use your class in the benchmark file, simply reference the respective path to the python file:
+``"comparator": "path/to/custom_comparator.py"``.
+
+Custom Task/Response-Encoders
+:::::::::::::::::::::::::::::
+
+In similar fashion, you can use own task- or response-encoders, by writing custom classes that implement
+:autolink:`ccobra.CCobraTaskEncoder` or :autolink:`ccobra.CCobraResponseEncoder` and reference them in the
+benchmark specification. For example by adding
+
+.. code-block:: json
+
+    "task_encoders": {
+        "mydomain": "path/to/custom/my_task_encoder.py"
+    }
+
+you would add a task encoder for a domain called `mydomain`.
+
+.. note:: A task encoder and response encoder is required to obtain the most-frequent answer table in the CCOBRA output.
+    Since contents of tasks can vary, it is important for CCOBRA to know which tasks should be aggregated.
+
 Running the Benchmark
-:::::::::::::::::::::
+---------------------
 
 The evaluation specified by the benchmark file can be performed by CCOBRA by executing the
 following command (assuming the JSON file is called ``baseline-adaption.json``):
@@ -122,9 +195,4 @@ following command (assuming the JSON file is called ``baseline-adaption.json``):
 
     $> ccobra path/to/benchmark/folder/baseline-adaption.json
 
-CCOBRA generates a HTML file containing visualizations of the evaluation results and opens it
-in your system's default browser. The HTML website also offers the possibility to download
-the evaluation result data as well as images of the visualizations. The HTML file is automatically
-saved in the same folder as the benchmark JSON file.
-
-CCOBRA offers additional command-line arguments which can be displayed by running ``ccobra -h``.
+More information about running CCOBRA can be found on the page :ref:`runningccobra`.

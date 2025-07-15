@@ -16,6 +16,7 @@
 
 <script>
     var modelLogData = {{MODEL_LOGS}};
+    var analysisType = {{ANALYSIS_TYPE}};
     var currentModelLog = "";
     var currentModelName = "";
     var model_selector = document.getElementById("select_model_box");
@@ -25,13 +26,67 @@
         model_selector.appendChild(opt);
     }
 
+    function objEquality(obj1, obj2) {
+        return (obj1 && obj2 && typeof obj1 === 'object' && typeof obj2 === 'object') ?
+            (Object.keys(obj1).length === Object.keys(obj2).length) && Object.keys(obj1).reduce(function(isEqual, key) {
+                return isEqual && objEquality(obj1[key], obj2[key]);}, true)
+            : (obj1 === obj2);
+    }
+
     function showModelLog() {
         sel_model = model_selector.value;
         if(sel_model in modelLogData) {
-            modelLogs = modelLogData[sel_model];
+            let modelLogs = modelLogData[sel_model];
             currentModelLog = modelLogs;
             currentModelName = sel_model;
             document.getElementById("save_current_log_button").hidden = false;
+
+            if(analysisType === "loo-coverage") {
+                let improved_model_logs = {};
+                let temporaryCollection = [];
+
+                let lastSubj = null;
+                for(let subj_run of Object.keys(modelLogs)) {
+                    let params = modelLogs[subj_run];
+                    let splitted = subj_run.split("_");
+                    let subj = splitted.slice(0, -1).join("_");
+
+                    if(lastSubj === null) lastSubj = subj;
+
+                    if(lastSubj !== subj) {
+                        let nameIdx = 1;
+                        for(let entry of temporaryCollection) {
+                            improved_model_logs[`${entry["subj"]}<br>Config: ${nameIdx}<br>Count: ${entry["count"]}`] = entry["params"];
+                            nameIdx += 1;
+                        }
+                        temporaryCollection = [];
+                    }
+                    lastSubj = subj;
+
+                    let found = false;
+                    for(let entry of temporaryCollection) {
+                        if(objEquality(entry["params"], params)) {
+                            entry["count"] = entry["count"] + 1;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if(!found) {
+                        temporaryCollection.push({
+                            "subj": subj,
+                            "count": 1,
+                            "params": params
+                        });
+                    }
+                }
+                let nameIdx = 1;
+                for(let entry of temporaryCollection) {
+                    improved_model_logs[`${entry["subj"]}<br>Config: ${nameIdx}<br>Count: ${entry["count"]}`] = entry["params"];
+                    nameIdx += 1;
+                }
+
+                modelLogs = improved_model_logs;
+            }
 
             var table_html = '<table class="model_log_table" align="center">';
             table_html += '<tr><th>Subject</th><th>Key</th><th>Content</th></tr>';

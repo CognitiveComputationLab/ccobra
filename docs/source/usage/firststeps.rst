@@ -27,7 +27,10 @@ executable for other forms of output):
 
 .. image:: /_static/result.png
 
-The corresponding HTML code is written to a file next to the benchmark JSON following the format ``<benchmark-json-name>_<timestamp>.html``.
+The corresponding HTML code is written to a file next to the benchmark JSON following the 
+format ``<benchmark-json-name>_<timestamp>.html``. Within that HTML page, there is an overview of the results, 
+the possibility to save the dataset with the model prediction, and the model parameters (if available).
+CCOBRA also supports additional run options (see :ref:`runningccobra`).
 
 How to Proceed
 --------------

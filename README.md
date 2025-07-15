@@ -5,8 +5,7 @@
 [![GitHub license](https://img.shields.io/github/license/CognitiveComputationLab/ccobra.svg)](https://github.com/CognitiveComputationLab/ccobra/blob/master/LICENSE)
 [![DOI](https://zenodo.org/badge/144011537.svg)](https://zenodo.org/badge/latestdoi/144011537)
 
-[[API Documentation]](http://orca.informatik.uni-freiburg.de/ccobra-doc)
-[[Online Model Evaluation Platform]](http://orca.informatik.uni-freiburg.de/ccobra)
+[[API Documentation]](https://www.pva.tu-chemnitz.de/ccobra/ccobra-doc/)
 
 ## Installation
 
@@ -26,12 +25,21 @@ It is also possible to install a development version of CCOBRA. The difference t
 
 ```
 $> cd /path/to/repository/
-$> python setup.py develop [--user]
+$> python -m pip install --editable .
 ```
 
-To remove the development version, run the following commands:
+### Running CCOBRA
+
+When installed, CCOBRA can be run on a benchmark file:
 
 ```
-$> cd /path/to/repository
-$> python setup.py develop [--user] --uninstall
+$> cd /path/to/repository/
+$> ccobra benchmark.json
+```
+
+Alternatively, the runner script `run_ccobra.py` can be run instead:
+
+```
+$> cd /path/to/repository/
+$> python run_ccobra.py benchmark.json
 ```

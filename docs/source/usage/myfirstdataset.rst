@@ -175,7 +175,7 @@ and clerks):
 +==========================+======================+
 | Some models are managers | Some;models;managers |
 +--------------------------+----------------------+
-| Sll models are clerks    | All;models;clerks    |
+| All models are clerks    | All;models;clerks    |
 +--------------------------+----------------------+
 
 As a result, the full syllogistic problem is represented as

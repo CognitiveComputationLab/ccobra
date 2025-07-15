@@ -16,6 +16,7 @@
    ccobra.benchmark
    ccobra.encoders
    ccobra.propositional
+   ccobra.spatial
    ccobra.syllogistic
    ccobra.syllogistic_generalized
 
@@ -49,6 +50,7 @@ from .comparator import CCobraComparator
 from . import encoders
 from . import benchmark
 from . import propositional
+from . import spatial
 from . import syllogistic
 from . import syllogistic_generalized
 

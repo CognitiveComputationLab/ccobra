@@ -1,3 +1,13 @@
+## Version 1.5.0
+
+- Added leave-one-out coverage and respective visualization of parameters
+- Added pyproject.toml and updated setup.py to run with up-to-date setuptools and pip
+- Added possibility to run CCOBRA without opening the browser
+- Added arguments to bypass creating the HTML dashboard output
+- Added util functions to "syllogistic" (create_data_string_task, create_data_string_choices, create_data_string_response) that facilitate creation of ccobra data CSVs
+- Updated README and docs
+- Added spatial utilities
+
 ## Version 1.4.0
 
 - Fixed issues with newer versions of Pandas
